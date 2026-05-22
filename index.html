@@ -1,0 +1,2364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SG&TL | Gemstone Report Verification</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --ink: #0f1a17;
+  --muted: #5c6864;
+  --subtle: #8a9490;
+  --line: #e2e8e5;
+  --paper: #fafbfa;
+  --white: #ffffff;
+  --teal: #0d6b63;
+  --teal-dark: #084b46;
+  --teal-light: #e1f5ee;
+  --navy: #0a1215;
+  --navy-mid: #111d22;
+  --ruby: #a9253f;
+  --gold: #c4943f;
+  --gold-dark: #9e7430;
+  --gold-soft: #f0d69b;
+  --gold-glow: rgba(196, 148, 63, 0.08);
+  --shadow-lg: 0 24px 64px rgba(10, 18, 21, 0.10);
+  --shadow-md: 0 12px 32px rgba(10, 18, 21, 0.07);
+  --shadow-sm: 0 4px 12px rgba(10, 18, 21, 0.04);
+  --shadow-gold: 0 8px 32px rgba(196, 148, 63, 0.12);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --transition: 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(240, 214, 155, 0.34), transparent 26%),
+    radial-gradient(circle at 88% 6%, rgba(13, 107, 99, 0.14), transparent 30%),
+    radial-gradient(circle at 50% 92%, rgba(196, 148, 63, 0.12), transparent 30%),
+    linear-gradient(180deg, #fffdf7 0%, #f6f1e7 42%, #eef5f1 100%);
+  color: var(--ink);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  line-height: 1.6;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: rgba(196, 148, 63, 0.2); }
+a { color: inherit; text-decoration: none; }
+img { max-width: 100%; display: block; }
+
+/* ─── HEADER ─── */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px clamp(20px, 5vw, 64px);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid rgba(196, 148, 63, 0.12);
+  transition: box-shadow var(--transition);
+}
+
+.site-header.scrolled {
+  box-shadow: 0 2px 20px rgba(10, 18, 21, 0.06);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--navy);
+  border: 1.5px solid var(--gold);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(196, 148, 63, 0.18);
+  transition: transform var(--transition), box-shadow var(--transition);
+}
+
+.brand:hover .brand-mark {
+  transform: scale(1.04);
+  box-shadow: 0 6px 20px rgba(196, 148, 63, 0.25);
+}
+
+.brand-mark img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.brand-text strong {
+  display: block;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.brand-text small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.site-nav a {
+  padding: 8px 14px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+  border-radius: 999px;
+  transition: all var(--transition);
+}
+
+.site-nav a:hover {
+  color: var(--teal-dark);
+  background: rgba(13, 107, 99, 0.06);
+}
+
+.site-nav a.active {
+  color: var(--teal-dark);
+  background: rgba(13, 107, 99, 0.08);
+  border: 1px solid rgba(13, 107, 99, 0.15);
+}
+
+.site-nav a.active:hover {
+  background: rgba(13, 107, 99, 0.12);
+  transform: translateY(-1px);
+}
+
+/* ─── HERO ─── */
+.hero {
+  position: relative;
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  padding: clamp(80px, 12vw, 140px) clamp(24px, 6vw, 80px);
+  background: var(--navy);
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.45;
+  transform: scale(1.03);
+  animation: heroDrift 20s ease-in-out infinite alternate;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(105deg, rgba(10, 18, 21, 0.94) 0%, rgba(10, 18, 21, 0.7) 50%, rgba(10, 18, 21, 0.3) 100%),
+    linear-gradient(180deg, transparent 60%, rgba(10, 18, 21, 0.9) 100%);
+}
+
+.hero-glow {
+  position: absolute;
+  top: 20%;
+  right: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(ellipse, rgba(196, 148, 63, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  animation: glowPulse 6s ease-in-out infinite alternate;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 640px;
+  animation: fadeUp 800ms ease both;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.hero h1 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(40px, 6.5vw, 72px);
+  font-weight: 600;
+  line-height: 1.08;
+  color: var(--white);
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+
+.hero-copy {
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.65);
+  max-width: 520px;
+  margin-bottom: 32px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 36px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #f2d99a 0%, #c4943f 100%);
+  color: #1c160b;
+  box-shadow: 0 8px 24px rgba(196, 148, 63, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(196, 148, 63, 0.4);
+}
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.btn-secondary:hover {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.trust-strip span {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  animation: fadeUp 800ms ease both;
+}
+
+.trust-strip span:nth-child(2) { animation-delay: 100ms; }
+.trust-strip span:nth-child(3) { animation-delay: 200ms; }
+
+/* ─── SECTIONS ─── */
+.section {
+  padding: clamp(64px, 10vw, 120px) clamp(24px, 6vw, 80px);
+  position: relative;
+}
+
+.section-header {
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto 48px;
+}
+
+.section-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 10px;
+}
+
+.section-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: clamp(30px, 4vw, 48px);
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--ink);
+  margin-bottom: 14px;
+}
+
+.section-subtitle {
+  font-size: 16px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ─── VERIFY SECTION ─── */
+.verify-section {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(250, 251, 250, 0.72)),
+    radial-gradient(circle at 50% 0%, rgba(196, 148, 63, 0.10), transparent 36%);
+}
+
+.verify-card {
+  max-width: 580px;
+  margin: 0 auto;
+  padding: 40px;
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(196, 148, 63, 0.14);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md), 0 24px 90px rgba(196, 148, 63, 0.08);
+  backdrop-filter: blur(16px);
+  transition: box-shadow var(--transition);
+}
+
+.verify-card:focus-within {
+  box-shadow: var(--shadow-lg), 0 0 60px rgba(196, 148, 63, 0.08);
+}
+
+/* Verified QR section */
+.verified-qr-section {
+  display: none;
+  margin-top: 28px;
+  text-align: center;
+  animation: verifiedFadeIn 0.5s ease-out;
+}
+.verified-qr-section.show { display: block; }
+
+@keyframes verifiedFadeIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.verified-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.verified-check-svg {
+  width: 42px;
+  height: 42px;
+}
+.verified-check-circle {
+  stroke: #0d6b63;
+  stroke-width: 2;
+  stroke-dasharray: 166;
+  stroke-dashoffset: 166;
+  animation: verifiedStroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+.verified-check-path {
+  stroke: #0d6b63;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: verifiedStroke 0.35s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards;
+}
+@keyframes verifiedStroke {
+  to { stroke-dashoffset: 0; }
+}
+
+.verified-text {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--teal);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  animation: verifiedTextPop 0.4s ease 0.6s both;
+}
+@keyframes verifiedTextPop {
+  from { opacity: 0; transform: scale(0.8); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.verified-report-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin-bottom: 18px;
+  padding: 14px 18px;
+  background: rgba(13, 107, 99, 0.05);
+  border: 1px solid rgba(13, 107, 99, 0.15);
+  border-radius: var(--radius-md);
+  text-align: left;
+  font-size: 13px;
+}
+.verified-report-info .info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.verified-report-info .info-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.verified-report-info .info-value {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.verify-status-msg {
+  min-height: 20px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: center;
+  transition: color 0.2s ease;
+}
+.verify-status-msg.error { color: #a9253f; }
+.verify-status-msg.checking { color: var(--gold); }
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.input-group input {
+  flex: 1;
+  padding: 14px 18px;
+  font-size: 15px;
+  font-family: inherit;
+  font-weight: 500;
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--paper);
+  color: var(--ink);
+  transition: all var(--transition);
+  outline: none;
+}
+
+.input-group input:focus {
+  border-color: var(--gold);
+  background: var(--white);
+  box-shadow: 0 0 0 4px rgba(196, 148, 63, 0.08);
+}
+
+.input-group input::placeholder {
+  color: var(--subtle);
+  font-weight: 400;
+}
+
+.input-group button,
+.btn-gold {
+  padding: 14px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #f2d99a 0%, #c4943f 100%);
+  color: #1c160b;
+  cursor: pointer;
+  box-shadow: 0 6px 20px rgba(196, 148, 63, 0.25);
+  transition: all var(--transition);
+  white-space: nowrap;
+}
+
+.input-group button:hover,
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(196, 148, 63, 0.35);
+}
+
+.input-hint {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--subtle);
+}
+
+.trust-badges {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.trust-badge-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.trust-badge-icon {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  font-size: 13px;
+}
+
+
+.generated-qr-panel {
+  display: none;
+  max-width: 320px;
+  margin: 24px auto 0;
+  padding: 18px;
+  border: 1px solid rgba(196, 148, 63, 0.22);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: var(--shadow-sm);
+}
+
+.generated-qr-panel.show {
+  display: block;
+}
+
+.generated-qr-panel img {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 12px;
+  border: 10px solid var(--white);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(10, 18, 21, 0.08);
+}
+
+.generated-qr-title {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.generated-qr-subtitle {
+  margin: 3px 0 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.generated-qr-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #f2d99a, #c4943f);
+  color: #1c160b;
+  font-size: 13px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.generated-qr-download:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(196, 148, 63, 0.24);
+}
+
+/* ─── RESULT PANEL ─── */
+.result-panel {
+  margin-top: 28px;
+  padding: 28px;
+  border-radius: var(--radius-lg);
+  animation: resultIn 400ms ease both;
+  display: none;
+}
+
+.result-panel.show { display: block; }
+
+.result-panel.verified {
+  background: linear-gradient(135deg, #f8fdf9, #eef8f1);
+  border: 1px solid #c0ddc8;
+  border-left: 4px solid var(--teal);
+}
+
+.result-panel.invalid {
+  background: #fef8f8;
+  border: 1px solid #f0d0d0;
+  border-left: 4px solid var(--ruby);
+}
+
+.result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 999px;
+  margin-bottom: 12px;
+}
+
+.verified .result-badge { background: #d4edda; color: #085041; }
+.invalid .result-badge { background: #f8d7da; color: #721c24; }
+
+.result-stone {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.result-report-id {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 18px;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.result-metric {
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+.result-metric .label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 3px;
+}
+
+.result-metric .value {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.result-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--teal);
+  color: var(--white);
+  font-size: 13px;
+  font-weight: 700;
+  transition: all var(--transition);
+}
+
+.result-action:hover {
+  transform: translateY(-1px);
+  background: var(--teal-dark);
+}
+
+.result-notes {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 13px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* ─── ABOUT US ─── */
+.about-section {
+  background: var(--white);
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  max-width: 1000px;
+  margin: 0 auto;
+  align-items: center;
+}
+
+.about-content h3 {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--ink);
+}
+
+.about-content p {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.7;
+  margin-bottom: 14px;
+}
+
+.about-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 28px;
+}
+
+.about-stat {
+  text-align: center;
+  padding: 18px 12px;
+  background: var(--paper);
+  border-radius: var(--radius-md);
+}
+
+.about-stat .number {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--teal);
+  margin-bottom: 4px;
+}
+
+.about-stat .stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.about-image {
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--navy), var(--navy-mid));
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 320px;
+  text-align: center;
+}
+
+.about-image .lab-icon {
+  font-size: 64px;
+  margin-bottom: 18px;
+}
+
+.about-image h4 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.about-image p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+}
+
+/* ─── SERVICES ─── */
+.services-section {
+  background: var(--paper);
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.service-card {
+  padding: 32px 28px;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition);
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(196, 148, 63, 0.2);
+}
+
+.service-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 18px;
+}
+
+.service-card:nth-child(1) .service-icon { background: #faeeda; color: #854f0b; }
+.service-card:nth-child(2) .service-icon { background: #e1f5ee; color: #085041; }
+.service-card:nth-child(3) .service-icon { background: #e6f1fb; color: #0c447c; }
+
+.service-card h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.service-card p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ─── TESTIMONIALS ─── */
+.testimonials-section {
+  background: var(--white);
+}
+
+.testimonials-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.testimonial-card {
+  padding: 28px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+}
+
+.testimonial-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: rgba(196, 148, 63, 0.15);
+}
+
+.testimonial-stars {
+  color: var(--gold);
+  font-size: 14px;
+  letter-spacing: 2px;
+  margin-bottom: 14px;
+}
+
+.testimonial-card .testimonial-text {
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.7;
+  margin-bottom: 18px;
+  font-style: italic;
+  flex: 1;
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.testimonial-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--teal-light), #d4edda);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal-dark);
+}
+
+.testimonial-author-info strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.testimonial-author-info span {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ─── FAQ ─── */
+.faq-section {
+  background: var(--paper);
+}
+
+.faq-list {
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  margin-bottom: 10px;
+  background: var(--white);
+  overflow: hidden;
+  transition: all var(--transition);
+}
+
+.faq-item:hover {
+  border-color: rgba(196, 148, 63, 0.2);
+}
+
+.faq-question {
+  width: 100%;
+  padding: 18px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  text-align: left;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all var(--transition);
+}
+
+.faq-question:hover {
+  color: var(--teal-dark);
+}
+
+.faq-question .faq-icon {
+  font-size: 18px;
+  color: var(--gold);
+  transition: transform var(--transition);
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.faq-item.open .faq-question .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 300ms ease, padding 300ms ease;
+}
+
+.faq-item.open .faq-answer {
+  max-height: 300px;
+  padding: 0 22px 18px;
+}
+
+.faq-answer p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ─── STANDARDS ─── */
+.standards-section {
+  background: var(--navy);
+  color: var(--white);
+}
+
+.standards-section .section-title { color: var(--white); }
+.standards-section .section-subtitle { color: rgba(255, 255, 255, 0.55); }
+
+.standards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.standard-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.03);
+  transition: all var(--transition);
+}
+
+.standard-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(196, 148, 63, 0.2);
+}
+
+.standard-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(196, 148, 63, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--gold-soft);
+  font-size: 16px;
+}
+
+.standard-item h4 {
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.standard-item p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+}
+
+/* ─── FOOTER ─── */
+.site-footer {
+  background: var(--navy);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: clamp(48px, 8vw, 80px) clamp(24px, 6vw, 80px);
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: 48px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.footer-brand strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 8px;
+}
+
+.footer-brand p {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.6;
+  margin-bottom: 18px;
+}
+
+.footer-socials {
+  display: flex;
+  gap: 10px;
+}
+
+.footer-socials a {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 15px;
+  transition: all var(--transition);
+}
+
+.footer-socials a:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+  background: rgba(196, 148, 63, 0.08);
+}
+
+.footer-links h4 {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 16px;
+}
+
+.footer-links a {
+  display: block;
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 5px 0;
+  transition: color var(--transition);
+}
+
+.footer-links a:hover {
+  color: var(--gold-soft);
+}
+
+.footer-contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-contact-form input,
+.footer-contact-form textarea {
+  padding: 11px 14px;
+  font-size: 13px;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  color: var(--white);
+  outline: none;
+  transition: all var(--transition);
+}
+
+.gmail-input-wrap {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+  transition: all var(--transition);
+}
+
+.gmail-input-wrap:focus-within {
+  border-color: rgba(196, 148, 63, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.gmail-input-wrap input {
+  min-width: 0;
+  flex: 1;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+
+.gmail-input-wrap input:focus {
+  background: transparent;
+}
+
+.gmail-suffix {
+  flex: 0 0 auto;
+  padding: 0 14px 0 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(240, 214, 155, 0.78);
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-contact-form input:focus,
+.footer-contact-form textarea:focus {
+  border-color: rgba(196, 148, 63, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.footer-contact-form .gmail-input-wrap input:focus {
+  background: transparent;
+}
+
+.footer-contact-form input::placeholder,
+.footer-contact-form textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.footer-contact-form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.footer-contact-form button {
+  align-self: flex-start;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, #f2d99a, #c4943f);
+  color: #1c160b;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.footer-contact-form button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(196, 148, 63, 0.25);
+}
+
+.query-status {
+  min-height: 18px;
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(255,255,255,0.5);
+}
+
+.query-status.sending {
+  color: rgba(240, 214, 155, 0.84);
+}
+
+.query-status.error {
+  color: rgba(255, 128, 128, 0.9);
+}
+
+.query-status.ready {
+  color: rgba(255,255,255,0.58);
+}
+
+.sending-dots::after {
+  content: '';
+  display: inline-block;
+  width: 1.4em;
+  text-align: left;
+  animation: sendingDots 1.1s steps(4, end) infinite;
+}
+
+.footer-bottom {
+  max-width: 1000px;
+  margin: 40px auto 0;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.3);
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes resultIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sendingDots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75%, 100% { content: '...'; }
+}
+
+@keyframes heroDrift {
+  from { transform: scale(1.03); }
+  to { transform: scale(1.06); }
+}
+
+@keyframes glowPulse {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
+
+@keyframes scanLine {
+  0% { top: 15%; }
+  50% { top: 80%; }
+  100% { top: 15%; }
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 860px) {
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .about-grid { grid-template-columns: 1fr; gap: 32px; }
+  .about-stats { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 600px) {
+  .site-nav { display: none; }
+  .input-group { flex-direction: column; }
+  .hero h1 { font-size: 36px; }
+  .result-grid { grid-template-columns: 1fr 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
+  .standards-grid { grid-template-columns: 1fr; }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .testimonial-card { min-height: auto; }
+  .about-stats { grid-template-columns: 1fr; gap: 10px; }
+  .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+}
+
+/* ─── Success Popup Modal ─── */
+.sgtl-popup-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(10, 18, 21, 0.75);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  justify-content: center;
+}
+.sgtl-popup-overlay.active { display: flex; }
+
+.sgtl-popup {
+  background: linear-gradient(165deg, #0e1e23 0%, #0a1215 100%);
+  border: 1px solid rgba(196, 148, 63, 0.35);
+  border-radius: 18px;
+  padding: 44px 38px 36px;
+  max-width: 420px;
+  width: 90%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 60px rgba(196, 148, 63, 0.08);
+  animation: popupIn 400ms ease both;
+}
+
+@keyframes popupIn {
+  from { opacity: 0; transform: scale(0.85) translateY(24px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.sgtl-popup-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 20px;
+  background: linear-gradient(135deg, rgba(13, 107, 99, 0.25), rgba(196, 148, 63, 0.18));
+  border: 2px solid rgba(13, 107, 99, 0.5);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: popupCheck 500ms 200ms ease both;
+}
+@keyframes popupCheck {
+  from { opacity: 0; transform: scale(0.3); }
+  50% { transform: scale(1.15); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.sgtl-popup-icon svg {
+  width: 30px;
+  height: 30px;
+  stroke: #0d6b63;
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.sgtl-popup h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 10px;
+}
+
+.sgtl-popup p {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.sgtl-popup-btn {
+  display: inline-block;
+  padding: 12px 36px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 200ms, box-shadow 200ms;
+}
+.sgtl-popup-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px rgba(13, 107, 99, 0.3);
+}
+
+.sgtl-popup-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.4);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 200ms;
+}
+.sgtl-popup-close:hover { background: rgba(255,255,255,0.12); }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header" id="siteHeader">
+    <a href="#" class="brand">
+      <div class="brand-mark">
+        <img src="assets/sgtl-logo-animation.gif" alt="SG&TL Logo">
+      </div>
+      <div class="brand-text">
+        <strong>SG&TL</strong>
+        <small>Sunil Gems &amp; Stones Testing Laboratories</small>
+      </div>
+    </a>
+    <nav class="site-nav" aria-label="Main navigation">
+      <a href="SGTL_Landing_Page.html">Home</a>
+      <a href="#verify">Verify</a>
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact Us</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <img src="assets/gem-report-hero.png" alt="" class="hero-bg">
+      <div class="hero-overlay"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-content">
+        <p class="eyebrow">Certified Excellence</p>
+        <h1>Authenticate your gemstones with confidence</h1>
+        <p class="hero-copy">Every certificate issued by SG&TL is backed by rigorous scientific testing, advanced instrumentation, and internationally recognized gemological standards.</p>
+        <div class="hero-actions">
+          <a href="#verify" class="btn btn-primary">Verify a Report</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- VERIFY -->
+    <section class="section verify-section" id="verify">
+      <div class="section-header">
+        <p class="section-eyebrow">Report Verification</p>
+        <h2 class="section-title">Instant certificate lookup</h2>
+        <p class="section-subtitle">Enter the report number from your SG&TL certificate to verify authenticity.</p>
+      </div>
+
+      <div class="verify-card">
+          <form id="verifyForm">
+            <div class="input-group">
+              <input type="text" id="reportNumber" placeholder="SGTL-2026-XXXX" autocomplete="off" spellcheck="false">
+              <button type="submit">Verify</button>
+            </div>
+          </form>
+          <p id="verifyStatus" class="verify-status-msg"></p>
+          <div class="trust-badges">
+            <div class="trust-badge-item">
+              <span class="trust-badge-icon">&#128274;</span>
+              <span>SSL Secured</span>
+            </div>
+            <div class="trust-badge-item">
+              <span class="trust-badge-icon">&#9989;</span>
+              <span>ISO Certified</span>
+            </div>
+            <div class="trust-badge-item">
+              <span class="trust-badge-icon">&#128737;</span>
+              <span>Tamper-Proof</span>
+            </div>
+            <div class="trust-badge-item">
+              <span class="trust-badge-icon">&#9203;</span>
+              <span>Instant Result</span>
+            </div>
+          </div>
+
+          <!-- Verified QR panel (shown after successful verification) -->
+          <div class="verified-qr-section" id="verifiedQrSection">
+            <div class="verified-badge">
+              <svg class="verified-check-svg" viewBox="0 0 52 52">
+                <circle class="verified-check-circle" cx="26" cy="26" r="25" fill="none"/>
+                <path class="verified-check-path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+              </svg>
+              <span class="verified-text">Verified</span>
+            </div>
+            <div class="verified-report-info" id="verifiedReportInfo"></div>
+            <div class="generated-qr-panel show" id="generatedQrPanel">
+              <img id="generatedQrImage" alt="Generated report QR code">
+              <p class="generated-qr-title" id="generatedQrTitle"></p>
+              <p class="generated-qr-subtitle">Scan this QR code for instant certificate verification.</p>
+              <button class="generated-qr-download" id="generatedQrDownload" type="button">Download Report</button>
+            </div>
+          </div>
+      </div>
+    </section>
+
+    <!-- ABOUT US -->
+    <section class="section about-section" id="about">
+      <div class="section-header">
+        <p class="section-eyebrow">About Us</p>
+        <h2 class="section-title">India's trusted gemstone laboratory</h2>
+        <p class="section-subtitle">Delivering scientific precision and transparency to India's vibrant gemstone trade since 2000.</p>
+      </div>
+
+      <div class="about-grid">
+        <div class="about-content">
+          <h3>Precision meets heritage</h3>
+          <p>SG&TL was founded with a singular mission: to bring world-class gemological testing to India's thriving jewellery industry. Based in the heart of India's gem trade, our laboratory combines cutting-edge instrumentation with deep gemological expertise.</p>
+          <p>We understand the unique needs of the Indian market and provide certification that international buyers and domestic consumers trust equally.</p>
+          <p>Our team of certified gemologists holds leading Indian gemological institutes, ensuring every report meets the highest global standards.</p>
+          <div class="about-stats">
+            <div class="about-stat">
+              <div class="number">15K+</div>
+              <div class="stat-label">Reports Issued</div>
+            </div>
+            <div class="about-stat">
+              <div class="number">99.9%</div>
+              <div class="stat-label">Accuracy Rate</div>
+            </div>
+            <div class="about-stat">
+              <div class="number">500+</div>
+              <div class="stat-label">Trade Partners</div>
+            </div>
+          </div>
+        </div>
+        <div class="about-image">
+          <div class="lab-icon">&#128300;</div>
+          <h4>State-of-the-Art Laboratory</h4>
+          <p>Equipped with Raman spectroscopy, FTIR, UV-Vis-NIR spectrometer, EDXRF, and gemological microscopes for comprehensive analysis.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section class="section services-section" id="services">
+      <div class="section-header">
+        <p class="section-eyebrow">Our Services</p>
+        <h2 class="section-title">Comprehensive gemstone analysis</h2>
+        <p class="section-subtitle">From identification to origin determination, our laboratory offers a full suite of gemological services.</p>
+      </div>
+
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">&#9670;</div>
+          <h3>Gemstone Identification</h3>
+          <p>Full scientific identification using Raman spectroscopy, FTIR analysis, and gemological microscopy to establish species and variety.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">&#128737;</div>
+          <h3>Treatment Disclosure</h3>
+          <p>Comprehensive detection of enhancements including heat treatment, fracture filling, diffusion, and irradiation with full transparency.</p>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">&#127758;</div>
+          <h3>Origin Determination</h3>
+          <p>Geographic origin analysis using trace element chemistry and inclusion studies to establish provenance for fine gemstones.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section testimonials-section" id="testimonials">
+      <div class="section-header">
+        <p class="section-eyebrow">Testimonials</p>
+        <h2 class="section-title">Trusted by India's finest</h2>
+        <p class="section-subtitle">Jewellers, traders, and collectors across India rely on SG&TL for accurate and transparent gemstone certification.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"SG&TL's reports have become the gold standard in our showroom. Our customers trust the certification instantly. The turnaround time is exceptional — we get reports within 10 Min."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">MJ</div>
+            <div class="testimonial-author-info">
+              <strong>Mahna Jewellers</strong>
+              <span>Naraina, New Delhi</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"As a second-generation gem dealer, I've worked with many labs. SG&TL combines modern technology with genuine expertise. Their origin reports for Colombian emeralds have helped us command premium prices."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">RG</div>
+            <div class="testimonial-author-info">
+              <strong>Rudra Gems</strong>
+              <span>Rajouri Garden, New Delhi</span>
+            </div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <p class="testimonial-text">"I purchased a Neelam for my engagement and the SG&TL certificate gave my family complete peace of mind. The QR verification is brilliant — my father-in-law checked it himself on his phone. Very professional service."</p>
+          <div class="testimonial-author">
+            <div class="testimonial-avatar">PS</div>
+            <div class="testimonial-author-info">
+              <strong>Priya Sharma</strong>
+              <span>Vikas Puri, New Delhi</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+   
+    <!-- FAQ -->
+    <section class="section faq-section" id="faq">
+      <div class="section-header">
+        <p class="section-eyebrow">FAQ</p>
+        <h2 class="section-title">Common questions</h2>
+        <p class="section-subtitle">Everything you need to know about our gemstone testing and certification services.</p>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-question">
+            How long does gemstone certification take?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Standard reports are delivered within 10 Min. Walk-in submissions at our lab are also welcome during business hours.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            What gemstones do you test?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>We test all natural gemstones including diamonds, rubies, emeralds, sapphires (Neelam), cat's eye (Lehsunia), yellow sapphire (Pukhraj), coral (Moonga), pearl (Moti), hessonite (Gomed), and all other precious and semi-precious stones popular in Indian astrology and jewellery.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Can I verify my certificate online?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Yes! Every SG&TL certificate comes with a unique report number and QR code. You can verify it instantly on our website by entering the report number or scanning the QR code with your phone camera. The verification is available 24/7.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            Do you provide Navratna stone testing?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutely. We specialize in testing all nine Navratna gemstones — Ruby (Manik), Pearl (Moti), Coral (Moonga), Emerald (Panna), Yellow Sapphire (Pukhraj), Diamond (Heera), Blue Sapphire (Neelam), Hessonite (Gomed), and Cat's Eye (Lehsunia). Our reports clearly state natural origin, any treatments, and suitability for astrological use.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            What is the cost of certification?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Our pricing depends on the type of analysis required. We offer bulk pricing for jewellers and trade clients. Contact us for a detailed quotation.</p>
+          </div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-question">
+            How do I know if my stone is natural or synthetic?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Our laboratory uses advanced instruments like Raman spectroscopy, FTIR, and photoluminescence to distinguish natural from synthetic or treated stones. The difference is often invisible to the naked eye, which is why scientific testing is essential before any significant purchase — especially for high-value Jyotish gems.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer" id="contact">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <strong>SG&TL</strong>
+        <p>Sunil Gems &amp; Stones Testing Laboratories. Delivering certified excellence in gemstone analysis since 2000. Trusted by jewellers across India.</p>
+      </div>
+
+      <div class="footer-links">
+        <h4>Quick Links</h4>
+        <a href="#verify">Verify Report</a>
+        <a href="#about">About Us</a>
+        <a href="#services">Services</a>
+        <a href="#faq">FAQ</a>
+        <a href="#contact">Contact</a>
+      </div>
+
+      <div>
+        <h4 style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Quick Enquiry</h4>
+        <form class="footer-contact-form" id="queryForm">
+          <div class="gmail-input-wrap">
+            <input type="text" name="emailUser" placeholder="yourname" autocomplete="username" required>
+            <span class="gmail-suffix">@gmail.com</span>
+          </div>
+          <input type="tel" name="phone" placeholder="Phone number (optional)" autocomplete="tel">
+          <textarea name="message" placeholder="Your message" rows="3" required></textarea>
+          <button type="submit">Send Enquiry</button>
+        </form>
+        <p id="queryStatus" class="query-status" role="status" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; 2026 SG&TL. All rights reserved.</span>
+    </div>
+  </footer>
+
+  <!-- Success Popup Modal -->
+  <div class="sgtl-popup-overlay" id="successPopup">
+    <div class="sgtl-popup">
+      <button class="sgtl-popup-close" id="popupClose">&times;</button>
+      <div class="sgtl-popup-icon">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+      <h3>Thank You!</h3>
+      <p>Your enquiry has been submitted successfully! Our team will get back to you shortly.</p>
+      <button class="sgtl-popup-btn" id="popupOk">Continue</button>
+    </div>
+  </div>
+
+  <script src="jspdf.umd.min.js"></script>
+  <script>
+// ─── Supabase Config ───
+const SUPABASE_URL = "https://clllfjxkhcozphqxssbb.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbGxmanhraGNvenBocXhzc2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NzY2MjIsImV4cCI6MjA5NDU1MjYyMn0.2rfdtPvTnxOVwnyYOt3JiWopUvmhsRJEPYEs3bSEqZ0";
+// ─── DOM Elements ───
+const form = document.querySelector("#verifyForm");
+const input = document.querySelector("#reportNumber");
+const queryForm = document.querySelector("#queryForm");
+const queryStatus = document.querySelector("#queryStatus");
+const emailUserInput = queryForm.elements.emailUser;
+
+// ─── Verification ───
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+// ─── Verification Elements ───
+const verifyStatus = document.getElementById("verifyStatus");
+const verifiedSection = document.getElementById("verifiedQrSection");
+const verifiedReportInfo = document.getElementById("verifiedReportInfo");
+const generatedQrPanel = document.getElementById("generatedQrPanel");
+const generatedQrImage = document.getElementById("generatedQrImage");
+const generatedQrTitle = document.getElementById("generatedQrTitle");
+const generatedQrDownload = document.getElementById("generatedQrDownload");
+
+function showVerifiedReport(reportNumber, report) {
+  // Build report info grid
+  const fields = [
+    { label: "Report No.", value: report["Report No."] || reportNumber },
+    { label: "Stone Name", value: report["Stone Name"] },
+    { label: "Report Type", value: report["Report Type"] },
+    { label: "Weight", value: report["Weight"] ? `${report["Weight"]} ${report["Weight Type"] || ""}`.trim() : null },
+    { label: "Colour", value: report["Colour"] },
+    { label: "Shape", value: report["Shapes"] },
+    { label: "Cut", value: report["Cut"] },
+    { label: "Dimensions", value: report["Dimensions"] },
+    { label: "Origin", value: report["Origin"] },
+    { label: "Optic Character", value: report["Optic Character"] },
+  ].filter(f => f.value && f.value !== "N/A" && f.value !== "");
+
+  verifiedReportInfo.innerHTML = fields.map(f =>
+    `<div class="info-item"><span class="info-label">${escapeHtml(f.label)}</span><span class="info-value">${escapeHtml(f.value)}</span></div>`
+  ).join("");
+
+  // Generate QR code using a public API
+  const verifyUrl = `${window.location.origin}${window.location.pathname}#verify?report=${encodeURIComponent(reportNumber)}`;
+  const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyUrl)}`;
+  generatedQrImage.src = qrApiUrl;
+  generatedQrTitle.textContent = reportNumber;
+  // Store report data for PDF generation
+  window._lastVerifiedReport = report;
+  window._lastVerifiedReportNumber = reportNumber;
+  window._lastVerifiedQrUrl = qrApiUrl;
+
+  // Show the verified section with animation
+  verifiedSection.classList.remove("show");
+  void verifiedSection.offsetWidth; // force reflow for re-animation
+  verifiedSection.classList.add("show");
+
+  verifyStatus.textContent = "";
+  verifyStatus.className = "verify-status-msg";
+}
+
+function showInvalid(reportNumber) {
+  verifiedSection.classList.remove("show");
+  verifyStatus.textContent = reportNumber
+    ? `No matching report found for "${reportNumber}". Please check the number.`
+    : "Please enter a report number.";
+  verifyStatus.className = "verify-status-msg error";
+}
+
+function showChecking() {
+  verifiedSection.classList.remove("show");
+  verifyStatus.textContent = "Checking report...";
+  verifyStatus.className = "verify-status-msg checking";
+}
+
+async function verifyReport(reportNumber) {
+  const normalized = reportNumber.trim().toUpperCase().replace(/\s+/g, "");
+  if (!normalized) { showInvalid(""); return; }
+
+  showChecking();
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/sgtl_database?${encodeURIComponent('"Report No."')}=eq.${encodeURIComponent(normalized)}&limit=1`,
+      {
+        headers: {
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": `Bearer ${SUPABASE_ANON_KEY}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Unable to verify report right now. Please try again.");
+    }
+
+    const data = await response.json();
+    if (!data || data.length === 0) {
+      showInvalid(normalized);
+      return;
+    }
+
+    showVerifiedReport(normalized, data[0]);
+  } catch (error) {
+    verifyStatus.textContent = error.message || "Connection error. Please try again.";
+    verifyStatus.className = "verify-status-msg error";
+    verifiedSection.classList.remove("show");
+  }
+}
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  await verifyReport(input.value);
+});
+
+input.addEventListener("input", () => {
+  input.value = input.value.toUpperCase();
+});
+
+// ─── Success Popup ───
+const successPopup = document.getElementById("successPopup");
+const popupClose = document.getElementById("popupClose");
+const popupOk = document.getElementById("popupOk");
+
+function showSuccessPopup() {
+  successPopup.classList.add("active");
+}
+function hideSuccessPopup() {
+  successPopup.classList.remove("active");
+}
+popupClose.addEventListener("click", hideSuccessPopup);
+popupOk.addEventListener("click", hideSuccessPopup);
+successPopup.addEventListener("click", (e) => {
+  if (e.target === successPopup) hideSuccessPopup();
+});
+
+// ─── Contact Form → Supabase ───
+emailUserInput.addEventListener("input", () => {
+  emailUserInput.value = emailUserInput.value
+    .toLowerCase()
+    .replace(/@gmail\.com/gi, "")
+    .replace(/[^a-z0-9.]/g, "");
+});
+
+queryForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const rawUser = emailUserInput.value.trim().toLowerCase();
+  const emailUser = rawUser.replace(/@gmail\.com$/i, "");
+  const phone = queryForm.elements.phone.value.trim();
+  const message = queryForm.elements.message.value.trim();
+  const isValidGmailUser =
+    /^[a-z0-9][a-z0-9.]*[a-z0-9]$/.test(emailUser) &&
+    emailUser.length >= 6 &&
+    emailUser.length <= 30 &&
+    !emailUser.includes("..");
+
+  if (!isValidGmailUser) {
+    queryStatus.className = "query-status error";
+    queryStatus.textContent = "Please enter a valid Gmail username.";
+    emailUserInput.focus();
+    return;
+  }
+
+  if (!message) {
+    queryStatus.className = "query-status error";
+    queryStatus.textContent = "Please enter your enquiry message.";
+    queryForm.elements.message.focus();
+    return;
+  }
+
+  const email = `${emailUser}@gmail.com`;
+
+  queryStatus.className = "query-status sending";
+  queryStatus.innerHTML = '<span class="sending-dots">Sending enquiry</span>';
+
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/enquiries`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        email,
+        phone: phone || null,
+        message,
+        source: "main_site"
+      })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.message || "Unable to send enquiry right now.");
+    }
+
+    queryStatus.className = "query-status ready";
+    queryStatus.textContent = "";
+    queryForm.reset();
+    showSuccessPopup();
+  } catch (error) {
+    queryStatus.className = "query-status error";
+    queryStatus.textContent = error.message;
+  }
+});
+
+
+
+// ─── Header Scroll & Active Nav ───
+const header = document.getElementById("siteHeader");
+const navLinks = document.querySelectorAll(".site-nav a[href^='#']");
+const sections = document.querySelectorAll("section[id], footer[id]");
+
+function updateActiveNav() {
+  header.classList.toggle("scrolled", window.scrollY > 20);
+
+  let current = "";
+  sections.forEach(section => {
+    const top = section.offsetTop - 100;
+    if (window.scrollY >= top) {
+      current = section.getAttribute("id");
+    }
+  });
+
+  navLinks.forEach(link => {
+    link.classList.remove("active");
+    if (link.getAttribute("href") === "#" + current) {
+      link.classList.add("active");
+    }
+  });
+}
+
+window.addEventListener("scroll", updateActiveNav);
+updateActiveNav();
+
+// ─── FAQ Accordion ───
+document.querySelectorAll(".faq-question").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const item = btn.parentElement;
+    const isOpen = item.classList.contains("open");
+    // Close all
+    document.querySelectorAll(".faq-item").forEach(i => i.classList.remove("open"));
+    // Open clicked if it wasn't open
+    if (!isOpen) item.classList.add("open");
+  });
+});
+
+// ─── Scroll Animations ───
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animation = "fadeUp 600ms ease both";
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll(".service-card, .standard-item, .verify-card, .testimonial-card, .faq-item, .about-grid").forEach(el => {
+  el.style.opacity = "0";
+  observer.observe(el);
+});
+
+// ─── PDF Certificate Generator ───
+generatedQrDownload.addEventListener("click", async () => {
+  if (!window._lastVerifiedReport) return;
+  generatedQrDownload.textContent = "Generating...";
+  generatedQrDownload.disabled = true;
+  try {
+    await generateCertificatePDF(window._lastVerifiedReportNumber, window._lastVerifiedReport);
+  } catch(e) {
+    console.error("PDF generation error:", e);
+    alert("Error generating certificate: " + (e.message || e) + ". Please try again.");
+  } finally {
+    generatedQrDownload.textContent = "Download Report";
+    generatedQrDownload.disabled = false;
+  }
+});
+
+async function loadImageAsDataUrl(url) {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => resolve(null), 8000);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const c = document.createElement("canvas");
+        c.width = img.width; c.height = img.height;
+        c.getContext("2d").drawImage(img, 0, 0);
+        clearTimeout(timeout);
+        resolve(c.toDataURL("image/png"));
+      } catch(e) {
+        clearTimeout(timeout);
+        resolve(null);
+      }
+    };
+    img.onerror = () => { clearTimeout(timeout); resolve(null); };
+    img.src = url;
+  });
+}
+
+async function generateCertificatePDF(reportNumber, report) {
+  if (!window.jspdf) {
+    alert("PDF library is still loading. Please wait a moment and try again.");
+    return;
+  }
+  const { jsPDF } = window.jspdf;
+  // Landscape A4
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const W = 297, H = 210;
+
+  // Load QR code image
+  let qrDataUrl = null;
+  try {
+    const verifyUrl = window.location.origin + window.location.pathname + "#verify?report=" + encodeURIComponent(reportNumber);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyUrl)}`;
+    qrDataUrl = await loadImageAsDataUrl(qrUrl).catch(() => null);
+  } catch(e) { /* QR not available */ }
+
+  drawCertificateOfAuthenticity(doc, W, H, reportNumber, report, qrDataUrl);
+  doc.save(`SGTL_Certificate_${reportNumber}.pdf`);
+}
+
+// ── Helper functions ──
+function drawBorderRect(doc, x, y, w, h, color, lineWidth) {
+  doc.setDrawColor(color[0], color[1], color[2]);
+  doc.setLineWidth(lineWidth);
+  doc.rect(x, y, w, h);
+}
+
+// ═══════════════════════════════════════
+// Certificate of Authenticity — Landscape
+// ═══════════════════════════════════════
+function drawCertificateOfAuthenticity(doc, W, H, reportNumber, report, qr) {
+  const gold = [185, 145, 90];
+  const goldDark = [150, 115, 55];
+  const goldLight = [210, 185, 135];
+  const cream = [243, 238, 225];
+  const textDark = [55, 40, 15];
+  const textMid = [100, 75, 40];
+
+  // ── Cream parchment background ──
+  doc.setFillColor(cream[0], cream[1], cream[2]);
+  doc.rect(0, 0, W, H, "F");
+
+  // ── Ornate border (triple gold frame) ──
+  drawBorderRect(doc, 4, 4, W-8, H-8, gold, 2.0);
+  drawBorderRect(doc, 8, 8, W-16, H-16, goldDark, 0.6);
+  drawBorderRect(doc, 11, 11, W-22, H-22, goldLight, 0.3);
+
+  // ── Decorative scroll pattern along top and bottom borders ──
+  doc.setDrawColor(goldLight[0], goldLight[1], goldLight[2]);
+  doc.setLineWidth(0.25);
+  for (let x = 20; x < W - 20; x += 6) {
+    doc.circle(x, 14, 2.2, "S");
+    doc.circle(x + 3, 14, 1.3, "S");
+    doc.circle(x, H - 14, 2.2, "S");
+    doc.circle(x + 3, H - 14, 1.3, "S");
+  }
+  // Side scroll patterns
+  for (let y = 22; y < H - 22; y += 6) {
+    doc.circle(14, y, 2.2, "S");
+    doc.circle(14, y + 3, 1.3, "S");
+    doc.circle(W - 14, y, 2.2, "S");
+    doc.circle(W - 14, y + 3, 1.3, "S");
+  }
+
+  // ── Corner flourishes ──
+  function drawCorner(cx, cy, fx, fy) {
+    doc.setDrawColor(gold[0], gold[1], gold[2]);
+    doc.setLineWidth(0.8);
+    doc.line(cx, cy + fy*16, cx, cy);
+    doc.line(cx, cy, cx + fx*16, cy);
+    doc.setLineWidth(0.4);
+    doc.line(cx + fx*3, cy + fy*3, cx + fx*3, cy + fy*11);
+    doc.line(cx + fx*3, cy + fy*3, cx + fx*11, cy + fy*3);
+  }
+  drawCorner(13, 13, 1, 1);
+  drawCorner(W-13, 13, -1, 1);
+  drawCorner(13, H-13, 1, -1);
+  drawCorner(W-13, H-13, -1, -1);
+
+  // ══════════════════════════════════════
+  // TITLE: "Certificate of Authenticity"
+  // ══════════════════════════════════════
+  doc.setFontSize(30);
+  doc.setFont("times", "bolditalic");
+  doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+  doc.text("Certificate of Authenticity", W / 2, 36, { align: "center" });
+
+  // Subtitle
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(gold[0], gold[1], gold[2]);
+  doc.text("OF GEMSTONE IDENTIFICATION", W / 2, 46, { align: "center" });
+
+  // Decorative divider below subtitle
+  doc.setDrawColor(gold[0], gold[1], gold[2]);
+  doc.setLineWidth(0.5);
+  doc.line(50, 51, W / 2 - 10, 51);
+  doc.line(W / 2 + 10, 51, W - 50, 51);
+  // Small diamond
+  doc.setFillColor(gold[0], gold[1], gold[2]);
+  const dcx = W/2, dcy = 51, ds = 2.5;
+  doc.triangle(dcx, dcy - ds, dcx + ds, dcy, dcx, dcy + ds, "F");
+  doc.triangle(dcx, dcy - ds, dcx, dcy + ds, dcx - ds, dcy, "F");
+
+  // ══════════════════════════════════════
+  // LEFT: Gemstone image placeholder
+  // ══════════════════════════════════════
+  const imgX = 22, imgY = 58, imgW = 80, imgH = 75;
+  // Dark stone-texture background
+  doc.setFillColor(180, 175, 162);
+  doc.roundedRect(imgX, imgY, imgW, imgH, 3, 3, "F");
+  doc.setDrawColor(gold[0], gold[1], gold[2]);
+  doc.setLineWidth(0.6);
+  doc.roundedRect(imgX, imgY, imgW, imgH, 3, 3, "S");
+
+  // Gem icon inside placeholder
+  const gcx = imgX + imgW / 2, gcy = imgY + imgH / 2;
+  doc.setDrawColor(goldDark[0], goldDark[1], goldDark[2]);
+  doc.setLineWidth(0.7);
+  const gs = 16;
+  // Crown
+  doc.line(gcx - gs, gcy - 3, gcx + gs, gcy - 3);
+  doc.line(gcx - gs * 0.6, gcy - gs, gcx + gs * 0.6, gcy - gs);
+  doc.line(gcx - gs, gcy - 3, gcx - gs * 0.6, gcy - gs);
+  doc.line(gcx + gs, gcy - 3, gcx + gs * 0.6, gcy - gs);
+  // Pavilion
+  doc.line(gcx - gs, gcy - 3, gcx, gcy + gs);
+  doc.line(gcx + gs, gcy - 3, gcx, gcy + gs);
+  // Cross facets
+  doc.setLineWidth(0.3);
+  doc.line(gcx, gcy - gs, gcx - gs * 0.4, gcy - 3);
+  doc.line(gcx, gcy - gs, gcx + gs * 0.4, gcy - 3);
+  doc.line(gcx, gcy - 3, gcx, gcy + gs);
+
+  doc.setFontSize(7);
+  doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
+  doc.text("GEMSTONE", gcx, gcy + gs + 8, { align: "center" });
+
+  // ══════════════════════════════════════
+  // RIGHT: Report details with underlines
+  // ══════════════════════════════════════
+  const fX = 112, fEndX = W - 22;
+  let fy = 64;
+  const lineGap = 11;
+
+  // Primary fields
+  const primaryFields = [
+    { label: "Report No.", val: report["Report No."] || reportNumber },
+    { label: "Stone Name", val: report["Stone Name"] },
+    { label: "Report Type", val: report["Report Type"] },
+    { label: "Weight", val: report["Weight"] ? (report["Weight"] + " " + (report["Weight Type"] || "")).trim() : "" },
+    { label: "Colour", val: report["Colour"] },
+    { label: "Shape", val: report["Shapes"] },
+    { label: "Cut Type", val: report["Cut"] },
+    { label: "Dimensions", val: report["Dimensions"] },
+  ];
+
+  primaryFields.forEach(f => {
+    if (!f.val || String(f.val).trim() === "" || f.val === "N/A") return;
+    const valStr = String(f.val).length > 35 ? String(f.val).substring(0, 33) + "..." : String(f.val);
+    // Label
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(9);
+    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+    doc.text(f.label + ":", fX, fy);
+    // Value
+    const lw = doc.getTextWidth(f.label + ": ");
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(textMid[0], textMid[1], textMid[2]);
+    doc.text(valStr, fX + lw + 1, fy);
+    // Gold underline
+    doc.setDrawColor(goldLight[0], goldLight[1], goldLight[2]);
+    doc.setLineWidth(0.25);
+    doc.line(fX, fy + 1.5, fEndX, fy + 1.5);
+    fy += lineGap;
+  });
+
+  // ══════════════════════════════════════
+  // Gemstone Specifications section
+  // ══════════════════════════════════════
+  fy = 145;
+  doc.setDrawColor(gold[0], gold[1], gold[2]);
+  doc.setLineWidth(0.4);
+  doc.line(112, fy - 5, fEndX, fy - 5);
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
+  doc.text("Gemstone Specifications", 112, fy + 2);
+  fy += 8;
+
+  const specFields = [
+    { label: "Magnification", val: report["Magnification"] },
+    { label: "Specific Gravity", val: report["Specific Gravity"] },
+    { label: "Refractive Index", val: report["Refractive Index"] },
+    { label: "Optic Character", val: report["Optic Character"] },
+    { label: "Origin", val: report["Origin"] },
+    { label: "Comment", val: report["Comment"] },
+    { label: "Date", val: report["Date"] },
+  ].filter(f => f.val && String(f.val).trim() !== "" && f.val !== "N/A");
+
+  const specColL = 112, specColR = 200;
+  let specRow = 0;
+  specFields.forEach(f => {
+    const col = specRow % 2 === 0 ? specColL : specColR;
+    if (specRow % 2 === 0 && specRow > 0) fy += 9;
+    const valStr = String(f.val).length > 22 ? String(f.val).substring(0, 20) + "..." : String(f.val);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(gold[0], gold[1], gold[2]);
+    doc.setFontSize(6.5);
+    doc.text(f.label.toUpperCase(), col, fy);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+    doc.setFontSize(8);
+    doc.text(valStr, col, fy + 4.5);
+    specRow++;
+  });
+
+  // ══════════════════════════════════════
+  // BOTTOM LEFT: Signature & Date
+  // ══════════════════════════════════════
+  const sigY = H - 32;
+
+  // Signature line
+  doc.setDrawColor(goldDark[0], goldDark[1], goldDark[2]);
+  doc.setLineWidth(0.3);
+  doc.line(24, sigY, 82, sigY);
+  doc.setFontSize(6.5);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
+  doc.text("GEMOLOGIST'S SIGNATURE", 53, sigY + 4, { align: "center" });
+
+  // Date line
+  doc.line(92, sigY, 135, sigY);
+  doc.text("DATE", 113.5, sigY + 4, { align: "center" });
+
+  // ══════════════════════════════════════
+  // BOTTOM RIGHT: Care instructions + QR
+  // ══════════════════════════════════════
+  // Care instructions
+  const careY = H - 45;
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(textDark[0], textDark[1], textDark[2]);
+  doc.text("Care & Preservation Instructions:", 150, careY);
+
+  doc.setFontSize(7);
+  doc.setFont("times", "italic");
+  doc.setTextColor(textMid[0], textMid[1], textMid[2]);
+  const careText = "To maintain brilliance, clean gently with a soft brush and mild soap solution. Avoid impact, harsh chemicals, and extreme temperature changes. Store separately in a lined jewelry box or soft pouch.";
+  const careLines = doc.splitTextToSize(careText, 105);
+  doc.text(careLines, 150, careY + 5);
+
+  // QR Code
+  if (qr) {
+    doc.addImage(qr, "PNG", W - 45, H - 47, 24, 24);
+    doc.setFontSize(5);
+    doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
+    doc.text("Scan to verify", W - 33, H - 21, { align: "center" });
+  }
+
+  // ══════════════════════════════════════
+  // FOOTER
+  // ══════════════════════════════════════
+  doc.setDrawColor(gold[0], gold[1], gold[2]);
+  doc.setLineWidth(0.4);
+  doc.line(18, H - 16, W - 18, H - 16);
+
+  doc.setFontSize(6.5);
+  doc.setFont("times", "bold");
+  doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
+  doc.text("SG&TL - Sunil Gems & Stones Testing Laboratories", W / 2, H - 11, { align: "center" });
+  doc.setFontSize(5.5);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(150, 125, 75);
+  doc.text("Computer-generated certificate of authenticity. Verify at sgtl.in", W / 2, H - 7, { align: "center" });
+}
+
+// ─── Auto-verify from QR code URL hash ───
+(function() {
+  const hash = window.location.hash;
+  if (hash.includes("verify?report=")) {
+    const match = hash.match(/report=([^&]+)/);
+    if (match) {
+      const reportNum = decodeURIComponent(match[1]);
+      input.value = reportNum;
+      // Scroll to verify section
+      document.getElementById("verify")?.scrollIntoView({ behavior: "smooth" });
+      // Auto-verify after a short delay
+      setTimeout(() => verifyReport(reportNum), 500);
+    }
+  }
+})();
+
+  </script>
+</body>
+</html>
