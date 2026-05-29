@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin.html
+Disallow: /admin-server.js
+
+Sitemap: https://sgtlgemtesting.co.in/sitemap.xml

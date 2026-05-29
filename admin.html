@@ -1,0 +1,3476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SG&TL | Admin Panel</title>
+<style>
+.password-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%; /* Adjust to match your form layout */
+}
+
+.password-container input {
+  width: 100%;
+  padding-right: 40px; /* Leaves room for the eye icon on the right */
+  /* Keep your existing input styling here (borders, padding, etc.) */
+}
+
+#togglePassword {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666; /* Adjust color to fit your dark/light theme */
+}
+
+#togglePassword:focus {
+  outline: none;
+}
+/* ═══════════════════════════════════════
+   CSS VARIABLES & RESET
+   ═══════════════════════════════════════ */
+:root {
+  --bg-dark: #0a0a14;
+  --bg-card: #12121e;
+  --bg-sidebar: #0d0d1a;
+  --bg-input: #1a1a2e;
+  --gold: #c4943f;
+  --gold-light: #d4a94f;
+  --gold-dim: rgba(196,148,63,0.15);
+  --text: #e8e6e3;
+  --text-muted: #8a8a9a;
+  --text-dim: #5a5a6a;
+  --green: #2ecc71;
+  --red: #e74c3c;
+  --blue: #3498db;
+  --orange: #f39c12;
+  --border: rgba(196,148,63,0.12);
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-dark);
+  color: var(--text);
+  min-height: 100vh;
+}
+a { color: var(--gold); text-decoration: none; }
+input, select, textarea, button { font-family: inherit; }
+
+/* ═══════════════════════════════════════
+   LOGIN SCREEN
+   ═══════════════════════════════════════ */
+.login-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg-dark);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.login-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px;
+  width: 400px;
+  max-width: 90vw;
+  box-shadow: var(--shadow);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 30px;
+}
+.login-logo h1 {
+  font-size: 28px;
+  color: var(--gold);
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+.login-logo p {
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-top: 4px;
+  letter-spacing: 1px;
+}
+.login-field {
+  margin-bottom: 18px;
+}
+.login-field label {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.login-field input {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.login-field input:focus {
+  border-color: var(--gold);
+}
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--gold), #a67c2e);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: opacity 0.2s;
+  margin-top: 8px;
+}
+.login-btn:hover { opacity: 0.9; }
+.login-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.login-error {
+  color: var(--red);
+  font-size: 12px;
+  text-align: center;
+  margin-top: 12px;
+  min-height: 18px;
+}
+.login-links {
+  text-align: center;
+  margin-top: 16px;
+}
+.login-links a {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.login-links a:hover { color: var(--gold); }
+.login-security {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.login-security span {
+  font-size: 10px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+.login-security .lock { color: var(--green); }
+
+/* ═══════════════════════════════════════
+   LAYOUT
+   ═══════════════════════════════════════ */
+.app { display: none; height: 100vh; }
+.app.active { display: flex; overflow: hidden; }
+/* 1. Lock the outer window frame to eliminate global scrollbars */
+html, body {
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; 
+    margin: 0;
+    padding: 0;
+}
+
+/* 2. Prevent the main panel wrapper from extending past the screen view */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden; 
+}
+
+.content-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+    position: relative;
+}
+
+.database-card {
+    background-color: #12141c;
+    border: 1px solid #1f2330;
+    border-radius: 8px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; 
+}
+
+/* 3. ISOLATE SCROLLBARS: Confine horizontal & vertical scrolling exclusively here */
+.table-scroll-container {
+    flex: 1;
+    overflow-y: auto;  /* Only this section scrolls vertically */
+    overflow-x: auto;  /* Only this section scrolls horizontally */
+    padding: 0 24px;
+    position: relative;
+    max-height: 60vh; /* Prevents overflow pushing components out of viewport */
+  }
+
+  /* Custom Styled Scrollbars for the table area only */
+  .table-scroll-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .table-scroll-container::-webkit-scrollbar-track {
+    background: #12141c;
+  }
+  .table-scroll-container::-webkit-scrollbar-thumb {
+    background: #2c3142;
+    border-radius: 4px;
+  }
+  .table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #3e455c;
+  }
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    min-width: max-content; /* Ensures horizontal scroll if columns overflow */
+}
+
+/* Keeps table headers locked to the top view during down-scroll */
+.data-table th {
+    position: sticky;
+    top: 0;
+    background-color: #12141c; 
+    z-index: 2;
+}
+
+.data-table td {
+    white-space: nowrap; /* Ensures columns stay side-by-side and trigger horizontal scroll */
+}
+
+/* 4. Formatting styles for the pagination layout */
+.card-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #1f2330;
+    display: flex;
+    justify-content: flex-end; 
+    background-color: #12141c;
+}
+
+.pagination-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+
+.page-btn {
+    background-color: #1c1f2b;
+    border: 1px solid #2c3142;
+    color: #a4b0cb;
+    padding: 6px 12px;
+    min-width: 36px;
+    height: 34px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+    background-color: #25293a;
+    color: #ffffff;
+    border-color: #404763;
+}
+
+.page-btn.active {
+    background-color: #ff9f43;
+    color: #0b0c10;
+    border-color: #ff9f43;
+    font-weight: 600;
+}
+
+.page-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.page-ellipsis {
+    color: #62697a;
+    padding: 0 4px;
+    font-size: 14px;
+}
+/* Sidebar */
+.sidebar {
+  width: 240px;
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+  transition: transform 0.3s;
+}
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header h2 {
+  color: var(--gold);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+.sidebar-header p {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+  letter-spacing: 0.5px;
+}
+.sidebar-nav {
+  flex: 1;
+  padding: 12px 0;
+  overflow-y: auto;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover {
+  background: var(--gold-dim);
+  color: var(--text);
+}
+.nav-item.active {
+  background: var(--gold-dim);
+  color: var(--gold);
+  border-left-color: var(--gold);
+  font-weight: 600;
+}
+.nav-item svg {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+}
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border);
+}
+.sidebar-footer .user-info {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.sidebar-footer .user-email {
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 600;
+}
+.logout-btn {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: rgba(231,76,60,0.15);
+  color: var(--red);
+  border: 1px solid rgba(231,76,60,0.2);
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 600;
+}
+.logout-btn:hover { background: rgba(231,76,60,0.25); }
+
+/* Main Content */
+.main {
+  margin-left: 240px;
+  flex: 1;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+  flex-shrink: 0;
+}
+.header-left h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.secure-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(46,204,113,0.1);
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(46,204,113,0.2);
+}
+.secure-badge .dot {
+  width: 6px; height: 6px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+.secure-badge span {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Page content */
+.page { display: none; padding: 24px 28px; overflow-y: auto; }
+.page.active { display: block; }
+#page-database.active { display: flex !important; flex-direction: column; overflow: hidden; flex: 1; min-height: 0; }
+#page-database .page-title { flex-shrink: 0; }
+#page-database .table-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.page-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+/* ═══════════════════════════════════════
+   DASHBOARD CARDS
+   ═══════════════════════════════════════ */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: transform 0.2s;
+}
+.metric-card:hover { transform: translateY(-2px); }
+.metric-card .label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: 600;
+}
+.metric-card .value {
+  font-size: 32px;
+  font-weight: 700;
+  margin: 8px 0 4px;
+}
+.metric-card .sub {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+.metric-card.gold .value { color: var(--gold); }
+.metric-card.green .value { color: var(--green); }
+.metric-card.red .value { color: var(--red); }
+.metric-card.blue .value { color: var(--blue); }
+.metric-card.orange .value { color: var(--orange); }
+
+/* Security cards */
+.security-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.security-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.security-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.security-icon.shield { background: rgba(46,204,113,0.15); color: var(--green); }
+.security-icon.alert { background: rgba(231,76,60,0.15); color: var(--red); }
+.security-icon.lock { background: rgba(52,152,219,0.15); color: var(--blue); }
+.security-card .info h4 {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+}
+.security-card .info .count {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold);
+  margin: 2px 0;
+}
+.security-card .info p {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+/* Container for header text and sort controls */
+.header-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer; /* Makes the whole header clickable for sorting */
+    user-select: none;
+}
+
+/* Sort Icon indicator styling */
+.sort-trigger {
+    background: none;
+    border: none;
+    color: #62697a;
+    font-size: 11px;
+    padding: 2px 4px;
+    transition: color 0.15s ease;
+}
+
+/* Highlight the icon when active */
+.header-content:hover .sort-trigger,
+.sort-trigger.active {
+    color: #ff9f43;
+}
+
+/* ═══════════════════════════════════════
+   FORMS
+   ═══════════════════════════════════════ */
+.form-section {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.form-section h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+.form-grid.login-field {
+  display: block;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+.form-group label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 10px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--gold);
+}
+.form-group textarea { resize: vertical; min-height: 80px; }
+.form-group select { cursor: pointer; }
+.form-group select option { background: var(--bg-input); }
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+  letter-spacing: 0.3px;
+}
+.btn:hover { opacity: 0.85; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), #a67c2e);
+  color: #fff;
+}
+.btn-success { background: rgba(46,204,113,0.2); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
+.btn-danger { background: rgba(231,76,60,0.15); color: var(--red); border: 1px solid rgba(231,76,60,0.2); }
+.btn-outline {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+
+/* Dynamic fields section */
+.dynamic-fields {
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+.dynamic-field-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  align-items: flex-end;
+}
+.dynamic-field-row input { flex: 1; }
+.remove-field-btn {
+  padding: 10px;
+  background: rgba(231,76,60,0.15);
+  color: var(--red);
+  border: 1px solid rgba(231,76,60,0.2);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ═══════════════════════════════════════
+   TABLE & OVERFLOW FIXES
+   ═══════════════════════════════════════ */
+.table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+.table-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.table-header h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.search-box input {
+  padding: 8px 12px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 13px;
+  outline: none;
+  width: 220px;
+}
+.search-box input:focus { border-color: var(--gold); }
+
+/* Restricted Scrollable Container */
+.table-container-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+}
+
+/* Custom Styled Scrollbars matching dark golden palette */
+.table-container-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.table-container-scroll::-webkit-scrollbar-track {
+  background: var(--bg-card);
+}
+.table-container-scroll::-webkit-scrollbar-thumb {
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+.table-container-scroll::-webkit-scrollbar-thumb:hover {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Fixed Sticky Table Header Elements */
+.data-table th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  background: var(--bg-input);
+  box-shadow: inset 0 -1px 0 var(--border); /* Prevents line clipping during window bounds scroll */
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 12px 16px;
+  font-size: 13px;
+  border-bottom: 1px solid var(--border);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.data-table tr:hover { background: var(--gold-dim); }
+.data-table .actions-cell {
+  display: flex;
+  gap: 6px;
+}
+.table-footer {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+  gap: 12px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+.pagination { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; }
+.pagination button {
+  padding: 6px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 12px;
+}
+.pagination button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.pagination button.active { background: var(--gold); color: #fff; border-color: var(--gold); }
+.pagination button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════
+   ACTIVITY LOG
+   ═══════════════════════════════════════ */
+.activity-timeline {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.activity-timeline h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.timeline-item {
+  display: flex;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+.timeline-dot.success { background: var(--green); }
+.timeline-dot.warning { background: var(--orange); }
+.timeline-dot.danger { background: var(--red); }
+.timeline-dot.info { background: var(--blue); }
+.timeline-content .action {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.timeline-content .meta {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.mfa-badge {
+  background: rgba(46,204,113,0.15);
+  color: var(--green);
+  padding: 1px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════
+   ENQUIRY PANEL — PREMIUM UI/UX REDESIGN v2.0
+   Premium enterprise design with refined spacing,
+   glass morphism, micro-interactions, and modern palette
+   ═══════════════════════════════════════════════════════ */
+
+/* --- Premium Enquiry Header --- */
+.eq-page-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 28px; gap: 16px; flex-wrap: wrap;
+}
+.eq-page-header h2 {
+  font-size: 22px; font-weight: 800; color: var(--text);
+  letter-spacing: -0.3px; margin: 0;
+}
+.eq-page-header .eq-subtitle {
+  font-size: 12px; color: var(--text-dim); margin-top: 4px; font-weight: 400;
+}
+.eq-header-right {
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+}
+
+/* --- Stats Summary Cards --- */
+.eq-stats-row {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px; margin-bottom: 24px;
+}
+.eq-stat-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px; padding: 16px 18px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer; position: relative; overflow: hidden;
+}
+.eq-stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: var(--gold); opacity: 0; transition: opacity 0.25s;
+}
+.eq-stat-card:hover { background: rgba(255,255,255,0.04); transform: translateY(-1px); }
+.eq-stat-card:hover::before { opacity: 1; }
+.eq-stat-card.active { border-color: rgba(196,148,63,0.3); background: rgba(196,148,63,0.04); }
+.eq-stat-card.active::before { opacity: 1; }
+.eq-stat-label { font-size: 10px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 600; }
+.eq-stat-value { font-size: 26px; font-weight: 800; color: var(--text); margin-top: 4px; line-height: 1; }
+.eq-stat-card.active .eq-stat-value { color: var(--gold); }
+
+/* --- Enquiry Toolbar --- */
+.eq-toolbar {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 12px; flex-wrap: wrap; width: 100%; margin-bottom: 16px;
+}
+.eq-search {
+  width: 100%; min-width: 260px; padding: 10px 14px 10px 38px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; color: var(--text); font-size: 13px;
+  outline: none; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(8px);
+}
+.eq-search::placeholder { color: rgba(255,255,255,0.25); }
+.eq-search:focus {
+  border-color: rgba(196,148,63,0.5); background: rgba(255,255,255,0.05);
+  box-shadow: 0 0 0 3px rgba(196,148,63,0.08);
+}
+.eq-search-wrap {
+  position: relative; display: flex; align-items: center;
+  flex: 0 1 380px; min-width: 260px; margin-left: auto;
+}
+.eq-search-wrap svg {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  width: 15px; height: 15px; stroke: rgba(255,255,255,0.25); fill: none;
+  stroke-width: 2; transition: stroke 0.2s;
+}
+.eq-search-wrap:focus-within svg { stroke: var(--gold); }
+.eq-filter-select {
+  padding: 10px 14px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px; color: var(--text); font-size: 12px;
+  cursor: pointer; outline: none; backdrop-filter: blur(8px);
+}
+.eq-filter-select:focus { border-color: rgba(196,148,63,0.5); }
+
+/* --- Status Filter Pills --- */
+.eq-status-pills {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 0;
+}
+.eq-pill {
+  padding: 7px 16px; border-radius: 10px; font-size: 12px;
+  font-weight: 600; cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-dim);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: 0.1px; backdrop-filter: blur(4px);
+}
+.eq-pill:hover {
+  border-color: rgba(196,148,63,0.3); color: var(--text);
+  background: rgba(255,255,255,0.04);
+}
+.eq-pill.active {
+  background: linear-gradient(135deg, rgba(196,148,63,0.12), rgba(196,148,63,0.06));
+  border-color: rgba(196,148,63,0.35); color: var(--gold);
+  box-shadow: 0 2px 8px rgba(196,148,63,0.1);
+}
+.eq-pill .pill-count {
+  background: rgba(255,255,255,0.06); padding: 2px 8px;
+  border-radius: 8px; font-size: 10px; min-width: 22px; text-align: center;
+  font-weight: 700;
+}
+.eq-pill.active .pill-count { background: rgba(196,148,63,0.18); color: var(--gold); }
+
+/* --- Batch Actions Bar --- */
+.eq-batch-bar {
+  display: none; align-items: center; gap: 12px;
+  padding: 12px 18px; margin-bottom: 14px;
+  background: linear-gradient(135deg, rgba(52,152,219,0.08), rgba(52,152,219,0.04));
+  border: 1px solid rgba(52,152,219,0.18);
+  border-radius: 12px; font-size: 12px; color: var(--blue);
+  backdrop-filter: blur(8px);
+}
+.eq-batch-bar.visible { display: flex; }
+.eq-batch-bar .batch-count { font-weight: 700; }
+.eq-batch-bar .batch-actions { display: flex; gap: 8px; margin-left: auto; }
+.eq-batch-bar .batch-actions button {
+  padding: 6px 14px; border-radius: 8px; font-size: 11px;
+  font-weight: 600; cursor: pointer; border: 1px solid; transition: all 0.2s;
+}
+.eq-batch-resolve {
+  background: rgba(46,204,113,0.1); color: var(--green);
+  border-color: rgba(46,204,113,0.2) !important;
+}
+.eq-batch-resolve:hover { background: rgba(46,204,113,0.18); transform: translateY(-1px); }
+.eq-batch-archive {
+  background: rgba(127,140,141,0.1); color: #95a5a6;
+  border-color: rgba(127,140,141,0.2) !important;
+}
+.eq-batch-archive:hover { background: rgba(127,140,141,0.18); }
+.eq-batch-cancel {
+  background: none; color: var(--text-dim); border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* --- Enquiry Thread Card — Premium Glass --- */
+.eq-thread {
+  background: rgba(255,255,255,0.018);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(12px);
+}
+.eq-thread:hover {
+  border-color: rgba(196,148,63,0.25);
+  background: rgba(255,255,255,0.032);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(196,148,63,0.06);
+}
+.eq-thread.selected {
+  border-color: rgba(96,165,250,0.35);
+  background: rgba(59,130,246,0.03);
+  box-shadow: 0 0 0 2px rgba(96,165,250,0.08);
+}
+
+.eq-thread-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px; cursor: pointer; transition: background 0.2s;
+  gap: 14px;
+}
+.eq-thread-header:hover { background: rgba(255,255,255,0.015); }
+
+/* Checkbox for batch select */
+.eq-checkbox {
+  width: 17px; height: 17px; border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.03);
+  cursor: pointer; flex-shrink: 0; appearance: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative;
+}
+.eq-checkbox:hover { border-color: rgba(196,148,63,0.4); }
+.eq-checkbox:checked {
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  border-color: #3b82f6;
+  box-shadow: 0 2px 6px rgba(59,130,246,0.3);
+}
+.eq-checkbox:checked::after {
+  content: "✓"; position: absolute; top: -1px; left: 2.5px;
+  color: #fff; font-size: 11px; font-weight: 700;
+}
+
+.eq-thread-info { display: flex; align-items: center; gap: 14px; flex: 1; min-width: 0; }
+.eq-thread-avatar {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: linear-gradient(135deg, rgba(196,148,63,0.9), rgba(212,169,79,0.9));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px; color: #1a1a2e; flex-shrink: 0;
+  letter-spacing: 0.3px;
+  box-shadow: 0 3px 8px rgba(196,148,63,0.2);
+}
+.eq-thread-meta { flex: 1; min-width: 0; }
+.eq-thread-name-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.eq-thread-name {
+  font-weight: 700; font-size: 14px; color: var(--text);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  letter-spacing: -0.1px;
+}
+.thread-meta-sub {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 5px; color: var(--text-dim); font-size: 11.5px;
+}
+.thread-meta-sub span {
+  display: inline-flex; align-items: center; gap: 4px;
+  color: var(--text-muted);
+}
+.thread-meta-sub .meta-email {
+  color: rgba(96,165,250,0.85); font-weight: 500;
+  transition: color 0.2s;
+}
+.thread-meta-sub .meta-email:hover { color: #93bbfc; }
+.thread-meta-sub .meta-phone {
+  color: rgba(167,243,208,0.8); font-weight: 500;
+}
+.eq-thread-email {
+  font-size: 11px; color: var(--text-dim);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* Enquiry ID pill — monospaced premium */
+.eq-id-pill {
+  font-family: 'JetBrains Mono', 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+  font-size: 10px; padding: 3px 9px; border-radius: 6px;
+  background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.45);
+  border: 1px solid rgba(255,255,255,0.06); flex-shrink: 0;
+  letter-spacing: 0.4px; font-weight: 500;
+}
+
+.eq-thread-right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+.eq-thread-actions {
+  display: flex; align-items: center; gap: 4px; margin-left: 8px;
+  opacity: 0; transition: opacity 0.2s;
+}
+.eq-thread:hover .eq-thread-actions { opacity: 1; }
+.eq-thread-action-btn {
+  border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.03);
+  color: var(--text-dim); border-radius: 8px; padding: 5px 10px; font-size: 11px;
+  font-weight: 500; cursor: pointer; transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+.eq-thread-action-btn:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+.eq-thread-action-btn.edit:hover { border-color: rgba(96,165,250,0.3); color: #93bbfc; background: rgba(96,165,250,0.06); }
+.eq-thread-action-btn.delete:hover { border-color: rgba(239,68,68,0.3); color: #fca5a5; background: rgba(239,68,68,0.06); }
+
+/* Priority indicator — refined */
+.eq-priority {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  transition: box-shadow 0.3s;
+}
+.eq-priority.low    { background: rgba(148,163,184,0.6); }
+.eq-priority.medium { background: #f59e0b; box-shadow: 0 0 4px rgba(245,158,11,0.25); }
+.eq-priority.high   { background: #f97316; box-shadow: 0 0 6px rgba(249,115,22,0.35); }
+.eq-priority.urgent { background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.45); animation: urgentPulse 2s cubic-bezier(0.4,0,0.6,1) infinite; }
+@keyframes urgentPulse {
+  0%, 100% { box-shadow: 0 0 6px rgba(239,68,68,0.4); }
+  50% { box-shadow: 0 0 14px rgba(239,68,68,0.65); }
+}
+
+/* Category badge */
+.eq-cat-badge {
+  font-size: 9.5px; padding: 2px 8px; border-radius: 5px;
+  font-weight: 600; letter-spacing: 0.5px; flex-shrink: 0;
+  background: rgba(196,148,63,0.08); color: rgba(196,148,63,0.7);
+  border: 1px solid rgba(196,148,63,0.1);
+  text-transform: uppercase;
+}
+
+.eq-thread-count { display: none; }
+
+/* Status badge — premium pill design */
+.eq-status {
+  font-size: 10.5px; padding: 4px 12px; border-radius: 999px;
+  font-weight: 600; display: inline-flex; align-items: center;
+  gap: 5px; flex-shrink: 0; white-space: nowrap; letter-spacing: 0.2px;
+  border: 1px solid transparent; transition: all 0.2s;
+}
+.eq-status.new {
+  background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(59,130,246,0.08));
+  color: #93bbfc; border-color: rgba(96,165,250,0.2);
+}
+.eq-status.resolved {
+  background: linear-gradient(135deg, rgba(34,197,94,0.14), rgba(34,197,94,0.08));
+  color: #86efac; border-color: rgba(74,222,128,0.2);
+}
+.eq-status.pending {
+  background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(245,158,11,0.08));
+  color: #fcd34d; border-color: rgba(251,191,36,0.2);
+}
+
+.eq-thread-time {
+  font-size: 10.5px; color: rgba(255,255,255,0.3); flex-shrink: 0;
+  font-weight: 400;
+}
+
+/* --- Thread Expanded Body --- */
+.eq-thread-body {
+  display: none; border-top: 1px solid rgba(255,255,255,0.04);
+}
+.eq-thread.open .eq-thread-body { display: block; }
+.eq-thread.open {
+  border-color: rgba(196,148,63,0.25);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+}
+
+/* Detail header with quick actions */
+.eq-detail-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 18px; background: rgba(0,0,0,0.12);
+  border-bottom: 1px solid rgba(255,255,255,0.04); flex-wrap: wrap;
+}
+.eq-detail-header label {
+  font-size: 10px; color: rgba(255,255,255,0.35);
+  text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600;
+}
+.eq-inline-select {
+  padding: 5px 10px; background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px; color: var(--text); font-size: 11px; cursor: pointer;
+  outline: none; font-weight: 500; transition: border-color 0.2s;
+}
+.eq-inline-select:focus { border-color: rgba(196,148,63,0.4); }
+
+/* Activity Timeline inside detail — premium */
+.eq-timeline {
+  padding: 16px 18px; max-height: 420px; overflow-y: auto;
+}
+.eq-timeline::-webkit-scrollbar { width: 4px; }
+.eq-timeline::-webkit-scrollbar-track { background: transparent; }
+.eq-timeline::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+.eq-timeline-item {
+  display: flex; gap: 14px; padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.025);
+  position: relative;
+}
+.eq-timeline-item:last-child { border-bottom: none; }
+
+/* Timeline connector line */
+.eq-timeline-item::before {
+  content: ""; position: absolute; left: 17px; top: 36px;
+  bottom: -12px; width: 1px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), transparent);
+}
+.eq-timeline-item:last-child::before { display: none; }
+
+.eq-tl-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 14px; z-index: 1;
+}
+.eq-tl-icon.customer { background: rgba(96,165,250,0.1); color: #93bbfc; }
+.eq-tl-icon.admin    { background: rgba(74,222,128,0.1); color: #86efac; }
+.eq-tl-icon.system   { background: rgba(196,148,63,0.1); color: var(--gold); }
+
+.eq-tl-body { flex: 1; min-width: 0; }
+.eq-tl-header {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 6px;
+}
+.eq-tl-actor { font-size: 12px; font-weight: 600; color: var(--text); }
+.eq-tl-time {
+  font-size: 10px; color: rgba(255,255,255,0.25);
+  display: flex; align-items: center; gap: 6px;
+}
+.eq-tl-time .relative { color: rgba(255,255,255,0.3); }
+.eq-tl-time .absolute { color: rgba(255,255,255,0.2); font-size: 9px; }
+.eq-tl-content {
+  font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.6;
+  padding: 10px 14px; background: rgba(0,0,0,0.1);
+  border-radius: 10px; margin-top: 4px;
+  border: 1px solid rgba(255,255,255,0.025);
+}
+.eq-tl-content.reply {
+  border-left: 3px solid rgba(74,222,128,0.5);
+  background: rgba(34,197,94,0.035);
+}
+
+/* Reply composer — premium */
+.eq-reply-composer {
+  padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.04);
+  background: rgba(0,0,0,0.06);
+}
+.eq-reply-composer textarea {
+  width: 100%; padding: 12px 14px; background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+  color: var(--text); font-size: 13px; resize: none;
+  height: 70px; outline: none; transition: all 0.25s;
+  line-height: 1.5;
+}
+.eq-reply-composer textarea::placeholder { color: rgba(255,255,255,0.2); }
+.eq-reply-composer textarea:focus {
+  border-color: rgba(196,148,63,0.4);
+  box-shadow: 0 0 0 3px rgba(196,148,63,0.06);
+}
+.eq-reply-actions {
+  display: flex; gap: 8px; margin-top: 10px; justify-content: flex-end;
+}
+
+/* Contact info card in detail */
+.eq-contact-card {
+  display: flex; align-items: center; gap: 20px;
+  padding: 12px 18px; background: rgba(0,0,0,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 12px;
+}
+.eq-contact-card .eq-cc-label {
+  color: rgba(255,255,255,0.3); font-size: 10px;
+  text-transform: uppercase; letter-spacing: 0.6px;
+}
+.eq-contact-card .eq-cc-value { color: var(--text); font-weight: 500; }
+.eq-contact-card .eq-cc-item {
+  display: flex; flex-direction: column; gap: 3px;
+}
+
+/* Empty state — refined */
+.eq-empty {
+  text-align: center; padding: 80px 20px; color: var(--text-dim);
+}
+.eq-empty-icon { font-size: 48px; opacity: 0.15; margin-bottom: 16px; }
+.eq-empty h4 { font-size: 16px; color: rgba(255,255,255,0.5); margin-bottom: 8px; font-weight: 600; }
+.eq-empty p { font-size: 13px; color: rgba(255,255,255,0.25); }
+
+.eq-phone { font-size: 11px; color: var(--text-dim); margin-left: 4px; }
+
+/* --- Responsive: Mobile-friendly enquiry cards --- */
+@media (max-width: 768px) {
+  .eq-stats-row { grid-template-columns: repeat(2, 1fr); }
+  .eq-thread-header { padding: 12px 14px; flex-wrap: wrap; }
+  .eq-thread-right { width: 100%; justify-content: flex-end; margin-top: 8px; }
+  .eq-thread-actions { opacity: 1; }
+  .eq-search-wrap { flex: 1 1 100%; min-width: unset; margin-left: 0; }
+  .eq-toolbar { flex-direction: column; align-items: stretch; }
+  .eq-status-pills { justify-content: center; }
+}
+@media (max-width: 480px) {
+  .eq-stats-row { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .eq-stat-card { padding: 12px 14px; }
+  .eq-stat-value { font-size: 22px; }
+  .eq-thread-avatar { width: 32px; height: 32px; font-size: 11px; border-radius: 8px; }
+  .eq-pill { padding: 5px 12px; font-size: 11px; }
+}
+
+/* ═══════════════════════════════════════
+   MODAL
+   ═══════════════════════════════════════ */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+.modal-overlay.active { display: flex; }
+.modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  width: 500px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+}
+.modal h3 {
+  font-size: 17px;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 20px;
+  box-shadow: var(--shadow);
+  z-index: 300;
+  transform: translateX(120%);
+  transition: transform 0.3s;
+  max-width: 350px;
+  font-size: 13px;
+}
+.toast.show { transform: translateX(0); opacity: 1; }
+.toast.success { border-left: 4px solid var(--green); }
+.toast.error { border-left: 4px solid var(--red); }
+.toast.info { border-left: 4px solid var(--blue); }
+.toast.warning { border-left: 4px solid var(--orange); }
+
+/* Toast enhanced — icon + close button */
+.toast-body { display: flex; align-items: flex-start; gap: 10px; }
+.toast-icon { flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px; }
+.toast-icon svg { width: 100%; height: 100%; }
+.toast-text { flex: 1; line-height: 1.45; }
+.toast-text .toast-title { font-weight: 600; margin-bottom: 2px; }
+.toast-text .toast-msg { color: var(--text-muted); font-size: 12px; }
+.toast-close {
+  flex-shrink: 0; background: none; border: none; color: var(--text-dim);
+  cursor: pointer; font-size: 16px; padding: 0 0 0 6px; line-height: 1;
+}
+.toast-close:hover { color: var(--text); }
+
+/* Toast slide-in animation */
+@keyframes toastSlideIn {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes toastSlideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to   { transform: translateX(120%); opacity: 0; }
+}
+.toast.show { animation: toastSlideIn 0.35s ease forwards; }
+.toast.hiding { animation: toastSlideOut 0.3s ease forwards; }
+
+/* Toast stack — multiple toasts */
+.toast-stack {
+  position: fixed; top: 16px; right: 20px;
+  z-index: 400; display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast-stack .toast {
+  position: relative; top: auto; right: auto;
+  pointer-events: all; transform: none;
+}
+
+/* ═══════════════════════════════════════
+   NOTIFICATION BELL & DROPDOWN
+   ═══════════════════════════════════════ */
+.notif-bell {
+  position: relative; cursor: pointer;
+  width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; border: 1px solid var(--border);
+  background: var(--bg-input);
+  transition: all 0.2s;
+}
+.notif-bell:hover {
+  border-color: var(--gold); background: rgba(196,148,63,0.08);
+}
+.notif-bell svg {
+  width: 18px; height: 18px; fill: none;
+  stroke: var(--text-muted); stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+  transition: stroke 0.2s;
+}
+.notif-bell:hover svg { stroke: var(--gold); }
+.notif-bell.has-unread svg { stroke: var(--text); }
+
+/* Animated ring on new notification */
+@keyframes bellRing {
+  0%   { transform: rotate(0deg); }
+  15%  { transform: rotate(14deg); }
+  30%  { transform: rotate(-12deg); }
+  45%  { transform: rotate(8deg); }
+  60%  { transform: rotate(-6deg); }
+  75%  { transform: rotate(3deg); }
+  100% { transform: rotate(0deg); }
+}
+.notif-bell.ringing svg { animation: bellRing 0.6s ease; }
+
+/* Red badge */
+.notif-badge {
+  position: absolute; top: -4px; right: -4px;
+  min-width: 18px; height: 18px;
+  background: var(--red); color: #fff;
+  border-radius: 10px; font-size: 10px;
+  font-weight: 700; display: flex;
+  align-items: center; justify-content: center;
+  padding: 0 5px; border: 2px solid var(--bg-card);
+  transform: scale(0); transition: transform 0.25s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+.notif-bell.has-unread .notif-badge { transform: scale(1); }
+
+/* Dropdown panel */
+.notif-dropdown {
+  position: absolute; top: calc(100% + 10px); right: 0;
+  width: 380px; max-height: 460px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(196,148,63,0.06);
+  z-index: 200; overflow: hidden;
+  opacity: 0; visibility: hidden;
+  transform: translateY(-8px) scale(0.97);
+  transition: all 0.2s ease;
+  display: flex; flex-direction: column;
+}
+.notif-dropdown.open {
+  opacity: 1; visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+/* Dropdown header */
+.notif-dropdown-header {
+  padding: 14px 16px; display: flex;
+  align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.notif-dropdown-header h4 {
+  font-size: 13px; font-weight: 700;
+  color: var(--text); margin: 0;
+  display: flex; align-items: center; gap: 8px;
+}
+.notif-dropdown-header .unread-count {
+  background: var(--red); color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 8px;
+}
+.notif-mark-read {
+  background: none; border: none; color: var(--gold);
+  font-size: 11px; cursor: pointer; font-weight: 600;
+  padding: 4px 8px; border-radius: 6px;
+  transition: background 0.15s;
+}
+.notif-mark-read:hover { background: var(--gold-dim); }
+
+/* Notification list */
+.notif-list {
+  flex: 1; overflow-y: auto; overscroll-behavior: contain;
+}
+.notif-list::-webkit-scrollbar { width: 5px; }
+.notif-list::-webkit-scrollbar-thumb { background: var(--bg-input); border-radius: 3px; }
+
+/* Individual notification item */
+.notif-item {
+  display: flex; gap: 12px; padding: 12px 16px;
+  border-bottom: 1px solid rgba(196,148,63,0.06);
+  cursor: pointer; transition: background 0.15s;
+  position: relative;
+}
+.notif-item:hover { background: rgba(196,148,63,0.04); }
+.notif-item:last-child { border-bottom: none; }
+
+/* Unread indicator — subtle left accent + bg */
+.notif-item.unread {
+  background: rgba(52,152,219,0.04);
+  border-left: 3px solid var(--blue);
+}
+.notif-item.unread:hover { background: rgba(52,152,219,0.07); }
+.notif-item.unread .notif-unread-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--blue); position: absolute;
+  top: 16px; right: 14px; flex-shrink: 0;
+}
+
+/* Notification icon */
+.notif-item-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; font-size: 15px;
+}
+.notif-item-icon.enquiry { background: rgba(52,152,219,0.12); color: var(--blue); }
+.notif-item-icon.sync     { background: rgba(46,204,113,0.12); color: var(--green); }
+.notif-item-icon.alert    { background: rgba(231,76,60,0.12); color: var(--red); }
+.notif-item-icon.system   { background: rgba(196,148,63,0.12); color: var(--gold); }
+
+/* Notification content */
+.notif-item-body { flex: 1; min-width: 0; }
+.notif-item-body .notif-title {
+  font-size: 12.5px; font-weight: 600;
+  color: var(--text); line-height: 1.4;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.notif-item-body .notif-desc {
+  font-size: 11.5px; color: var(--text-muted);
+  margin-top: 2px; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical; overflow: hidden;
+}
+.notif-item-body .notif-time {
+  font-size: 10.5px; color: var(--text-dim);
+  margin-top: 4px;
+}
+.notif-item-body .notif-action {
+  display: inline-block; font-size: 11px;
+  color: var(--gold); font-weight: 600;
+  margin-top: 3px;
+}
+.notif-item-body .notif-action:hover { text-decoration: underline; }
+
+/* Dropdown footer */
+.notif-dropdown-footer {
+  padding: 10px 16px; text-align: center;
+  border-top: 1px solid var(--border); flex-shrink: 0;
+}
+.notif-dropdown-footer a {
+  font-size: 12px; color: var(--gold);
+  font-weight: 600; text-decoration: none;
+}
+.notif-dropdown-footer a:hover { text-decoration: underline; }
+
+/* Empty state */
+.notif-empty {
+  padding: 40px 20px; text-align: center;
+}
+.notif-empty-icon {
+  font-size: 36px; margin-bottom: 10px; opacity: 0.3;
+}
+.notif-empty p {
+  font-size: 13px; color: var(--text-dim); margin: 0;
+}
+.notif-empty .sub { font-size: 11px; margin-top: 4px; }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════ */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 260px;
+  }
+  .sidebar.open { transform: translateX(0); }
+  .main { margin-left: 0; }
+  .mobile-toggle { display: block; }
+  .page { padding: 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .search-box input { width: 150px; }
+  .header { padding: 12px 16px; }
+}
+@media (max-width: 480px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+  .login-card { padding: 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <div class="login-logo">
+      <h1>SG&TL</h1>
+      <p>Backend Admin Panel</p>
+    </div>
+    <div id="loginForm">
+      <div class="login-field">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="admin@gmail.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <div class="password-container">
+          <input type="password" id="password" name="password" placeholder="Enter your password">
+          <button type="button" id="togglePassword" aria-label="Toggle password visibility">👁️</button>
+        </div>
+      </div>
+
+      <button class="login-btn" id="loginBtn" onclick="handleLogin()">Sign In Securely</button>
+      <div class="login-error" id="loginError"></div>
+      <div class="login-links">
+        <a href="#" onclick="showForgotPassword()">Forgot password?</a>
+        <span>&bull;</span>
+        <a href="#" onclick="showSetupForm()">First-time setup</a>
+      </div>
+    </div>
+    <div id="forgotForm" style="display:none;">
+      <div class="login-field">
+        <label>Email Address</label>
+        <input type="email" id="forgotEmail" placeholder="sunilgems126@gmail.com">
+      </div>
+      <button class="login-btn" onclick="handleForgotPassword()">Send Reset Link</button>
+      <div class="login-error" id="forgotError"></div>
+      <div class="login-links" style="margin-top:12px;">
+        <a href="#" onclick="showLoginForm()">Back to login</a>
+      </div>
+    </div>
+    <div id="setupForm" style="display:none;">
+      <div class="login-field">
+        <label>Admin Email Address</label>
+        <input type="email" id="setupEmail" placeholder="sunilgems126@gmail.com" autocomplete="email">
+      </div>
+      <div class="login-field">
+        <label>Create Password</label>
+        <input type="password" id="setupPassword" placeholder="Minimum 6 characters" autocomplete="new-password">
+      </div>
+      <button class="login-btn" id="setupBtn" onclick="handleSetupAdmin()">Create Admin Account</button>
+      <div class="login-error" id="setupError"></div>
+      <div class="login-links" style="margin-top:12px;">
+        <a href="#" onclick="showLoginForm()">Back to login</a>
+      </div>
+    </div>
+    <div class="login-security">
+      <span><span class="lock">&#x1f512;</span> Secured with AES-256 Encryption &bull; JWT Authentication</span>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="adminApp">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2>SG&TL</h2>
+      <p>Admin Panel</p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" data-page="dashboard" onclick="navigateTo('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" data-page="new-cert" onclick="navigateTo('new-cert')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg>
+        New Certificate
+      </div>
+      <div class="nav-item" data-page="database" onclick="navigateTo('database')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Database
+      </div>
+      <div class="nav-item" data-page="enquiries" onclick="navigateTo('enquiries')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+        Enquiries
+      </div>
+      <div class="nav-item" data-page="security" onclick="navigateTo('security')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Security Logs
+      </div>
+      <div class="nav-item" data-page="settings" onclick="navigateTo('settings')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-info">Logged in as</div>
+      <div class="user-email" id="userEmail">admin@sgtl.in</div>
+      <button class="logout-btn" onclick="handleLogout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="header">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="mobile-toggle" onclick="toggleSidebar()">&#9776;</button>
+        <div class="header-left">
+          <h3 id="headerTitle">Dashboard</h3>
+        </div>
+      </div>
+      <div class="header-right">
+        <!-- Notification Bell -->
+        <div class="notif-bell" id="notifBell" onclick="toggleNotifDropdown()" title="Notifications">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-badge" id="notifBadge" style="display:none;">0</span>
+          <!-- Dropdown Panel -->
+          <div class="notif-dropdown" id="notifDropdown" onclick="event.stopPropagation()">
+            <div class="notif-dropdown-header">
+              <h4>Notifications <span class="unread-count" id="notifUnreadLabel" style="display:none">0</span></h4>
+              <button class="notif-mark-read" onclick="markAllNotifRead()">Mark all read</button>
+            </div>
+            <div class="notif-list" id="notifList">
+              <div class="notif-empty">
+                <div class="notif-empty-icon">&#128276;</div>
+                <p>No notifications yet</p>
+                <p class="sub">New enquiries and sync events will appear here</p>
+              </div>
+            </div>
+            <div class="notif-dropdown-footer">
+              <a href="#" onclick="event.preventDefault();navigateTo('security');">View All Activity</a>
+            </div>
+          </div>
+        </div>
+        <div class="secure-badge">
+          <div class="dot"></div>
+          <span>AES-256 Secured Session</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page active" id="page-dashboard">
+      <h2 class="page-title">Dashboard Overview</h2>
+      <div class="metrics-grid" id="metricsGrid">
+        <div class="metric-card gold"><div class="label">Total Certificates</div><div class="value" id="metricCerts">--</div><div class="sub">Encrypted records</div></div>
+        <div class="metric-card blue"><div class="label">Total Enquiries</div><div class="value" id="metricEnquiries">--</div><div class="sub">Customer queries</div></div>
+        <div class="metric-card orange"><div class="label">Pending Enquiries</div><div class="value" id="metricPending">--</div><div class="sub">Awaiting response</div></div>
+        <div class="metric-card green"><div class="label">Integrity Checks</div><div class="value" id="metricIntegrity">--</div><div class="sub">All passed</div></div>
+      </div>
+      <h3 style="font-size:15px;color:var(--gold);margin-bottom:14px;">Security Status</h3>
+      <div class="security-grid" id="securityGrid">
+        <div class="security-card">
+          <div class="security-icon shield">&#x1f6e1;</div>
+          <div class="info"><h4>Database Integrity</h4><div class="count" id="secIntegrity">0 / 0</div><p>Checks passed</p></div>
+        </div>
+        <div class="security-card">
+          <div class="security-icon alert">&#x26a0;</div>
+          <div class="info"><h4>Tamper Attempts</h4><div class="count" id="secTamper">0</div><p>Blocked & logged</p></div>
+        </div>
+        <div class="security-card">
+          <div class="security-icon lock">&#x1f512;</div>
+          <div class="info"><h4>Unauthorized Access</h4><div class="count" id="secUnauth">0</div><p>Blocked requests</p></div>
+        </div>
+      </div>
+      <div class="activity-timeline" id="recentActivity">
+        <h3>Recent Activity</h3>
+        <div id="activityList"><p style="color:var(--text-dim);font-size:13px;">Loading...</p></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-new-cert">
+      <h2 class="page-title">Issue New Certificate</h2>
+      <form id="certForm" onsubmit="handleCreateCertificate(event)">
+        <div class="form-section">
+          <h3>Certificate Information</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Report ID (Auto-generated)</label>
+              <input type="text" id="certReportNo" placeholder="SGTL-XXXXX" required>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" id="certDate" required>
+            </div>
+            <div class="form-group">
+              <label>Party Name / Client</label>
+              <input type="text" id="certCustomer" placeholder="Party name">
+            </div>
+            <div class="form-group">
+              <label>Stone Name / Gemstone Type</label>
+              <input type="text" id="certStoneName" placeholder="e.g. Natural Ruby" required>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h3>Gemstone Specifications</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Weight</label>
+              <input type="text" id="certWeight" placeholder="e.g. 5.25">
+            </div>
+            <div class="form-group">
+              <label>Weight Type</label>
+              <select id="certWeightType"><option value="">-- Select --</option><option value="Ratti">Ratti</option><option value="Carat">Carat</option><option value="gram">Gram</option></select>
+            </div>
+            <div class="form-group">
+              <label>Report Type</label>
+              <input type="text" id="certReportType" placeholder="e.g. actual weight 1260 gram">
+            </div>
+            <div class="form-group">
+              <label>Colour</label>
+              <input type="text" id="certColour" placeholder="e.g. Red">
+            </div>
+            <div class="form-group">
+              <label>Shape</label>
+              <input type="text" id="certShape" placeholder="e.g. Cushion, Oval">
+            </div>
+            <div class="form-group">
+              <label>Cut</label>
+              <input type="text" id="certCut" placeholder="e.g. Cabochon">
+            </div>
+            <div class="form-group">
+              <label>Dimensions</label>
+              <input type="text" id="certDimensions" placeholder="e.g. 12.5 x 10.2 x 5.1 mm">
+            </div>
+            <div class="form-group">
+              <label>Origin</label>
+              <input type="text" id="certOrigin" placeholder="e.g. Burma, Sri Lanka">
+            </div>
+            <div class="form-group">
+              <label>Mounted / UnMounted</label>
+              <select id="certMounted"><option value="">-- Select --</option><option value="UnMounted">UnMounted</option><option value="Mounted">Mounted</option></select>
+            </div>
+            <div class="form-group">
+              <label>Specific Gravity</label>
+              <input type="text" id="certSG" placeholder="e.g. 2.60-2.70">
+            </div>
+            <div class="form-group">
+              <label>Refractive Index</label>
+              <input type="text" id="certRI" placeholder="e.g. 1.48">
+            </div>
+            <div class="form-group">
+              <label>Optic Character</label>
+              <input type="text" id="certOptic" placeholder="e.g. DR">
+            </div>
+            <div class="form-group">
+              <label>Magnification</label>
+              <input type="text" id="certMagnification" placeholder="e.g. Natural inclusion">
+            </div>
+            <div class="form-group" style="grid-column:1/-1;">
+              <label>Comment</label>
+              <textarea id="certComment" placeholder="Additional notes or comments..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="form-section">
+          <h3>Custom Fields <button type="button" class="btn btn-outline btn-sm" onclick="addCustomField()" style="margin-left:10px;">+ Add Field</button></h3>
+          <div id="customFieldsContainer"></div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">&#x1f512; Save & Issue Certificate</button>
+          <button type="reset" class="btn btn-outline" onclick="resetCertForm()">Clear Form</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="page" id="page-database">
+      <h2 class="page-title">Database Management</h2>
+      <div class="table-wrapper">
+        <div class="table-header">
+          <h3>Certificates (<span id="dbTotal">0</span>)</h3>
+          <div class="search-box">
+            <input type="text" id="dbSearch" placeholder="Search Report No..." onkeyup="handleSearch(event)">
+            <button class="btn btn-primary btn-sm" onclick="loadCertificates()">Search</button>
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('dbSearch').value='';loadCertificates()">Clear</button>
+            <button class="btn btn-outline btn-sm" onclick="repairMissingNumbers()">Repair No.</button>
+          </div>
+        </div>
+        <div class="table-container-scroll">
+          <table class="data-table">
+          <thead>
+    <tr id="dbTableHead">
+        <th data-column="0" style="cursor: pointer;">
+            <div class="header-content">
+                <span>NO.</span>
+                <span class="sort-trigger">↕</span>
+            </div>
+        </th>
+        <th data-column="1" style="cursor: pointer;">
+            <div class="header-content">
+                <span>REPORT NO.</span>
+                <span class="sort-trigger">↕</span>
+            </div>
+        </th>
+        <th data-column="2" style="cursor: pointer;">
+            <div class="header-content">
+                <span>PARTY NAME</span>
+                <span class="sort-trigger">↕</span>
+            </div>
+        </th>
+        <th data-column="3" style="cursor: pointer;">
+            <div class="header-content">
+                <span>STONE NAME</span>
+                <span class="sort-trigger">↕</span>
+            </div>
+        </th>
+    </tr>
+</thead>
+            <tbody id="dbTableBody">
+              <tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:30px;">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <div class="page-limit" style="display: flex; align-items: center; gap: 8px;">
+            <label for="dbLimitSelect" style="color: var(--text-muted); font-size: 12px;">Rows per page:</label>
+            <select id="dbLimitSelect" onchange="changeDbLimit(this.value)" style="padding: 5px 8px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 4px; color: var(--text); font-size: 12px; cursor: pointer;">
+              <option value="10">10</option>
+              <option value="20" selected>20</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+          </div>
+          <span id="dbPagination">Page 1</span>
+          <div class="pagination" id="dbPaginationBtns"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="page" id="page-enquiries">
+      <!-- Premium Page Header -->
+      <div class="eq-page-header">
+        <div>
+          <h2>Customer Enquiries</h2>
+          <div class="eq-subtitle" id="eqThreadCount">Manage and track all customer enquiries</div>
+        </div>
+        <div class="eq-header-right">
+          <span id="gmailSyncStatus" style="font-size:11px;color:var(--text-dim);"></span>
+          <button onclick="triggerGmailSync()" class="btn btn-outline btn-sm" id="gmailSyncBtn" style="font-size:11px;padding:6px 14px;border-radius:8px;">
+            <span style="margin-right:4px;">&#x21BB;</span> Sync Gmail
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Summary Cards -->
+      <div class="eq-stats-row" id="eqStatsRow">
+        <div class="eq-stat-card active" data-filter="all" onclick="eqFilterByStatus('all')">
+          <div class="eq-stat-label">Total Enquiries</div>
+          <div class="eq-stat-value" id="pillAll">0</div>
+        </div>
+        <div class="eq-stat-card" data-filter="new" onclick="eqFilterByStatus('new')">
+          <div class="eq-stat-label">New</div>
+          <div class="eq-stat-value" id="pillNew">0</div>
+        </div>
+        <div class="eq-stat-card" data-filter="in_review" onclick="eqFilterByStatus('in_review')">
+          <div class="eq-stat-label">In Review</div>
+          <div class="eq-stat-value" id="pillInReview">0</div>
+        </div>
+        <div class="eq-stat-card" data-filter="resolved" onclick="eqFilterByStatus('resolved')">
+          <div class="eq-stat-label">Resolved</div>
+          <div class="eq-stat-value" id="pillResolved">0</div>
+        </div>
+        <div class="eq-stat-card" data-filter="pending" onclick="eqFilterByStatus('pending')">
+          <div class="eq-stat-label">Pending</div>
+          <div class="eq-stat-value" id="pillPending">0</div>
+        </div>
+      </div>
+
+      <!-- Search & Filter Toolbar -->
+      <div class="eq-toolbar">
+        <div class="eq-status-pills" id="eqStatusPills">
+          <button class="eq-pill active" data-filter="all" onclick="eqFilterByStatus('all')">
+            All
+          </button>
+          <button class="eq-pill" data-filter="new" onclick="eqFilterByStatus('new')">
+            New
+          </button>
+          <button class="eq-pill" data-filter="in_review" onclick="eqFilterByStatus('in_review')">
+            In Review
+          </button>
+          <button class="eq-pill" data-filter="awaiting_customer" onclick="eqFilterByStatus('awaiting_customer')">
+            Awaiting
+          </button>
+          <button class="eq-pill" data-filter="escalated" onclick="eqFilterByStatus('escalated')">
+            Escalated
+          </button>
+          <button class="eq-pill" data-filter="resolved" onclick="eqFilterByStatus('resolved')">
+            Resolved
+          </button>
+          <button class="eq-pill" data-filter="archived" onclick="eqFilterByStatus('archived')">
+            Archived
+          </button>
+        </div>
+
+        <div class="eq-search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="eq-search" id="eqSearch" type="text" placeholder="Search by name, email, enquiry ID, or message..." oninput="filterEnquiriesLocal()">
+        </div>
+      </div>
+
+      <!-- Batch Actions Bar -->
+      <div class="eq-batch-bar" id="eqBatchBar">
+        <span><span class="batch-count" id="eqBatchCount">0</span> selected</span>
+        <div class="batch-actions">
+          <button class="eq-batch-resolve" onclick="batchUpdateStatus('resolved')">Resolve</button>
+          <button class="eq-batch-cancel" onclick="clearBatchSelection()">Cancel</button>
+        </div>
+      </div>
+
+      <!-- Thread List -->
+      <div id="enquiriesList">
+        <p style="color:var(--text-dim);font-size:13px;">Loading...</p>
+      </div>
+    </div>
+
+    <div class="page" id="page-security">
+      <h2 class="page-title">Security & Audit Logs</h2>
+      <div class="activity-timeline">
+        <h3>Audit Trail</h3>
+        <div id="securityLogsList"><p style="color:var(--text-dim);font-size:13px;">Loading...</p></div>
+      </div>
+    </div>
+
+    <div class="page" id="page-settings">
+      <h2 class="page-title">Settings</h2>
+      <div class="form-section">
+        <h3>Change Password</h3>
+        <div class="form-grid" style="max-width:400px;">
+          <div class="form-group">
+            <label>New Password</label>
+            <input type="password" id="newPassword" placeholder="Enter new password">
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" id="confirmPassword" placeholder="Confirm new password">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="handleChangePassword()">Update Password</button>
+        </div>
+      </div>
+      <div class="form-section">
+        <h3>System Info</h3>
+        <div style="font-size:13px;color:var(--text-muted);line-height:2;">
+          <div>Encryption: <span style="color:var(--green);">AES-256-CBC Active</span></div>
+          <div>Auth: <span style="color:var(--green);">Supabase JWT + MFA Ready</span></div>
+          <div>Database: <span style="color:var(--green);">Supabase PostgreSQL</span></div>
+          <div>Admin Email: <span style="color:var(--gold);">sunilgems126@gmail.com</span></div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3>Edit Certificate</h3>
+    <div id="editFormContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="toast-stack" id="toastStack"></div>
+
+<script>
+
+// ═══════════════════════════════════════
+// STATE & CONFIG
+// ═══════════════════════════════════════
+const API = "http://localhost:3000";
+const ADMIN_EMAIL = "sunilgems126@gmail.com";
+let authToken = localStorage.getItem("sgtl_token") || null;
+let refreshToken = localStorage.getItem("sgtl_refresh") || null;
+let currentPage = "dashboard";
+let dbPage = 1;
+let dbLimit = 20; // Bound data row paging state
+let editingReport = null;
+const preferredDbColumns = [
+  "No.", "Report No.", "Date", "Party Name", "Stone Name", "Report Type",
+  "Weight", "Weight Type", "Colour", "Shapes", "Cut", "Dimensions",
+  "Origin", "Mounted / UnMounted", "Specific Gravity", "Refractive Index",
+  "Optic Character", "Magnification", "Comment", "created_at"
+];
+
+// ═══════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════
+// ═══════════════════════════════════════
+// TOAST SYSTEM (enhanced)
+// ═══════════════════════════════════════
+function showToast(msg, type = "info") {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast show " + type;
+  setTimeout(() => t.className = "toast", 3500);
+}
+
+// Rich toast with icon, title, and close button
+const TOAST_ICONS = {
+  enquiry: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
+  sync: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
+  alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+};
+
+function showRichToast(title, message, type = "info", iconKey = null, duration = 4000) {
+  const stack = document.getElementById("toastStack");
+  const toast = document.createElement("div");
+  toast.className = `toast show ${type}`;
+  const icon = TOAST_ICONS[iconKey || type] || TOAST_ICONS.info;
+  const colorVar = type === "success" ? "var(--green)" : type === "error" ? "var(--red)" : type === "warning" ? "var(--orange)" : "var(--blue)";
+
+  toast.innerHTML = `
+    <div class="toast-body">
+      <div class="toast-icon" style="color:${colorVar}">${icon}</div>
+      <div class="toast-text">
+        <div class="toast-title">${title}</div>
+        <div class="toast-msg">${message}</div>
+      </div>
+      <button class="toast-close" onclick="this.closest('.toast').remove()">&times;</button>
+    </div>
+  `;
+  stack.appendChild(toast);
+
+  // Auto-remove after duration
+  setTimeout(() => {
+    toast.classList.remove("show");
+    toast.classList.add("hiding");
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+
+  // Max 4 toasts visible
+  while (stack.children.length > 4) stack.children[0].remove();
+}
+
+// ═══════════════════════════════════════
+// NOTIFICATION CENTER ENGINE
+// ═══════════════════════════════════════
+const NotifManager = {
+  items: [],
+  maxItems: 50,
+  _lastEnquiryCount: null,
+  _pollTimer: null,
+
+  // Add a notification
+  add(type, title, desc, action = null) {
+    const notif = {
+      id: Date.now() + Math.random(),
+      type,       // "enquiry" | "sync" | "alert" | "system"
+      title,
+      desc,
+      time: new Date(),
+      read: false,
+      action      // { label, handler } or null
+    };
+    this.items.unshift(notif);
+    if (this.items.length > this.maxItems) this.items.pop();
+    this.updateUI();
+    this.ringBell();
+    return notif;
+  },
+
+  // Get unread count
+  unreadCount() {
+    return this.items.filter(n => !n.read).length;
+  },
+
+  // Mark all read
+  markAllRead() {
+    this.items.forEach(n => n.read = true);
+    this.updateUI();
+  },
+
+  // Mark single read
+  markRead(id) {
+    const n = this.items.find(n => n.id === id);
+    if (n) { n.read = true; this.updateUI(); }
+  },
+
+  // Ring the bell animation
+  ringBell() {
+    const bell = document.getElementById("notifBell");
+    bell.classList.add("ringing");
+    setTimeout(() => bell.classList.remove("ringing"), 700);
+  },
+
+  // Update badge + dropdown
+  updateUI() {
+    const count = this.unreadCount();
+    const bell = document.getElementById("notifBell");
+    const badge = document.getElementById("notifBadge");
+    const label = document.getElementById("notifUnreadLabel");
+    const list = document.getElementById("notifList");
+
+    // Badge
+    badge.textContent = "";
+    badge.style.display = "none";
+    bell.classList.remove("has-unread");
+
+    // Unread label in dropdown header
+    if (count > 0) {
+      label.style.display = "inline";
+      label.textContent = count;
+    } else {
+      label.style.display = "none";
+    }
+
+    // Render list
+    if (this.items.length === 0) {
+      list.innerHTML = `
+        <div class="notif-empty">
+          <div class="notif-empty-icon">&#128276;</div>
+          <p>No notifications yet</p>
+          <p class="sub">New enquiries and sync events will appear here</p>
+        </div>`;
+      return;
+    }
+
+    list.innerHTML = this.items.slice(0, 20).map(n => {
+      const iconMap = {
+        enquiry: '&#9993;', sync: '&#x21BB;',
+        alert: '&#9888;', system: '&#9881;'
+      };
+      const timeAgo = this.timeAgo(n.time);
+      const actionHtml = n.action
+        ? `<span class="notif-action" onclick="event.stopPropagation();${n.action.handler}">${n.action.label}</span>`
+        : '';
+
+      return `
+        <div class="notif-item ${n.read ? '' : 'unread'}" onclick="NotifManager.markRead(${n.id});${n.action ? n.action.handler : ''}">
+          <div class="notif-item-icon ${n.type}">${iconMap[n.type] || '&#128276;'}</div>
+          <div class="notif-item-body">
+            <div class="notif-title">${escapeHtml(n.title)}</div>
+            <div class="notif-desc">${escapeHtml(n.desc)}</div>
+            <div class="notif-time">${timeAgo} ${actionHtml}</div>
+          </div>
+          ${n.read ? '' : '<div class="notif-unread-dot"></div>'}
+        </div>`;
+    }).join("");
+  },
+
+  // Human-readable time ago
+  timeAgo(date) {
+    const s = Math.floor((Date.now() - date.getTime()) / 1000);
+    if (s < 30) return "Just now";
+    if (s < 60) return s + "s ago";
+    const m = Math.floor(s / 60);
+    if (m < 60) return m + "m ago";
+    const h = Math.floor(m / 60);
+    if (h < 24) return h + "h ago";
+    return Math.floor(h / 24) + "d ago";
+  },
+
+  // Poll for new enquiries (runs every 30s)
+  startPolling() {
+    this._pollTimer = setInterval(() => this.checkNewEnquiries(), 30000);
+    // Initial check after 5s
+    setTimeout(() => this.checkNewEnquiries(), 5000);
+  },
+
+  async checkNewEnquiries() {
+    try {
+      const res = await apiFetch("/enquiries");
+      if (!res || !res.threads) return;
+
+      const pendingCount = res.threads.filter(t => t.has_pending).length;
+
+      // First run — just store the baseline
+      if (this._lastEnquiryCount === null) {
+        this._lastEnquiryCount = pendingCount;
+        return;
+      }
+
+      // New pending enquiries detected
+      if (pendingCount > this._lastEnquiryCount) {
+        const diff = pendingCount - this._lastEnquiryCount;
+        const newest = res.threads.filter(t => t.has_pending)[0];
+        const email = newest?.email || "Unknown";
+
+        this.add("enquiry",
+          "New Enquiry Received",
+          `From ${email}` + (diff > 1 ? ` (+${diff - 1} more)` : ''),
+          { label: "View Thread", handler: "navigateTo('enquiries')" }
+        );
+
+        showRichToast(
+          "New Customer Enquiry",
+          `From ${email}` + (diff > 1 ? ` and ${diff - 1} more` : ''),
+          "info", "enquiry"
+        );
+      }
+
+      this._lastEnquiryCount = pendingCount;
+    } catch (e) { /* silent fail */ }
+  }
+}; // end NotifManager
+
+// Toggle notification dropdown
+function toggleNotifDropdown() {
+  const dd = document.getElementById("notifDropdown");
+  dd.classList.toggle("open");
+  if (dd.classList.contains("open")) {
+    NotifManager.updateUI(); // refresh timestamps
+  }
+}
+
+// Close dropdown on outside click
+document.addEventListener("click", (e) => {
+  const bell = document.getElementById("notifBell");
+  if (bell && !bell.contains(e.target)) {
+    document.getElementById("notifDropdown")?.classList.remove("open");
+  }
+});
+
+// Mark all read
+function markAllNotifRead() {
+  NotifManager.markAllRead();
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function jsString(value) {
+  return JSON.stringify(String(value ?? ""));
+}
+
+async function apiFetch(endpoint, options = {}) {
+  const headers = { "Content-Type": "application/json", ...options.headers };
+  if (authToken) headers["Authorization"] = "Bearer " + authToken;
+  try {
+    const res = await fetch(API + endpoint, { ...options, headers });
+    if (res.status === 401) {
+      // Try refresh
+      const refreshed = await tryRefresh();
+      if (!refreshed) { handleLogout(); return null; }
+      headers["Authorization"] = "Bearer " + authToken;
+      const retryRes = await fetch(API + endpoint, { ...options, headers });
+      return retryRes.json();
+    }
+    return res.json();
+  } catch (e) {
+    showToast("Network error: " + e.message, "error");
+    return null;
+  }
+}
+
+async function tryRefresh() {
+  if (!refreshToken) return false;
+  try {
+    const res = await fetch(API + "/auth/refresh", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ refresh_token: refreshToken })
+    });
+    const data = await res.json();
+    if (data.token) {
+      authToken = data.token;
+      refreshToken = data.refresh_token;
+      localStorage.setItem("sgtl_token", authToken);
+      localStorage.setItem("sgtl_refresh", refreshToken);
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
+
+function generateReportNo() {
+  const now = new Date();
+  const y = String(now.getFullYear()).slice(-2);
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return "SGTL-" + y + m + rand;
+}
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+async function handleLogin() {
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("password").value;
+  const errEl = document.getElementById("loginError");
+  const btn = document.getElementById("loginBtn");
+
+  if (!email || !password) { errEl.textContent = "Please enter email and password"; return; }
+  btn.disabled = true; btn.textContent = "Signing in...";
+  errEl.textContent = "";
+
+  try {
+    const res = await fetch(API + "/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (data.error) {
+      errEl.textContent = data.error.includes("Invalid login credentials")
+        ? `Invalid login credentials. Use ${ADMIN_EMAIL}, reset the password, or run first-time setup if the admin account has not been created yet.`
+        : data.error;
+    } else if (data.token) {
+      authToken = data.token;
+      refreshToken = data.refresh_token;
+      localStorage.setItem("sgtl_token", authToken);
+      localStorage.setItem("sgtl_refresh", refreshToken);
+      document.getElementById("userEmail").textContent = data.user.email;
+      showAdminPanel();
+    }
+  } catch (e) {
+    errEl.textContent = "Connection failed. Is the server running?";
+  }
+  btn.disabled = false; btn.textContent = "Sign In Securely";
+}
+
+function handleLogout() {
+  authToken = null;
+  refreshToken = null;
+  localStorage.removeItem("sgtl_token");
+  localStorage.removeItem("sgtl_refresh");
+  document.getElementById("loginOverlay").style.display = "flex";
+  document.getElementById("adminApp").classList.remove("active");
+  document.getElementById("password").value = "";
+}
+
+function showForgotPassword() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("forgotForm").style.display = "block";
+  document.getElementById("setupForm").style.display = "none";
+  document.getElementById("forgotEmail").value = document.getElementById("loginEmail").value.trim() || ADMIN_EMAIL;
+}
+function showLoginForm() {
+  document.getElementById("loginForm").style.display = "block";
+  document.getElementById("forgotForm").style.display = "none";
+  document.getElementById("setupForm").style.display = "none";
+}
+function showSetupForm() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("forgotForm").style.display = "none";
+  document.getElementById("setupForm").style.display = "block";
+  document.getElementById("setupEmail").value = document.getElementById("loginEmail").value.trim() || ADMIN_EMAIL;
+}
+
+async function handleForgotPassword() {
+  const email = document.getElementById("forgotEmail").value.trim();
+  if (!email) return;
+  try {
+    const res = await fetch(API + "/auth/forgot-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email })
+    });
+    const data = await res.json();
+    document.getElementById("forgotError").textContent = data.message || data.error || "";
+    document.getElementById("forgotError").style.color = data.error ? "var(--red)" : "var(--green)";
+  } catch (e) {
+    document.getElementById("forgotError").textContent = "Failed to send reset email";
+  }
+}
+
+async function handleSetupAdmin() {
+  const email = document.getElementById("setupEmail").value.trim();
+  const password = document.getElementById("setupPassword").value;
+  const errEl = document.getElementById("setupError");
+  const btn = document.getElementById("setupBtn");
+
+  if (!email || !password) { errEl.textContent = "Please enter email and password"; return; }
+  if (password.length < 6) { errEl.textContent = "Password must be at least 6 characters"; return; }
+
+  btn.disabled = true; btn.textContent = "Creating account...";
+  errEl.textContent = "";
+
+  try {
+    const res = await fetch(API + "/auth/signup", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (data.error) {
+      errEl.textContent = data.error;
+    } else {
+      errEl.style.color = "var(--green)";
+      errEl.textContent = data.message || "Admin account created. You can sign in now.";
+      document.getElementById("loginEmail").value = email;
+      document.getElementById("password").value = password;
+    }
+  } catch (e) {
+    errEl.textContent = "Connection failed. Is the server running?";
+  }
+
+  btn.disabled = false; btn.textContent = "Create Admin Account";
+}
+
+async function handleChangePassword() {
+  const pw = document.getElementById("newPassword").value;
+  const pw2 = document.getElementById("confirmPassword").value;
+  if (!pw || pw.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
+  if (pw !== pw2) { showToast("Passwords do not match", "error"); return; }
+  const data = await apiFetch("/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({ access_token: authToken, new_password: pw })
+  });
+  if (data && !data.error) {
+    showToast("Password updated successfully", "success");
+    document.getElementById("newPassword").value = "";
+    document.getElementById("confirmPassword").value = "";
+  } else {
+    showToast(data?.error || "Failed to update password", "error");
+  }
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+function navigateTo(page) {
+  currentPage = page;
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
+  document.getElementById("page-" + page)?.classList.add("active");
+  document.querySelector(`.nav-item[data-page="${page}"]`)?.classList.add("active");
+  const titles = {
+    dashboard: "Dashboard", "new-cert": "New Certificate",
+    database: "Database Management", enquiries: "Customer Enquiries",
+    security: "Security Logs", settings: "Settings"
+  };
+  document.getElementById("headerTitle").textContent = titles[page] || page;
+  // Load data for the page
+  if (page === "dashboard") loadDashboard();
+  if (page === "database") loadCertificates();
+  if (page === "enquiries") { loadEnquiries(); checkGmailSyncStatus(); }
+  if (page === "security") loadSecurityLogs();
+  // Close sidebar on mobile
+  document.getElementById("sidebar").classList.remove("open");
+}
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+function showAdminPanel() {
+  document.getElementById("loginOverlay").style.display = "none";
+  document.getElementById("adminApp").classList.add("active");
+  // Set default date for cert form
+  document.getElementById("certDate").valueAsDate = new Date();
+  document.getElementById("certReportNo").value = generateReportNo();
+  loadDashboard();
+  // Start notification polling for new enquiries
+  NotifManager.startPolling();
+  // System boot notification
+  NotifManager.add("system", "Admin Panel Ready", "Secure session active. Gmail auto-sync enabled.");
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+async function loadDashboard() {
+  const data = await apiFetch("/dashboard/metrics");
+  if (!data) return;
+  document.getElementById("metricCerts").textContent = data.certificates || 0;
+  document.getElementById("metricEnquiries").textContent = data.enquiries?.total || 0;
+  document.getElementById("metricPending").textContent = data.enquiries?.pending || 0;
+  document.getElementById("metricIntegrity").textContent = data.security?.integrityChecks || 0;
+  document.getElementById("secIntegrity").textContent = (data.security?.integrityPassed || 0) + " / " + (data.security?.integrityChecks || 0);
+  document.getElementById("secTamper").textContent = data.security?.tamperAttempts || 0;
+  document.getElementById("secUnauth").textContent = data.security?.unauthorizedBlocked || 0;
+  // Load recent activity
+  const logs = await apiFetch("/security/logs?limit=8");
+  if (logs && logs.logs) {
+    renderActivityLog(logs.logs, "activityList");
+  }
+}
+
+function renderActivityLog(logs, containerId) {
+  const container = document.getElementById(containerId);
+  if (!logs || logs.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-dim);font-size:13px;">No activity yet</p>';
+    return;
+  }
+  container.innerHTML = logs.map(log => {
+    const dotClass = log.action.includes("FAIL") || log.action.includes("DENIED") || log.action.includes("UNAUTHORIZED")
+      ? "danger" : log.action.includes("DELETE") ? "warning"
+      : log.action.includes("LOGIN") || log.action.includes("CREATE") ? "success" : "info";
+    const time = new Date(log.timestamp).toLocaleString();
+    return `<div class="timeline-item">
+      <div class="timeline-dot ${dotClass}"></div>
+      <div class="timeline-content">
+        <div class="action">${log.action.replace(/_/g, " ")}</div>
+        <div class="meta">
+          <span>${time}</span>
+          <span>${log.user || "system"}</span>
+          ${log.mfa ? '<span class="mfa-badge">MFA</span>' : ""}
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+// ═══════════════════════════════════════
+// CERTIFICATES
+// ═══════════════════════════════════════
+async function handleCreateCertificate(e) {
+  e.preventDefault();
+  const record = {
+    "Report No.": document.getElementById("certReportNo").value.trim().toUpperCase().replace(/\s+/g, ""),
+    "Date": document.getElementById("certDate").value,
+    "Party Name": document.getElementById("certCustomer").value.trim(),
+    "Stone Name": document.getElementById("certStoneName").value.trim(),
+    "Report Type": document.getElementById("certReportType").value.trim(),
+    "Weight": document.getElementById("certWeight").value.trim(),
+    "Weight Type": document.getElementById("certWeightType").value,
+    "Colour": document.getElementById("certColour").value.trim(),
+    "Shapes": document.getElementById("certShape").value.trim(),
+    "Cut": document.getElementById("certCut").value.trim(),
+    "Dimensions": document.getElementById("certDimensions").value.trim(),
+    "Origin": document.getElementById("certOrigin").value.trim(),
+    "Mounted / UnMounted": document.getElementById("certMounted").value,
+    "Specific Gravity": document.getElementById("certSG").value.trim(),
+    "Refractive Index": document.getElementById("certRI").value.trim(),
+    "Optic Character": document.getElementById("certOptic").value.trim(),
+    "Magnification": document.getElementById("certMagnification").value.trim(),
+    "Comment": document.getElementById("certComment").value.trim(),
+  };
+
+  // Add custom fields
+  document.querySelectorAll(".custom-field-pair").forEach(pair => {
+    const key = pair.querySelector(".cf-key").value.trim();
+    const val = pair.querySelector(".cf-val").value.trim();
+    if (key && val) record[key] = val;
+  });
+
+  const data = await apiFetch("/certificate/create", {
+    method: "POST",
+    body: JSON.stringify(record)
+  });
+
+  if (data && !data.error) {
+    showToast("Certificate created successfully!", "success");
+    resetCertForm();
+  } else {
+    showToast(data?.error || "Failed to create certificate", "error");
+  }
+}
+
+function resetCertForm() {
+  document.getElementById("certForm").reset();
+  document.getElementById("certReportNo").value = generateReportNo();
+  document.getElementById("certDate").valueAsDate = new Date();
+  document.getElementById("customFieldsContainer").innerHTML = "";
+}
+
+function addCustomField() {
+  const container = document.getElementById("customFieldsContainer");
+  const row = document.createElement("div");
+  row.className = "dynamic-field-row custom-field-pair";
+  row.innerHTML = `
+    <div class="form-group" style="flex:1;">
+      <label>Field Name</label>
+      <input type="text" class="cf-key" placeholder="e.g. Fluorescence">
+    </div>
+    <div class="form-group" style="flex:1;">
+      <label>Value</label>
+      <input type="text" class="cf-val" placeholder="e.g. None">
+    </div>
+    <button type="button" class="remove-field-btn" onclick="this.parentElement.remove()">&times;</button>
+  `;
+  container.appendChild(row);
+}
+
+// ═══════════════════════════════════════
+// DATABASE MANAGEMENT
+// ═══════════════════════════════════════
+// Helper array strategy for smart structural ellipses rendering
+function generatePaginationArray(current, total) {
+  if (total <= 8) return Array.from({ length: total }, (_, i) => i + 1);
+  // Collect unique page numbers to show
+  const nums = new Set([1, 2, 3, total - 2, total - 1, total]);
+  for (let i = Math.max(1, current - 1); i <= Math.min(total, current + 1); i++) nums.add(i);
+  const sorted = [...nums].sort((a, b) => a - b);
+  // Insert ellipsis where gaps exist
+  const result = [];
+  sorted.forEach((n, i) => {
+    if (i > 0 && n - sorted[i - 1] > 1) result.push('...');
+    result.push(n);
+  });
+  return result;
+}
+
+async function loadCertificates() {
+  const q = document.getElementById("dbSearch").value.trim();
+  const endpoint = q
+    ? `/certificates/search?q=${encodeURIComponent(q)}&page=${dbPage}&limit=${dbLimit}`
+    : `/certificates/all?page=${dbPage}&limit=${dbLimit}`;
+
+  const data = await apiFetch(endpoint);
+  if (!data) return;
+
+  document.getElementById("dbTotal").textContent = data.total || 0;
+  const tbody = document.getElementById("dbTableBody");
+
+  if (!data.data || data.data.length === 0) {
+    document.getElementById("dbTableHead").innerHTML = '<th>Report No.</th><th>Actions</th>';
+    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-dim);padding:30px;">No certificates found</td></tr>';
+    return;
+  }
+
+  const allColumns = [...new Set(data.data.flatMap(cert => Object.keys(cert)))];
+  const columns = [
+    ...preferredDbColumns.filter(col => allColumns.includes(col)),
+    ...allColumns.filter(col => !preferredDbColumns.includes(col) && col !== "id")
+  ];
+
+  document.getElementById("dbTableHead").innerHTML = `
+    ${columns.map((col, i) => `<th data-column="${i}" style="cursor:pointer;" onclick="tableSortEngine(${i})"><div class="header-content"><span>${escapeHtml(col)}</span><span class="sort-trigger">↕</span></div></th>`).join("")}
+    <th>Actions</th>
+  `;
+
+  tbody.innerHTML = data.data.map(cert => {
+    const reportNo = cert["Report No."] || "";
+    return `
+    <tr>
+      ${columns.map(col => {
+        const value = cert[col];
+        const display = value === null || value === undefined || value === "" ? "" : value;
+        const style = col === "Report No." ? ' style="color:var(--gold);font-weight:600;"' : "";
+        return `<td${style}>${escapeHtml(display)}</td>`;
+      }).join("")}
+      <td class="actions-cell">
+        <button class="btn btn-outline btn-sm" onclick='editCertificate(${jsString(reportNo)})'>Edit</button>
+        <button class="btn btn-danger btn-sm" onclick='deleteCertificate(${jsString(reportNo)})'>Delete</button>
+      </td>
+    </tr>
+  `;
+  }).join("");
+
+  // Upgraded Pagination & Ellipses Construction
+  const totalPages = Math.ceil((data.total || 0) / dbLimit);
+  document.getElementById("dbPagination").textContent = `Page ${dbPage} of ${totalPages || 1}`;
+  
+  const pagBtns = document.getElementById("dbPaginationBtns");
+  pagBtns.innerHTML = "";
+  
+  // Previous Selector Button
+  const prevBtn = document.createElement("button");
+  prevBtn.textContent = "Prev";
+  prevBtn.disabled = dbPage === 1;
+  prevBtn.onclick = () => { if (dbPage > 1) { dbPage--; loadCertificates(); } };
+  pagBtns.appendChild(prevBtn);
+
+  // Dynamic Center Structure Generation
+  const pageNodes = generatePaginationArray(dbPage, totalPages);
+  pageNodes.forEach(node => {
+    if (node === '...') {
+      const span = document.createElement("span");
+      span.textContent = "...";
+      span.style.padding = "4px 8px";
+      span.style.color = "var(--text-dim)";
+      pagBtns.appendChild(span);
+    } else {
+      const btn = document.createElement("button");
+      btn.textContent = node;
+      if (node === dbPage) btn.className = "active";
+      btn.onclick = () => { dbPage = node; loadCertificates(); };
+      pagBtns.appendChild(btn);
+    }
+  });
+
+  // Next Selector Button
+  const nextBtn = document.createElement("button");
+  nextBtn.textContent = "Next";
+  nextBtn.disabled = dbPage === totalPages || totalPages === 0;
+  nextBtn.onclick = () => { if (dbPage < totalPages) { dbPage++; loadCertificates(); } };
+  pagBtns.appendChild(nextBtn);
+}
+
+// Function to handle changing the rows per page limit
+function changeDbLimit(newLimit) {
+  dbLimit = parseInt(newLimit, 10);
+  dbPage = 1; // Auto reset viewport pagination index to first page
+  loadCertificates();
+}
+
+function handleSearch(e) {
+  if (e.key === "Enter") { dbPage = 1; loadCertificates(); }
+}
+
+async function repairMissingNumbers() {
+  const data = await apiFetch("/database/repair-missing-numbers", { method: "POST" });
+  if (data && !data.error) {
+    showToast(data.message || "Missing numbers repaired", "success");
+    loadCertificates();
+  } else {
+    showToast(data?.error || "Failed to repair missing numbers", "error");
+  }
+}
+
+async function editCertificate(reportNo) {
+  editingReport = reportNo;
+  const data = await apiFetch("/certificate/" + encodeURIComponent(reportNo));
+  if (!data || !data.data) { showToast("Certificate not found", "error"); return; }
+
+  const cert = data.data;
+  const fields = Object.entries(cert).filter(([k]) => k !== "id" && k !== "created_at");
+  document.getElementById("editFormContent").innerHTML = `
+    <div class="form-grid">
+      ${fields.map(([key, val]) => `
+        <div class="form-group">
+          <label>${escapeHtml(key)}</label>
+          <input type="text" class="edit-field" data-key="${escapeHtml(key)}" value="${escapeHtml(val || "")}" ${key === "Report No." || key === "No." ? "readonly" : ""}>
+        </div>
+      `).join("")}
+    </div>
+  `;
+  document.getElementById("editModal").classList.add("active");
+}
+
+function closeEditModal() {
+  document.getElementById("editModal").classList.remove("active");
+  editingReport = null;
+}
+
+async function saveEdit() {
+  if (!editingReport) return;
+  const updates = {};
+  document.querySelectorAll(".edit-field").forEach(input => {
+    updates[input.dataset.key] = input.value;
+  });
+  const data = await apiFetch("/certificate/" + encodeURIComponent(editingReport), {
+    method: "PUT",
+    body: JSON.stringify(updates)
+  });
+  if (data && !data.error) {
+    showToast("Certificate updated", "success");
+    closeEditModal();
+    loadCertificates();
+  } else {
+    showToast(data?.error || "Update failed", "error");
+  }
+}
+
+async function deleteCertificate(reportNo) {
+  if (!confirm("Delete certificate " + reportNo + "? This cannot be undone.")) return;
+  const data = await apiFetch("/certificate/" + encodeURIComponent(reportNo), { method: "DELETE" });
+  if (data && !data.error) {
+    showToast("Certificate deleted", "success");
+    loadCertificates();
+  } else {
+    showToast(data?.error || "Delete failed", "error");
+  }
+}
+// Track the current sort direction for each column (true = Ascending, false = Descending)
+let sortDirections = {};
+
+function tableSortEngine(columnIndex) {
+    const tableBody = document.getElementById('dbTableBody');
+    if (!tableBody) return;
+
+    // Toggle direction: default to true (Ascending) if never sorted before
+    if (sortDirections[columnIndex] === undefined) {
+        sortDirections[columnIndex] = true;
+    } else {
+        sortDirections[columnIndex] = !sortDirections[columnIndex];
+    }
+
+    const isAscending = sortDirections[columnIndex];
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+
+    // Sort processing loop
+    const sortedRows = rows.sort((rowA, rowB) => {
+        const cellA = rowA.cells[columnIndex]?.textContent.trim() || '';
+        const cellB = rowB.cells[columnIndex]?.textContent.trim() || '';
+
+        // Check if values are numeric (like the 'NO.' column)
+        const numA = parseFloat(cellA);
+        const numB = parseFloat(cellB);
+
+        if (!isNaN(numA) && !isNaN(numB)) {
+            return isAscending ? numA - numB : numB - numA;
+        }
+
+        // Fallback to alphabetical string comparison for text columns
+        return isAscending 
+            ? cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' })
+            : cellB.localeCompare(cellA, undefined, { numeric: true, sensitivity: 'base' });
+    });
+
+    // Re-append sorted rows back into the Document DOM frame
+    tableBody.innerHTML = '';
+    sortedRows.forEach(row => tableBody.appendChild(row));
+
+    // Update UI Sort Icons across all headers
+    document.querySelectorAll('.sort-trigger').forEach((icon, idx) => {
+        if (idx === columnIndex) {
+            icon.classList.add('active');
+            icon.textContent = isAscending ? '▲' : '▼';
+        } else {
+            icon.classList.remove('active');
+            icon.textContent = '↕'; // Reset inactive columns back to neutral
+            sortDirections[idx] = undefined; // Reset state for other columns
+        }
+    });
+}
+
+
+// ═══════════════════════════════════════
+// GMAIL SYNC
+// ═══════════════════════════════════════
+async function triggerGmailSync() {
+  const btn = document.getElementById("gmailSyncBtn");
+  const status = document.getElementById("gmailSyncStatus");
+  btn.disabled = true;
+  btn.innerHTML = '<span class="sending-dots">Syncing</span>';
+  status.textContent = "";
+
+  try {
+    const res = await apiFetch("/gmail/sync", { method: "POST" });
+    if (res.synced > 0) {
+      status.style.color = "var(--green)";
+      status.textContent = `${res.synced} replies synced`;
+      loadEnquiries(); // Refresh the list
+      // Notification + Toast
+      NotifManager.add("sync", "Gmail Sync Complete", `${res.synced} thread${res.synced > 1 ? 's' : ''} updated to RESOLVED`, { label: "View Enquiries", handler: "navigateTo('enquiries')" });
+      showRichToast("Gmail Sync Complete", `${res.synced} thread${res.synced > 1 ? 's' : ''} updated to RESOLVED`, "success", "sync");
+    } else if (res.skipped && res.reason) {
+      status.style.color = "var(--gold)";
+      status.textContent = res.reason;
+    } else {
+      status.style.color = "var(--text-dim)";
+      status.textContent = "No new replies";
+      showRichToast("Gmail Sync", "No new replies found", "info", "sync", 2500);
+    }
+  } catch (e) {
+    status.style.color = "var(--red)";
+    status.textContent = "Sync failed";
+    NotifManager.add("alert", "Gmail Sync Failed", e.message || "Connection error");
+    showRichToast("Sync Failed", e.message || "Could not connect to Gmail", "error", "alert");
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span style="margin-right:4px;">&#x21BB;</span> Sync Gmail';
+  // Clear status after 8 seconds
+  setTimeout(() => { status.textContent = ""; }, 8000);
+}
+
+async function checkGmailSyncStatus() {
+  try {
+    const res = await apiFetch("/gmail/sync-status");
+    if (res && res.lastRun) {
+      const ago = Math.round((Date.now() - new Date(res.lastRun).getTime()) / 60000);
+      const el = document.getElementById("gmailSyncStatus");
+      if (el) {
+        el.style.color = "var(--text-dim)";
+        el.textContent = `Last sync: ${ago < 1 ? "just now" : ago + "m ago"}`;
+      }
+    }
+  } catch (e) {}
+}
+
+// ═══════════════════════════════════════
+// ENQUIRIES — ENTERPRISE REDESIGN
+// ═══════════════════════════════════════
+let _eqCache = { threads: [], statusCounts: {} };
+let _eqStatusFilter = "all";
+let _eqSelectedIds = new Map();
+
+// Status label map with icons
+const EQ_STATUS_MAP = {
+  new:                { label: "New",       icon: "&#9679;" },
+  resolved:           { label: "Resolved",  icon: "&#10003;" },
+  pending:            { label: "Pending",   icon: "&#9679;" }
+};
+
+const EQ_CAT_MAP = {
+  GEN: "General", CERT: "Certification", TECH: "Technical",
+  BILL: "Billing", SHIP: "Shipping", COMP: "Complaint", OTHER: "Other"
+};
+
+function getThreadStatusKey(thread) {
+  const latestMsg = thread.messages?.[thread.messages.length - 1] || {};
+  const raw = String(latestMsg.query_status || thread.query_status || "new").toLowerCase();
+
+  if (raw === "resolved") return "resolved";
+  if (raw === "pending" || raw === "awaiting_customer" || raw === "in_review" || raw === "escalated") return "pending";
+  return "new";
+}
+
+function eqFilterByStatus(status) {
+  _eqStatusFilter = status || "all";
+  document.querySelectorAll(".eq-pill").forEach(p => {
+    p.classList.toggle("active", p.dataset.filter === _eqStatusFilter);
+  });
+  document.querySelectorAll(".eq-stat-card").forEach(c => {
+    c.classList.toggle("active", c.dataset.filter === _eqStatusFilter);
+  });
+  filterEnquiriesLocal();
+}
+
+function filterEnquiriesLocal() {
+  const search = String(document.getElementById("eqSearch")?.value || "").toLowerCase().trim();
+  let threads = Array.isArray(_eqCache?.threads) ? _eqCache.threads : [];
+
+  const activeStatus = (_eqStatusFilter || "all").toLowerCase();
+  if (activeStatus !== "all") {
+    threads = threads.filter(thread => getThreadStatusKey(thread) === activeStatus);
+  }
+
+  if (search) {
+    threads = threads.filter(t => {
+      const firstName = String(t?.first_name || t?.name || "");
+      const lastName = String(t?.last_name || "");
+      const email = String(t?.email || "");
+      const phone = String(t?.phone || "");
+      const enquiryNo = String(t?.enquiry_no || "");
+      const haystack = [
+        firstName,
+        lastName,
+        email,
+        enquiryNo,
+        phone,
+        ...(Array.isArray(t?.messages) ? t.messages.map(m => String(m?.message || m?.query || "")) : []),
+        ...(Array.isArray(t?.messages) ? t.messages.map(m => String(m?.enquiry_no || "")) : [])
+      ].join(" ").toLowerCase();
+      return haystack.includes(search);
+    });
+  }
+
+  renderEnquiryThreads(threads);
+}
+
+async function loadEnquiries() {
+  const container = document.getElementById("enquiriesList");
+  const res = await apiFetch("/enquiries");
+  if (!res || !res.threads) {
+    if (container) {
+      container.innerHTML = `<div class="eq-empty">
+        <div class="eq-empty-icon">⚠️</div>
+        <h4>Unable to load enquiries</h4>
+        <p>Check your connection or sign in again, then refresh this page.</p>
+      </div>`;
+    }
+    return;
+  }
+
+  _eqCache = res;
+  _eqSelectedIds.clear();
+  updateBatchBar();
+
+  // Update status counts for stat cards and pills
+  const threadCounts = { new: 0, in_review: 0, awaiting_customer: 0, escalated: 0, resolved: 0, archived: 0, pending: 0 };
+  (res.threads || []).forEach(thread => {
+    const key = getThreadStatusKey(thread);
+    if (threadCounts[key] !== undefined) threadCounts[key] += 1;
+    else threadCounts[key] = 1;
+  });
+
+  const totalThreads = (res.threads || []).length;
+  document.getElementById("pillAll").textContent = totalThreads;
+  document.getElementById("pillNew").textContent = threadCounts.new || 0;
+  const pillInReview = document.getElementById("pillInReview");
+  if (pillInReview) pillInReview.textContent = threadCounts.in_review || 0;
+  document.getElementById("pillResolved").textContent = threadCounts.resolved || 0;
+  document.getElementById("pillPending").textContent = threadCounts.pending || 0;
+
+  const counter = document.getElementById("eqThreadCount");
+  if (counter) counter.textContent = `${totalThreads} thread${totalThreads !== 1 ? "s" : ""} · ${res.total || 0} total messages`;
+
+  filterEnquiriesLocal();
+}
+
+function renderEnquiryThreads(threads) {
+  const container = document.getElementById("enquiriesList");
+  if (threads.length === 0) {
+    container.innerHTML = `<div class="eq-empty">
+      <div class="eq-empty-icon">&#128269;</div>
+      <h4>No enquiries found</h4>
+      <p>Try adjusting your filters or search terms</p>
+    </div>`;
+    return;
+  }
+
+  container.innerHTML = threads.map(thread => {
+    try {
+      const safeThread = thread && typeof thread === 'object' ? thread : {};
+      const firstName = String(safeThread.first_name || safeThread.name?.split(" ")[0] || "");
+      const lastName = String(safeThread.last_name || safeThread.name?.split(" ").slice(1).join(" ") || "");
+      const displayName = [firstName, lastName].filter(Boolean).join(" ").trim() || String(safeThread.name || "Anonymous");
+      const initials = displayName.substring(0, 2).toUpperCase();
+      const email = String(safeThread.email || "");
+      const phone = String(safeThread.phone || "");
+      const messages = Array.isArray(safeThread.messages) ? safeThread.messages : [];
+      const latestMsg = messages[messages.length - 1] || null;
+      const threadStatus = getThreadStatusKey(safeThread);
+      const statusKey = threadStatus;
+      const statusInfo = EQ_STATUS_MAP[statusKey] || EQ_STATUS_MAP.new;
+      const enquiryNo = String(safeThread.enquiry_no || latestMsg?.enquiry_no || "");
+      const latestTime = safeThread.latest ? eqTimeAgo(new Date(safeThread.latest)) : "";
+      const category = String(safeThread.category || "GEN").toUpperCase();
+      const priority = String(safeThread.priority || "medium").toLowerCase();
+      const isSelected = _eqSelectedIds.has(safeThread.thread_id);
+      const latestMsgId = latestMsg?.id;
+
+      const timelineHtml = messages.map(msg => {
+        const safeMsg = msg && typeof msg === 'object' ? msg : {};
+        const time = safeMsg.created_at ? new Date(safeMsg.created_at) : new Date();
+        const timeStr = time.toLocaleString();
+        const relTime = eqTimeAgo(time);
+        const msgEnqNo = safeMsg.enquiry_no || "";
+
+        let html = `<div class="eq-timeline-item">
+          <div class="eq-tl-icon customer">&#9993;</div>
+          <div class="eq-tl-body">
+            <div class="eq-tl-header">
+              <span class="eq-tl-actor">Customer${msgEnqNo ? ' &middot; <span class="eq-id-pill" style="font-size:9px;padding:1px 6px;">' + escapeHtml(msgEnqNo) + '</span>' : ''}</span>
+              <span class="eq-tl-time"><span class="relative">${relTime}</span> <span class="absolute">${timeStr}</span></span>
+            </div>
+            <div class="eq-tl-content">${escapeHtml(String(safeMsg.message || safeMsg.query || ""))}</div>
+          </div>
+        </div>`;
+
+        if (safeMsg.remarks) {
+          const replyTime = safeMsg.reply_date ? new Date(safeMsg.reply_date) : new Date();
+          html += `<div class="eq-timeline-item">
+            <div class="eq-tl-icon admin">&#10003;</div>
+            <div class="eq-tl-body">
+              <div class="eq-tl-header">
+                <span class="eq-tl-actor">Admin Reply</span>
+                <span class="eq-tl-time"><span class="relative">${eqTimeAgo(replyTime)}</span> <span class="absolute">${replyTime.toLocaleString()}</span></span>
+              </div>
+              <div class="eq-tl-content reply">${escapeHtml(String(safeMsg.remarks))}</div>
+            </div>
+          </div>`;
+        }
+        return html;
+      }).join("");
+
+      const showReply = statusKey !== "resolved" && statusKey !== "archived";
+      const replyHtml = showReply && latestMsgId ? `<div class="eq-reply-composer">
+        <textarea id="reply-${latestMsgId}" placeholder="Type your reply to ${escapeHtml(email)}..."></textarea>
+        <div class="eq-reply-actions">
+          <button class="btn btn-outline btn-sm" onclick="eqChangeStatus(${latestMsgId},'awaiting_customer')">Mark Awaiting</button>
+          <button class="btn btn-success btn-sm" onclick="replyEnquiry(${latestMsgId}, '${email.replace(/'/g, "\\'")}')">Send Reply & Resolve</button>
+        </div>
+      </div>` : "";
+
+      return `<div class="eq-thread ${isSelected ? 'selected' : ''}" id="thread-${safeThread.thread_id || 'row'}" data-status="${statusKey}" data-cat="${category}" data-prio="${priority}">
+        <div class="eq-thread-header">
+          <input type="checkbox" class="eq-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation();eqToggleSelect('${safeThread.thread_id || ''}', ${latestMsgId || 'null'})">
+          <div class="eq-thread-info" onclick="this.closest('.eq-thread').classList.toggle('open')">
+            <div class="eq-thread-avatar">${initials}</div>
+            <div class="eq-thread-meta">
+              <div class="eq-thread-name-row">
+                <span class="eq-thread-name">${escapeHtml(displayName)}</span>
+                ${enquiryNo ? '<span class="eq-id-pill">' + escapeHtml(enquiryNo) + '</span>' : ''}
+              </div>
+              <div class="thread-meta-sub">
+                ${email ? '<span class="meta-email">📧 ' + escapeHtml(email) + '</span>' : ''}
+                ${email && phone ? '<span>•</span>' : ''}
+                ${phone ? '<span class="meta-phone">📞 ' + escapeHtml(phone) + '</span>' : ''}
+              </div>
+            </div>
+          </div>
+          <div class="eq-thread-right" onclick="this.closest('.eq-thread').classList.toggle('open')">
+            <span class="eq-priority ${priority}" title="${priority}"></span>
+            <span class="eq-status ${statusKey}">${statusInfo.icon} ${statusInfo.label}</span>
+            <span class="eq-thread-time">${latestTime}</span>
+            <span class="eq-thread-actions" onclick="event.stopPropagation()">
+              <button class="eq-thread-action-btn edit" type="button" onclick="event.stopPropagation(); handleEditEnquiry('${safeThread.thread_id || ''}')">Edit</button>
+              <button class="eq-thread-action-btn delete" type="button" onclick="event.stopPropagation(); handleDeleteEnquiry('${safeThread.thread_id || ''}')">Delete</button>
+            </span>
+          </div>
+        </div>
+        <div class="eq-thread-body">
+          <div class="eq-detail-header"></div>
+          <div class="eq-timeline">${timelineHtml}</div>
+          ${replyHtml}
+        </div>
+      </div>`;
+    } catch (error) {
+      console.warn('Failed to render enquiry row safely:', error, thread);
+      return `<div class="eq-thread" style="border-color: rgba(231,76,60,0.25)">
+        <div class="eq-thread-header">
+          <div class="eq-thread-info">
+            <div class="eq-thread-avatar">?</div>
+            <div class="eq-thread-meta"><div class="eq-thread-name-row"><span class="eq-thread-name">Enquiry</span></div></div>
+          </div>
+          <span class="eq-thread-actions"><button class="eq-thread-action-btn edit" type="button">Edit</button><button class="eq-thread-action-btn delete" type="button">Delete</button></span>
+        </div>
+      </div>`;
+    }
+  }).join("");
+}
+
+
+function handleEditEnquiry(id) {
+  showToast("Edit enquiry is ready for backend integration", "info");
+  console.log("Edit enquiry requested", id);
+}
+
+function handleDeleteEnquiry(id) {
+  showToast("Delete enquiry is ready for backend integration", "info");
+  console.log("Delete enquiry requested", id);
+}
+
+// --- Enquiry Actions ---
+async function eqChangeStatus(id, status) {
+  if (!id) return;
+  const data = await apiFetch(`/enquiry/${id}/status`, {
+    method: "PATCH", body: JSON.stringify({ status })
+  });
+  if (data && !data.error) {
+    showRichToast("Status Updated", data.message || `Changed to ${status}`, "success", "success", 2500);
+    loadEnquiries();
+  } else {
+    showToast(data?.error || "Failed to update status", "error");
+  }
+}
+
+async function eqChangePriority(id, priority) {
+  if (!id) return;
+  const data = await apiFetch(`/enquiry/${id}/priority`, {
+    method: "PATCH", body: JSON.stringify({ priority })
+  });
+  if (data && !data.error) {
+    showRichToast("Priority Updated", data.message, "info", "info", 2000);
+    loadEnquiries();
+  } else {
+    showToast(data?.error || "Failed to update priority", "error");
+  }
+}
+
+async function eqChangeCategory(id, category) {
+  if (!id) return;
+  const data = await apiFetch(`/enquiry/${id}/category`, {
+    method: "PATCH", body: JSON.stringify({ category })
+  });
+  if (data && !data.error) {
+    showRichToast("Category Updated", data.message, "info", "info", 2000);
+    loadEnquiries();
+  } else {
+    showToast(data?.error || "Failed to update category", "error");
+  }
+}
+
+// --- Batch Selection ---
+function eqToggleSelect(threadId, msgId) {
+  if (_eqSelectedIds.has(threadId)) {
+    _eqSelectedIds.delete(threadId);
+  } else {
+    _eqSelectedIds.set(threadId, msgId);
+  }
+  // Use Map instead of Set to store threadId -> latestMsgId
+  const thread = document.getElementById("thread-" + threadId);
+  if (thread) thread.classList.toggle("selected", _eqSelectedIds.has(threadId));
+  updateBatchBar();
+}
+
+function updateBatchBar() {
+  // _eqSelectedIds is now a Map
+  const bar = document.getElementById("eqBatchBar");
+  const count = _eqSelectedIds instanceof Map ? _eqSelectedIds.size : _eqSelectedIds.size;
+  bar.classList.toggle("visible", count > 0);
+  document.getElementById("eqBatchCount").textContent = count;
+}
+
+function clearBatchSelection() {
+  _eqSelectedIds = new Map();
+  document.querySelectorAll(".eq-thread.selected").forEach(t => t.classList.remove("selected"));
+  document.querySelectorAll(".eq-checkbox:checked").forEach(cb => cb.checked = false);
+  updateBatchBar();
+}
+
+async function batchUpdateStatus(status) {
+  const ids = Array.from(_eqSelectedIds.values()).filter(id => id);
+  if (ids.length === 0) return;
+  const data = await apiFetch("/enquiry/batch-status", {
+    method: "POST", body: JSON.stringify({ ids, status })
+  });
+  if (data && !data.error) {
+    showRichToast("Batch Update", data.message, "success", "success");
+    clearBatchSelection();
+    loadEnquiries();
+  } else {
+    showToast(data?.error || "Batch update failed", "error");
+  }
+}
+
+async function replyEnquiry(id, email) {
+  const remarks = document.getElementById("reply-" + id)?.value?.trim();
+  if (!remarks) { showToast("Please type a reply", "error"); return; }
+  const data = await apiFetch("/enquiry/reply", {
+    method: "POST",
+    body: JSON.stringify({ id, remarks, reply_email: email })
+  });
+  if (data && !data.error) {
+    showRichToast("Reply Sent", "Enquiry resolved and email sent", "success", "success");
+    loadEnquiries();
+  } else {
+    showToast(data?.error || "Failed to send reply", "error");
+  }
+}
+
+function eqTimeAgo(date) {
+  const s = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (s < 30) return "Just now";
+  if (s < 60) return s + "s ago";
+  const m = Math.floor(s / 60);
+  if (m < 60) return m + "m ago";
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + "h ago";
+  const d = Math.floor(h / 24);
+  if (d < 30) return d + "d ago";
+  return date.toLocaleDateString();
+}
+
+// ═══════════════════════════════════════
+// SECURITY LOGS
+// ═══════════════════════════════════════
+async function loadSecurityLogs() {
+  const data = await apiFetch("/security/logs?limit=50");
+  if (data && data.logs) {
+    renderActivityLog(data.logs, "securityLogsList");
+  }
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.addEventListener("DOMContentLoaded", () => {
+  // Toggle password visibility handler
+  const togglePassword = document.getElementById("togglePassword");
+  const passwordInput = document.getElementById("password");
+
+  if (togglePassword && passwordInput) {
+    togglePassword.addEventListener("click", function () {
+      const type = passwordInput.getAttribute("type") === "password" ? "text" : "password";
+      passwordInput.setAttribute("type", type);
+      this.textContent = type === "password" ? "👁️" : "🙈";
+    });
+  }
+
+  // Allow Enter key to trigger login
+  document.getElementById("password").addEventListener("keyup", (e) => {
+    if (e.key === "Enter") handleLogin();
+  });
+  // Check for existing session
+  if (authToken) {
+    apiFetch("/dashboard/metrics").then(data => {
+      if (data && !data.error) {
+        showAdminPanel();
+      } else {
+        handleLogout();
+      }
+    });
+  }
+
+});
+// ==========================================================================
+// FAILSAFE SORTING ENGINE: Place this at the bottom of your scripts
+// ==========================================================================
+let currentSortColumn = null;
+let isAscending = true;
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Target the table head safely
+    const tableHeaderRow = document.querySelector('.data-table thead tr');
+    
+    if (!tableHeaderRow) return;
+
+    // Listen for clicks on the headers using event delegation
+    tableHeaderRow.addEventListener('click', (event) => {
+        // Find the closest th that was clicked
+        const header = event.target.closest('th');
+        if (!header) return;
+
+        const columnIndex = parseInt(header.getAttribute('data-column'));
+        if (isNaN(columnIndex)) return; 
+
+        const tableBody = document.getElementById('table-body');
+        if (!tableBody) return;
+
+        // Get all current rows
+        const rows = Array.from(tableBody.querySelectorAll('tr'));
+        
+        // FAILSAFE: If there are no rows, or the table is still showing "Loading...", do nothing
+        if (rows.length === 0 || (rows.length === 1 && rows[0].innerText.includes('Loading...'))) {
+            console.log("Sorting paused: Data is still loading from the database.");
+            return;
+        }
+
+        // Toggle sorting direction logic
+        if (currentSortColumn === columnIndex) {
+            isAscending = !isAscending;
+        } else {
+            currentSortColumn = columnIndex;
+            isAscending = true;
+        }
+
+        // Execute Sorting Matrix
+        const sortedRows = rows.sort((rowA, rowB) => {
+            const cellA = rowA.cells[columnIndex]?.textContent.trim() || '';
+            const cellB = rowB.cells[columnIndex]?.textContent.trim() || '';
+
+            // Handle Numeric Values (e.g., 'NO.' column)
+            const numA = parseFloat(cellA);
+            const numB = parseFloat(cellB);
+
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return isAscending ? numA - numB : numB - numA;
+            }
+
+            // Handle Alphabetical Text Strings
+            return isAscending 
+                ? cellA.localeCompare(cellB, undefined, { numeric: true, sensitivity: 'base' })
+                : cellB.localeCompare(cellA, undefined, { numeric: true, sensitivity: 'base' });
+        });
+
+        // Safely clear and re-append sorted rows without breaking DOM bindings
+        tableBody.innerHTML = '';
+        sortedRows.forEach(row => tableBody.appendChild(row));
+
+        // Update UI Arrow Indicators (↕, ▲, ▼)
+        const headers = tableHeaderRow.querySelectorAll('th');
+        headers.forEach(h => {
+            const trigger = h.querySelector('.sort-trigger');
+            const colIdx = parseInt(h.getAttribute('data-column'));
+            
+            if (trigger) {
+                if (colIdx === currentSortColumn) {
+                    trigger.classList.add('active');
+                    trigger.textContent = isAscending ? '▲' : '▼';
+                } else {
+                    trigger.classList.remove('active');
+                    trigger.textContent = '↕';
+                }
+            }
+        });
+    });
+});
+</script>
+
+</body>
+</html>
