@@ -4,7 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SG&TL | Admin Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ═══ IMPECCABLE: admin polish (cascade-last overrides live at end of styles) ═══ */
 .password-container {
   position: relative;
   display: flex;
@@ -2622,7 +2626,7 @@ function renderActivityLog(logs, containerId) {
         <div class="action">${log.action.replace(/_/g, " ")}</div>
         <div class="meta">
           <span>${time}</span>
-          <span>${log.user || "system"}</span>
+          <span>${escapeHtml(log.user || "system")}</span>
           ${log.mfa ? '<span class="mfa-badge">MFA</span>' : ""}
         </div>
       </div>
@@ -3172,15 +3176,15 @@ function renderEnquiryThreads(threads) {
         <textarea id="reply-${latestMsgId}" placeholder="Type your reply to ${escapeHtml(email)}..."></textarea>
         <div class="eq-reply-actions">
           <button class="btn btn-outline btn-sm" onclick="eqChangeStatus(${latestMsgId},'awaiting_customer')">Mark Awaiting</button>
-          <button class="btn btn-success btn-sm" onclick="replyEnquiry(${latestMsgId}, '${email.replace(/'/g, "\\'")}')">Send Reply & Resolve</button>
+          <button class="btn btn-success btn-sm" onclick="replyEnquiry(${latestMsgId}, ${escapeHtml(jsString(email))})">Send Reply & Resolve</button>
         </div>
       </div>` : "";
 
-      return `<div class="eq-thread ${isSelected ? 'selected' : ''}" id="thread-${safeThread.thread_id || 'row'}" data-status="${statusKey}" data-cat="${category}" data-prio="${priority}">
+      return `<div class="eq-thread ${isSelected ? 'selected' : ''}" id="thread-${escapeHtml(safeThread.thread_id || 'row')}" data-status="${escapeHtml(statusKey)}" data-cat="${escapeHtml(category)}" data-prio="${escapeHtml(priority)}">
         <div class="eq-thread-header">
-          <input type="checkbox" class="eq-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation();eqToggleSelect('${safeThread.thread_id || ''}', ${latestMsgId || 'null'})">
+          <input type="checkbox" class="eq-checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation();eqToggleSelect(${escapeHtml(jsString(safeThread.thread_id || ''))}, ${latestMsgId || 'null'})">
           <div class="eq-thread-info" onclick="this.closest('.eq-thread').classList.toggle('open')">
-            <div class="eq-thread-avatar">${initials}</div>
+            <div class="eq-thread-avatar">${escapeHtml(initials)}</div>
             <div class="eq-thread-meta">
               <div class="eq-thread-name-row">
                 <span class="eq-thread-name">${escapeHtml(displayName)}</span>
@@ -3198,8 +3202,8 @@ function renderEnquiryThreads(threads) {
             <span class="eq-status ${statusKey}">${statusInfo.icon} ${statusInfo.label}</span>
             <span class="eq-thread-time">${latestTime}</span>
             <span class="eq-thread-actions" onclick="event.stopPropagation()">
-              <button class="eq-thread-action-btn edit" type="button" onclick="event.stopPropagation(); handleEditEnquiry('${safeThread.thread_id || ''}')">Edit</button>
-              <button class="eq-thread-action-btn delete" type="button" onclick="event.stopPropagation(); handleDeleteEnquiry('${safeThread.thread_id || ''}')">Delete</button>
+              <button class="eq-thread-action-btn edit" type="button" onclick="event.stopPropagation(); handleEditEnquiry(${escapeHtml(jsString(safeThread.thread_id || ''))})">Edit</button>
+              <button class="eq-thread-action-btn delete" type="button" onclick="event.stopPropagation(); handleDeleteEnquiry(${escapeHtml(jsString(safeThread.thread_id || ''))})">Delete</button>
             </span>
           </div>
         </div>

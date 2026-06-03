@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════════
 // SG&TL Laboratory Certification Admin Panel — Backend Server
 // ═══════════════════════════════════════════════════════════════
+require("./load-env")();
 const express = require("express");
 const crypto = require("crypto");
 const path = require("path");
@@ -11,18 +12,69 @@ const Imap = require("imap");
 const { simpleParser } = require("mailparser");
 
 const app = express();
-app.use(express.json({ limit: "10mb" }));
-app.use(cors());
+app.use(express.json({ limit: "1mb" }));
+
+// CORS allowlist (no wildcard). Configure ALLOWED_ORIGINS in .env.
+const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ||
+  "http://localhost:3000,http://localhost:8080").split(",").map(s => s.trim()).filter(Boolean);
+// Allow configured production origins + any local-dev origin (localhost / 127.0.0.1
+// / ::1 on ANY port). Deny everything else cleanly (cb(null,false) — no thrown 500,
+// no stack-trace leak). Browser still blocks denied origins (no ACAO header sent).
+function isAllowedOrigin(origin) {
+  if (!origin) return true; // same-origin, curl, server-to-server
+  if (ALLOWED_ORIGINS.includes(origin)) return true;
+  try {
+    const host = new URL(origin).hostname;
+    return host === "localhost" || host === "127.0.0.1" || host === "::1";
+  } catch (e) { return false; }
+}
+app.use(cors({ origin: (origin, cb) => cb(null, isAllowedOrigin(origin)) }));
+
+// Security headers on every response. CSP keeps 'unsafe-inline' because the
+// admin panel + site are inline-heavy; tighten with nonces in a later pass.
+app.use((req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("Content-Security-Policy", [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' https:",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: https:",
+    "connect-src 'self' " + SUPABASE_URL + " https://api.qrserver.com",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "frame-ancestors 'none'"
+  ].join("; "));
+  next();
+});
 
 // ── Configuration ──
 const PORT = process.env.PORT || 3000;
-const SUPABASE_URL = "https://clllfjxkhcozphqxssbb.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbGxmanhraGNvenBocXhzc2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NzY2MjIsImV4cCI6MjA5NDU1MjYyMn0.2rfdtPvTnxOVwnyYOt3JiWopUvmhsRJEPYEs3bSEqZ0";
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://clllfjxkhcozphqxssbb.supabase.co";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+if (!SUPABASE_ANON_KEY) {
+  console.error("[FATAL] SUPABASE_ANON_KEY is not set. Copy .env.example to .env and fill it in.");
+  process.exit(1);
+}
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
 const HAS_SERVICE_ROLE_KEY = SUPABASE_SERVICE_KEY !== SUPABASE_ANON_KEY;
 
 // AES-256 encryption key (32 bytes) — in production, use env variable
-const AES_KEY = process.env.AES_KEY || crypto.createHash("sha256").update("SGTL-SecureKey-2024-AES256").digest();
+const AES_SEED = process.env.AES_SEED;
+if (!AES_SEED) {
+  console.warn("[SECURITY] AES_SEED not set — using an insecure default. Set AES_SEED in .env.");
+}
+const AES_KEY = crypto.createHash("sha256").update(AES_SEED || "INSECURE-DEFAULT-CHANGE-ME").digest();
+
+// HTML-escape any user-supplied value embedded in outbound email HTML.
+function escapeHtml(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
 const AES_IV_LENGTH = 16;
 
 // Admin email
@@ -43,7 +95,7 @@ try {
     service: "gmail",
     auth: {
       user: process.env.SMTP_USER || ADMIN_EMAIL,
-      pass: process.env.SMTP_PASS || "vkgtyksvssqurgrk"
+      pass: process.env.SMTP_PASS
     }
   });
 } catch (e) {
@@ -55,7 +107,7 @@ try {
 // ═══════════════════════════════════════
 const IMAP_CONFIG = {
   user: process.env.SMTP_USER || ADMIN_EMAIL,
-  password: process.env.SMTP_PASS || "vkgtyksvssqurgrk",
+  password: process.env.SMTP_PASS,
   host: "imap.gmail.com",
   port: 993,
   tls: true,
@@ -1055,12 +1107,12 @@ app.post("/api/enquiry", async (req, res) => {
               </div>
               <div style="padding:20px 24px;">
                 <table style="width:100%;border-collapse:collapse;font-size:14px;">
-                  <tr><td style="padding:8px 0;color:#888;width:100px;">From:</td><td style="padding:8px 0;font-weight:600;">${email}</td></tr>
-                  ${phone ? `<tr><td style="padding:8px 0;color:#888;">Phone:</td><td style="padding:8px 0;">${phone}</td></tr>` : ""}
+                  <tr><td style="padding:8px 0;color:#888;width:100px;">From:</td><td style="padding:8px 0;font-weight:600;">${escapeHtml(email)}</td></tr>
+                  ${phone ? `<tr><td style="padding:8px 0;color:#888;">Phone:</td><td style="padding:8px 0;">${escapeHtml(phone)}</td></tr>` : ""}
                   <tr><td style="padding:8px 0;color:#888;">Date:</td><td style="padding:8px 0;">${new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</td></tr>
                 </table>
                 <div style="margin-top:16px;padding:16px;background:white;border-left:4px solid #c4943f;border-radius:4px;">
-                  <p style="margin:0;color:#333;line-height:1.6;">${message.replace(/\n/g, "<br>")}</p>
+                  <p style="margin:0;color:#333;line-height:1.6;">${escapeHtml(message).replace(/\n/g, "<br>")}</p>
                 </div>
                 <p style="margin-top:16px;font-size:12px;color:#999;">
                   Hit <strong>Reply</strong> in Gmail to respond directly to the customer.<br>
@@ -1241,7 +1293,7 @@ app.post("/enquiry/reply", authMiddleware, async (req, res) => {
                 <p style="color:#333;">Dear Customer,</p>
                 <p style="color:#555;">Thank you for your enquiry. Here is our response:</p>
                 <div style="background:white;padding:16px;border-left:4px solid #c4943f;border-radius:4px;margin:16px 0;">
-                  <p style="margin:0;color:#333;line-height:1.6;">${remarks.replace(/\n/g, "<br>")}</p>
+                  <p style="margin:0;color:#333;line-height:1.6;">${escapeHtml(remarks).replace(/\n/g, "<br>")}</p>
                 </div>
                 <p style="color:#555;">If you have further questions, please reply to this email.</p>
                 <p style="color:#333;">Best regards,<br><strong>SG&TL Laboratory Team</strong></p>

@@ -1,0 +1,17 @@
+# dependencies
+node_modules/
+
+# secrets — never commit
+.env
+.env.local
+.env.*.local
+
+# runtime logs
+*.log
+
+# local docs / artifacts
+*.docx
+
+# OS junk
+.DS_Store
+Thumbs.db

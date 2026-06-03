@@ -23,7 +23,7 @@
   <meta name="twitter:image" content="https://sgtlgemtesting.co.in/assets/gem-report-hero.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -122,8 +122,8 @@
   <style>
 :root {
   --ink: #0f1a17;
-  --muted: #5c6864;
-  --subtle: #8a9490;
+  --muted: #39443f;   /* AAA ~7.6:1 on white (was #5c6864, ~5.4:1 — AA only) */
+  --subtle: #434e49;  /* AAA ~7:1 on white (was #8a9490, ~3:1 — failed) */
   --line: #e2e8e5;
   --paper: #fafbfa;
   --white: #ffffff;
@@ -136,6 +136,11 @@
   --gold: #c4943f;
   --gold-dark: #9e7430;
   --gold-soft: #f0d69b;
+  --gold-ink: #6b4e1f;   /* gold-as-TEXT, AAA ~7:1 on white. Keep --gold for fills/borders only */
+  --teal-ink: #094c46;   /* teal-as-TEXT, AAA on white */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
   --gold-glow: rgba(196, 148, 63, 0.08);
   --shadow-lg: 0 24px 64px rgba(10, 18, 21, 0.10);
   --shadow-md: 0 12px 32px rgba(10, 18, 21, 0.07);
@@ -358,7 +363,7 @@ img { max-width: 100%; display: block; }
 }
 
 .hero h1 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(40px, 6.5vw, 72px);
   font-weight: 600;
   line-height: 1.08;
@@ -454,12 +459,12 @@ img { max-width: 100%; display: block; }
   font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: var(--gold-ink);
   margin-bottom: 10px;
 }
 
 .section-title {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: clamp(30px, 4vw, 48px);
   font-weight: 600;
   line-height: 1.1;
@@ -582,6 +587,9 @@ img { max-width: 100%; display: block; }
 .verified-report-info .info-value {
   font-weight: 600;
   color: var(--ink);
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.01em;
 }
 
 .verify-status-msg {
@@ -593,7 +601,7 @@ img { max-width: 100%; display: block; }
   transition: color 0.2s ease;
 }
 .verify-status-msg.error { color: #a9253f; }
-.verify-status-msg.checking { color: var(--gold); }
+.verify-status-msg.checking { color: var(--gold-ink); }
 
 .input-group {
   display: flex;
@@ -623,6 +631,13 @@ img { max-width: 100%; display: block; }
 .input-group input::placeholder {
   color: var(--subtle);
   font-weight: 400;
+}
+
+/* Report number = mono "instrument" treatment */
+#reportNumber {
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+  font-weight: 500;
 }
 
 .input-group button,
@@ -779,7 +794,7 @@ img { max-width: 100%; display: block; }
 .invalid .result-badge { background: #f8d7da; color: #721c24; }
 
 .result-stone {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 22px;
   font-weight: 600;
   color: var(--ink);
@@ -869,7 +884,7 @@ img { max-width: 100%; display: block; }
 }
 
 .about-content h3 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: var(--font-display);
   font-size: 26px;
   font-weight: 600;
   margin-bottom: 16px;
@@ -1522,7 +1537,7 @@ img { max-width: 100%; display: block; }
 }
 
 .sgtl-popup h3 {
-  font-family: 'Playfair Display', serif;
+  font-family: var(--font-display);
   font-size: 20px;
   font-weight: 600;
   color: #ffffff;
@@ -1572,6 +1587,27 @@ img { max-width: 100%; display: block; }
   transition: background 200ms;
 }
 .sgtl-popup-close:hover { background: rgba(255,255,255,0.12); }
+  /* ═══ IMPECCABLE BOLDER REDESIGN — override layer (cascade-last) ═══ */
+  body{ background:#fbfcfb; }                          /* retire busy cream radial gradient */
+
+  /* visible alternating bands (--paper #fafbfa was ~invisible against #fff) */
+  .services-section, .faq-section{ background:#eef2f0; }
+  .about-section, .testimonials-section{ background:#ffffff; }
+
+  /* bolder hierarchy: drop per-section eyebrows, scale titles up */
+  .section-eyebrow{ display:none; }
+  .section-title{ font-size:clamp(2.25rem,4.6vw,3.6rem); letter-spacing:-0.025em; line-height:1.03; text-wrap:balance; }
+  .section-subtitle{ font-size:clamp(1rem,1.4vw,1.15rem); max-width:60ch; margin-inline:auto; }
+  .section-header{ margin-bottom:clamp(2.5rem,5vw,4rem); }
+
+  /* VERIFY = the focal instrument: isolating teal band + elevated white card */
+  .verify-section{ background:linear-gradient(180deg,#f3f8f6,#e7f0ec); }
+  .verify-card{ max-width:620px; padding:clamp(1.75rem,4vw,3rem); background:#fff;
+    border:1px solid var(--line); border-radius:var(--radius-xl);
+    box-shadow:0 32px 80px rgba(10,18,21,0.13); }
+  #reportNumber{ font-size:1.2rem; padding:1.05rem 1.15rem; }
+  .input-group button{ padding:1.05rem 1.6rem; }
+
   </style>
 </head>
 <body>

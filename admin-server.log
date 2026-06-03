@@ -1,9 +1,0 @@
-
-  ╔════════════════════════════════════════════════════╗
-  ║  SG&TL Admin Panel Server                         ║
-  ║  Running on http://localhost:3000                  ║
-  ║  Admin Panel: http://localhost:3000/admin.html     ║
-  ║  Encryption: AES-256-CBC Active                    ║
-  ║  Auth: Supabase Auth + JWT                         ║
-  ╚════════════════════════════════════════════════════╝
-  
