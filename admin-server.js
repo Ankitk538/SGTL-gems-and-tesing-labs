@@ -527,7 +527,7 @@ async function authMiddleware(req, res, next) {
       return res.status(401).json({ error: "Invalid or expired token" });
     }
     // Check if user is admin
-    if (user.email !== ADMIN_EMAIL) {
+    if (String(user.email || "").toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       securityMetrics.unauthorizedBlocked++;
       logAudit("ACCESS_DENIED", user.email, { reason: "Not admin" });
       return res.status(403).json({ error: "Access denied. Admin only." });
@@ -648,13 +648,13 @@ app.post("/auth/login", async (req, res) => {
     if (error) {
       securityMetrics.unauthorizedBlocked++;
       logAudit("LOGIN_FAILED", email, { reason: error.message, ip: req.ip });
-      const hint = email === ADMIN_EMAIL
+      const hint = String(email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()
         ? "Invalid login credentials. If this is the first login, create the admin account from First-time setup or reset the password."
         : `Invalid login credentials. The admin email is ${ADMIN_EMAIL}.`;
       return res.status(401).json({ error: error.message === "Invalid login credentials" ? hint : error.message });
     }
     // Check admin access
-    if (data.user.email !== ADMIN_EMAIL) {
+    if (String(data.user.email || "").toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
       logAudit("ACCESS_DENIED", email, { reason: "Not admin" });
       return res.status(403).json({ error: "Access denied. Admin only." });
     }
@@ -745,8 +745,9 @@ app.post("/auth/confirm-admin", async (req, res) => {
 app.post("/auth/forgot-password", async (req, res) => {
   const { email } = req.body;
   try {
+    const redirectBase = process.env.SITE_URL || `http://localhost:${PORT}`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `http://localhost:${PORT}/admin.html#reset-password`
+      redirectTo: `${redirectBase}/admin.html#reset-password`
     });
     if (error) return res.status(400).json({ error: error.message });
     logAudit("PASSWORD_RESET_REQUESTED", email, { ip: req.ip });

@@ -1641,7 +1641,7 @@ html, body {
     <div id="loginForm">
       <div class="login-field">
         <label>Email Address</label>
-        <input type="email" id="loginEmail" placeholder="admin@gmail.com" autocomplete="email">
+        <input type="email" id="loginEmail" placeholder="sunilgems126@gmail.com" autocomplete="email">
       </div>
       <div class="login-field">
         <label>Password</label>
@@ -2101,7 +2101,9 @@ html, body {
 // ═══════════════════════════════════════
 // STATE & CONFIG
 // ═══════════════════════════════════════
-const API = "http://localhost:3000";
+const API = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+  ? "http://localhost:3000"
+  : "";
 const ADMIN_EMAIL = "sunilgems126@gmail.com";
 let authToken = localStorage.getItem("sgtl_token") || null;
 let refreshToken = localStorage.getItem("sgtl_refresh") || null;
