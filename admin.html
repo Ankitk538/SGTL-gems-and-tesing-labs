@@ -2514,6 +2514,8 @@ let currentPage = "dashboard";
 let dbPage = 1;
 let dbLimit = 20; // Bound data row paging state
 let editingReport = null;
+// Format ISO date (YYYY-MM-DD) to DD-MM-YYYY for display
+function fmtDate(v) { if (!v) return ""; const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[3]}-${m[2]}-${m[1]}` : v; }
 const preferredDbColumns = [
   "No.", "Report No.", "Date", "Party Name", "Stone Name", "Report Type",
   "Weight", "Weight Type", "Colour", "Shapes", "Cut", "Dimensions",
@@ -3046,7 +3048,7 @@ async function handleCreateCertificate(e) {
   e.preventDefault();
   const record = {
     "Report No.": document.getElementById("certReportNo").value.trim().toUpperCase().replace(/\s+/g, ""),
-    "Date": (() => { const v = document.getElementById("certDate").value; if (!v) return ""; const [y,m,d] = v.split("-"); return `${d}-${m}-${y}`; })(),
+    "Date": document.getElementById("certDate").value,
     "Party Name": document.getElementById("certCustomer").value.trim(),
     "Stone Name": document.getElementById("certStoneName").value.trim(),
     "Report Type": document.getElementById("certReportType").value.trim(),
@@ -3163,7 +3165,8 @@ async function loadCertificates() {
     return `
     <tr>
       ${columns.map(col => {
-        const value = cert[col];
+        let value = cert[col];
+        if (col === "Date" && value) value = fmtDate(value);
         const display = value === null || value === undefined || value === "" ? "" : value;
         const style = col === "Report No." ? ' style="color:var(--gold);font-weight:600;"' : "";
         return `<td${style}>${escapeHtml(display)}</td>`;
@@ -3246,12 +3249,15 @@ async function editCertificate(reportNo) {
   const fields = Object.entries(cert).filter(([k]) => k !== "id" && k !== "created_at");
   document.getElementById("editFormContent").innerHTML = `
     <div class="form-grid">
-      ${fields.map(([key, val]) => `
-        <div class="form-group">
-          <label>${escapeHtml(key)}</label>
-          <input type="text" class="edit-field" data-key="${escapeHtml(key)}" value="${escapeHtml(val || "")}" ${key === "Report No." || key === "No." ? "readonly" : ""}>
-        </div>
-      `).join("")}
+      ${fields.map(([key, val]) => {
+        const isReadonly = key === "Report No." || key === "No." ? "readonly" : "";
+        if (key === "Date") {
+          // Date column is now proper date type — use date picker, value in YYYY-MM-DD
+          const isoVal = val ? String(val).substring(0, 10) : "";
+          return `<div class="form-group"><label>${escapeHtml(key)}</label><input type="date" class="edit-field" data-key="${escapeHtml(key)}" value="${escapeHtml(isoVal)}"></div>`;
+        }
+        return `<div class="form-group"><label>${escapeHtml(key)}</label><input type="text" class="edit-field" data-key="${escapeHtml(key)}" value="${escapeHtml(val || "")}" ${isReadonly}></div>`;
+      }).join("")}
     </div>
   `;
   document.getElementById("editModal").classList.add("active");

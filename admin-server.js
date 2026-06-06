@@ -400,20 +400,22 @@ function normalizeReportNo(value) {
   return String(value || "").trim().toUpperCase().replace(/\s+/g, "");
 }
 
-function normalizeDateToDDMMYYYY(value) {
+// Normalize any date input to YYYY-MM-DD (ISO) for Postgres date column storage.
+// Display as DD-MM-YYYY is handled on the frontend side.
+function normalizeDateForDB(value) {
   if (!value) return value;
   const s = String(value).trim();
-  // Already DD-MM-YYYY
-  if (/^\d{2}-\d{2}-\d{4}$/.test(s)) return s;
-  // YYYY-MM-DD (HTML date input)
-  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (iso) return `${iso[3]}-${iso[2]}-${iso[1]}`;
+  // Already YYYY-MM-DD (ISO / HTML date input)
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  // DD-MM-YYYY → convert to YYYY-MM-DD
+  const ddmmyyyy = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (ddmmyyyy) return `${ddmmyyyy[3]}-${ddmmyyyy[2]}-${ddmmyyyy[1]}`;
   // DD-Mon-YY
   const monYY = s.match(/^(\d{2})-([A-Za-z]{3})-(\d{2})$/);
   if (monYY) {
     const months = { JAN:"01",FEB:"02",MAR:"03",APR:"04",MAY:"05",JUN:"06",JUL:"07",AUG:"08",SEP:"09",OCT:"10",NOV:"11",DEC:"12" };
     const mm = months[monYY[2].toUpperCase()] || "01";
-    return `${monYY[1]}-${mm}-20${monYY[3]}`;
+    return `20${monYY[3]}-${mm}-${monYY[1]}`;
   }
   return s; // unrecognized — return as-is
 }
@@ -446,7 +448,7 @@ function normalizeCertificateRecord(record, { includeEmpty = true } = {}) {
     if (value === "") {
       if (includeEmpty) normalized[field] = null;
     } else {
-      normalized[field] = field === "Date" ? normalizeDateToDDMMYYYY(value) : value;
+      normalized[field] = field === "Date" ? normalizeDateForDB(value) : value;
     }
   }
 
