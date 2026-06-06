@@ -1,2 +1,1 @@
-# Serve landing page as the homepage
-/   /landing.html   200
+# No redirects needed - index.html is now the landing page

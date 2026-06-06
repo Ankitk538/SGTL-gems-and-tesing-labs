@@ -577,7 +577,7 @@ app.use((req, res, next) => {
 
 // Serve landing page as the default homepage
 app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "landing.html"));
+  res.sendFile(path.join(__dirname, "index.html"));
 });
 
 app.get("/robots.txt", (req, res) => {
