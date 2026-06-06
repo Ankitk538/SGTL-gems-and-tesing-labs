@@ -3046,7 +3046,7 @@ async function handleCreateCertificate(e) {
   e.preventDefault();
   const record = {
     "Report No.": document.getElementById("certReportNo").value.trim().toUpperCase().replace(/\s+/g, ""),
-    "Date": document.getElementById("certDate").value,
+    "Date": (() => { const v = document.getElementById("certDate").value; if (!v) return ""; const [y,m,d] = v.split("-"); return `${d}-${m}-${y}`; })(),
     "Party Name": document.getElementById("certCustomer").value.trim(),
     "Stone Name": document.getElementById("certStoneName").value.trim(),
     "Report Type": document.getElementById("certReportType").value.trim(),
