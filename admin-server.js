@@ -185,10 +185,12 @@ function fetchSentEmails(imap, results, resolve) {
     ? new Date(new Date(lastGmailSync).getTime() - 3600000) // 1hr overlap buffer
     : new Date(Date.now() - 2 * 86400000); // default: last 2 days
 
-  const searchDate = sinceDate; // Pass Date object directly to imap.search
+  // Format as "DD-Mon-YYYY" which IMAP RFC 3501 requires
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const searchDate = `${sinceDate.getDate()}-${months[sinceDate.getMonth()]}-${sinceDate.getFullYear()}`;
 
   try {
-  imap.search(["SINCE", searchDate], (err, uids) => {
+  imap.search([["SINCE", searchDate]], (err, uids) => {
     if (err || !uids || uids.length === 0) {
       lastGmailSync = new Date().toISOString();
       imap.end();
