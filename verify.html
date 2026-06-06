@@ -1944,7 +1944,11 @@ img { max-width: 100%; display: block; }
 // ─── Supabase Config ───
 const SUPABASE_URL = "https://clllfjxkhcozphqxssbb.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsbGxmanhraGNvenBocXhzc2JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5NzY2MjIsImV4cCI6MjA5NDU1MjYyMn0.2rfdtPvTnxOVwnyYOt3JiWopUvmhsRJEPYEs3bSEqZ0";
-const VERIFY_API_BASE = (window.location.protocol === "file:" || window.location.port === "8080") ? "http://localhost:3000" : "";
+const VERIFY_API_BASE = (window.location.protocol === "file:" || window.location.port === "8080")
+  ? "http://localhost:3000"
+  : (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? ""
+    : "https://sgtl-admin.onrender.com";
 // ─── DOM Elements ───
 const form = document.querySelector("#verifyForm");
 const input = document.querySelector("#reportNumber");

@@ -28,7 +28,7 @@ function isAllowedOrigin(origin) {
     return host === "localhost" || host === "127.0.0.1" || host === "::1";
   } catch (e) { return false; }
 }
-app.use(cors({ origin: (origin, cb) => cb(null, isAllowedOrigin(origin)) }));
+app.use(cors({ origin: (origin, cb) => cb(null, isAllowedOrigin(origin)), credentials: true }));
 
 // Security headers on every response. CSP keeps 'unsafe-inline' because the
 // admin panel + site are inline-heavy; tighten with nonces in a later pass.
