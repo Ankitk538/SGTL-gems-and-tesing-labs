@@ -77,7 +77,7 @@ body {
     radial-gradient(circle at 78% 18%, rgba(13, 107, 99, 0.18), transparent 30%),
     radial-gradient(circle at 56% 84%, rgba(196, 148, 63, 0.10), transparent 28%),
     linear-gradient(180deg, rgba(5, 12, 14, 0.74), rgba(7, 18, 21, 0.88)),
-    var(--navy) url('sgtl_landing_bg.png') center/cover no-repeat fixed;
+    var(--navy);
   color: var(--white);
   font-family: Inter, system-ui, sans-serif;
   line-height: 1.6;
@@ -190,7 +190,7 @@ a { color: inherit; text-decoration: none; }
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 120px clamp(24px, 6vw, 80px) 80px;
+  padding: 120px clamp(24px, 6vw, 80px) 56px;
   position: relative;
   overflow: hidden;
 }
@@ -347,7 +347,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ─── FEATURES SECTION ─── */
 .landing-section {
-  padding: clamp(80px, 12vw, 140px) clamp(24px, 6vw, 80px);
+  padding: clamp(56px, 8vw, 96px) clamp(24px, 6vw, 80px);
   position: relative;
   background:
     linear-gradient(180deg, rgba(10, 18, 21, 0.72), rgba(9, 24, 27, 0.58)),
@@ -726,9 +726,80 @@ a { color: inherit; text-decoration: none; }
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* ─── Skip to content (a11y) ─── */
+.skip-to-content {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 9999;
+  background: var(--gold);
+  color: #0a1215;
+  padding: 12px 24px;
+  border-radius: 0 0 8px 8px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: top .2s;
+}
+.skip-to-content:focus {
+  top: 0;
+}
+
+/* ─── Hamburger button (hidden on desktop) ─── */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  z-index: 201;
+  position: relative;
+}
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: #fff;
+  margin: 5px 0;
+  border-radius: 2px;
+  transition: transform .3s, opacity .3s;
+}
+.hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ─── Mobile nav overlay ─── */
+.mobile-nav-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(10, 18, 21, 0.97);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+}
+.mobile-nav-overlay.open { display: flex; }
+.mobile-nav-overlay a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: .5px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  transition: background .2s, color .2s;
+}
+.mobile-nav-overlay a:hover,
+.mobile-nav-overlay a:focus {
+  background: rgba(196, 148, 63, 0.15);
+  color: var(--gold);
+}
+
 /* ─── RESPONSIVE ─── */
 @media (max-width: 768px) {
   .landing-nav { display: none; }
+  .hamburger { display: block; }
   .trust-row { gap: 20px; }
   .steps-grid { grid-template-columns: 1fr 1fr; }
   .pricing-grid { grid-template-columns: 1fr; max-width: 360px; }
@@ -996,6 +1067,7 @@ a { color: inherit; text-decoration: none; }
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
   <!-- HEADER -->
   <header class="landing-header" id="landingHeader">
@@ -1008,15 +1080,26 @@ a { color: inherit; text-decoration: none; }
        <small>Sunil Gems &amp; Stones Testing Laboratories</small>
       </div>
     </a>
-    <nav class="landing-nav">
+    <nav class="landing-nav" id="landingNav">
       <a href="#features">Features</a>
       <a href="#how">How It Works</a>
       <a href="#pricing">Pricing</a>
     </nav>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </header>
 
+  <!-- Mobile nav overlay -->
+  <div class="mobile-nav-overlay" id="mobileNav">
+    <a href="#features">Features</a>
+    <a href="#how">How It Works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#contact">Contact</a>
+  </div>
+
   <!-- HERO -->
-  <section class="landing-hero">
+  <section class="landing-hero" id="main-content">
     <div class="hero-bg-gradient"></div>
     <div class="hero-particles" id="particles"></div>
     <div class="landing-hero-content">
@@ -1080,6 +1163,7 @@ a { color: inherit; text-decoration: none; }
         <h3>Navratna Specialists</h3>
         <p>Expert testing of all nine Navratna stones with reports that include astrological suitability alongside scientific data.</p>
       </div>
+    </div>
   </section>
 
   <!-- HOW IT WORKS -->
@@ -1160,7 +1244,7 @@ a { color: inherit; text-decoration: none; }
   </section>
 
   <!-- CTA -->
-  <section class="cta-banner">
+  <section class="cta-banner" id="contact">
     <div class="cta-banner-inner">
       <h2>Ready to certify with confidence?</h2>
       <p>Join 500+ jewellers and traders who trust SG&TL for accurate, transparent gemstone certification.</p>
@@ -1172,10 +1256,10 @@ a { color: inherit; text-decoration: none; }
   <footer class="landing-footer">
     <span>&copy; 2026 SG&TL. All rights reserved.</span>
     <nav class="footer-nav">
-      <a href="SG%26TL%20-%20Gems%20and%20Stones%20Testing%20Laboratories.html#about">About</a>
-      <a href="SG%26TL%20-%20Gems%20and%20Stones%20Testing%20Laboratories.html#services">Services</a>
-      <a href="SG%26TL%20-%20Gems%20and%20Stones%20Testing%20Laboratories.html#faq">FAQ</a>
-      <a href="SG%26TL%20-%20Gems%20and%20Stones%20Testing%20Laboratories.html#contact">Contact</a>
+      <a href="#features">About</a>
+      <a href="#how">Services</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#contact">Contact</a>
     </nav>
   </footer>
 
@@ -1224,6 +1308,28 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const header = document.getElementById("landingHeader");
 window.addEventListener("scroll", () => {
   header.classList.toggle("scrolled", window.scrollY > 30);
+});
+
+// ─── Mobile hamburger menu ───
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const mobileNav = document.getElementById("mobileNav");
+
+hamburgerBtn.addEventListener("click", () => {
+  const isOpen = mobileNav.classList.toggle("open");
+  hamburgerBtn.classList.toggle("active", isOpen);
+  hamburgerBtn.setAttribute("aria-expanded", isOpen);
+  hamburgerBtn.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+  document.body.style.overflow = isOpen ? "hidden" : "";
+});
+
+mobileNav.querySelectorAll("a").forEach(link => {
+  link.addEventListener("click", () => {
+    mobileNav.classList.remove("open");
+    hamburgerBtn.classList.remove("active");
+    hamburgerBtn.setAttribute("aria-expanded", "false");
+    hamburgerBtn.setAttribute("aria-label", "Open menu");
+    document.body.style.overflow = "";
+  });
 });
 
 // ─── Particles ───
@@ -1301,7 +1407,8 @@ contactForm.addEventListener("submit", async (e) => {
   e.preventDefault();
   const firstName = (contactForm.elements.first_name?.value || "").trim();
   const lastName = (contactForm.elements.last_name?.value || "").trim();
-  const email = (contactForm.elements.email?.value || "").trim();
+  const usernameVal = (document.getElementById('username')?.value || "").trim();
+  const email = usernameVal ? usernameVal + "@gmail.com" : "";
   const phone = (contactForm.elements.phone?.value || "").trim();
   const message = (contactForm.elements.message?.value || "").trim();
   const plan = modalPlanName.textContent.replace("Enquiry for: ", "");
