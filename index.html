@@ -10,6 +10,7 @@
   <link rel="canonical" href="https://sgtlgemtesting.co.in/">
   <link rel="alternate" href="https://sgtlgemtesting.co.in/" hreflang="en-IN">
   <link rel="icon" href="/assets/SG_logo.png" type="image/png">
+  <meta name="theme-color" content="#0a1215">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SG&TL">
   <meta property="og:title" content="SG&TL Gem Testing Lab India | Gemstone Certification Services">
@@ -250,7 +251,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .landing-hero h1 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: clamp(44px, 7vw, 80px);
   font-weight: 600;
   line-height: 1.06;
@@ -367,7 +368,7 @@ a { color: inherit; text-decoration: none; }
 
 .section-heading {
   text-align: center;
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: clamp(32px, 4.5vw, 52px);
   font-weight: 600;
   margin-bottom: 14px;
@@ -680,7 +681,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .cta-banner h2 {
-  font-family: "Playfair Display", Georgia, serif;
+  font-family: "Fraunces", Georgia, serif;
   font-size: clamp(28px, 4vw, 42px);
   font-weight: 600;
   margin-bottom: 14px;
@@ -1040,8 +1041,8 @@ a { color: inherit; text-decoration: none; }
 }
 .sgtl-popup-close:hover { background: rgba(255,255,255,0.12); }
   /* ═══ IMPECCABLE: landing audit + bolder redesign (cascade-last) ═══ */
-  /* type: Fraunces display (was Playfair) */
-  .landing-hero h1, .section-heading, .cta-banner h2{ font-family:"Fraunces",Georgia,serif; letter-spacing:-0.03em; text-wrap:balance; }
+  /* type: Fraunces display — balanced headlines */
+  .landing-hero h1, .section-heading, .cta-banner h2{ letter-spacing:-0.03em; text-wrap:balance; }
 
   /* ABSOLUTE-BAN FIX: gradient-clip text → solid gold */
   .landing-hero h1 .gold-text{ background:none; -webkit-text-fill-color:initial; color:var(--gold-soft); }
@@ -1080,7 +1081,7 @@ a { color: inherit; text-decoration: none; }
        <small>Sunil Gems &amp; Stones Testing Laboratories</small>
       </div>
     </a>
-    <nav class="landing-nav" id="landingNav">
+    <nav class="landing-nav" id="landingNav" aria-label="Main">
       <a href="#features">Features</a>
       <a href="#how">How It Works</a>
       <a href="#pricing">Pricing</a>
@@ -1203,7 +1204,7 @@ a { color: inherit; text-decoration: none; }
     <p class="section-desc">Competitive rates for individuals, jewellers, and trade partners.</p>
 
     <div class="pricing-grid">
-      <div class="pricing-card" data-plan="basic">
+      <div class="pricing-card" data-plan="basic" tabindex="0" role="button" aria-label="Select Basic Identification plan">
         <h3>Basic Identification</h3>
         <div class="price-note">per stone / 10 Min</div>
         <ul class="pricing-features">
@@ -1215,7 +1216,7 @@ a { color: inherit; text-decoration: none; }
         </ul>
         <button class="pricing-btn" type="button">Contact Us</button>
       </div>
-      <div class="pricing-card featured" data-plan="comprehensive">
+      <div class="pricing-card featured" data-plan="comprehensive" tabindex="0" role="button" aria-label="Select Comprehensive Report plan">
         <h3>Comprehensive Report</h3>
         <div class="price-note">per stone / 10 Min</div>
         <ul class="pricing-features">
@@ -1228,7 +1229,7 @@ a { color: inherit; text-decoration: none; }
         </ul>
         <button class="pricing-btn" type="button">Contact Us</button>
       </div>
-      <div class="pricing-card" data-plan="trade">
+      <div class="pricing-card" data-plan="trade" tabindex="0" role="button" aria-label="Select Trade / Bulk plan">
         <h3>Trade / Bulk</h3>
         <div class="price-note">volume pricing available</div>
         <ul class="pricing-features">
@@ -1255,7 +1256,7 @@ a { color: inherit; text-decoration: none; }
   <!-- FOOTER -->
   <footer class="landing-footer">
     <span>&copy; 2026 SG&TL. All rights reserved.</span>
-    <nav class="footer-nav">
+    <nav class="footer-nav" aria-label="Footer">
       <a href="#features">About</a>
       <a href="#how">Services</a>
       <a href="#pricing">Pricing</a>
@@ -1264,7 +1265,7 @@ a { color: inherit; text-decoration: none; }
   </footer>
 
   <!-- Contact Form Modal -->
-  <div class="contact-modal-overlay" id="contactModal">
+  <div class="contact-modal-overlay" id="contactModal" role="dialog" aria-modal="true" aria-label="Contact form">
     <div class="contact-modal">
       <button class="contact-modal-close" id="contactModalClose">&times;</button>
       <h3>Get in Touch</h3>
@@ -1287,7 +1288,7 @@ a { color: inherit; text-decoration: none; }
   </div>
 
   <!-- Success Popup -->
-  <div class="sgtl-popup-overlay" id="successPopup">
+  <div class="sgtl-popup-overlay" id="successPopup" role="dialog" aria-modal="true" aria-label="Enquiry submitted">
     <div class="sgtl-popup">
       <button class="sgtl-popup-close" id="popupClose">&times;</button>
       <div class="sgtl-popup-icon">
@@ -1378,6 +1379,7 @@ function openContactModal(planName) {
   contactStatus.className = "contact-modal-status";
   contactSubmitBtn.disabled = false;
   contactModal.classList.add("active");
+  setTimeout(() => contactForm.querySelector("input")?.focus(), 100);
 }
 function closeContactModal() {
   contactModal.classList.remove("active");
@@ -1388,17 +1390,52 @@ contactModal.addEventListener("click", (e) => {
   if (e.target === contactModal) closeContactModal();
 });
 
+// ─── Escape key closes modals ───
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    if (contactModal.classList.contains("active")) closeContactModal();
+    if (successPopup.classList.contains("active")) hideSuccessPopup();
+    if (mobileNav.classList.contains("open")) {
+      mobileNav.classList.remove("open");
+      hamburgerBtn.classList.remove("active");
+      hamburgerBtn.setAttribute("aria-expanded", "false");
+      hamburgerBtn.setAttribute("aria-label", "Open menu");
+      document.body.style.overflow = "";
+    }
+  }
+});
+
+// ─── Focus trap for contact modal ───
+contactModal.addEventListener("keydown", (e) => {
+  if (e.key !== "Tab") return;
+  const focusable = contactModal.querySelectorAll('input, textarea, button, [tabindex]:not([tabindex="-1"])');
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (e.shiftKey) {
+    if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+  } else {
+    if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
+
 // ─── Pricing cards ───
 const pricingCards = document.querySelectorAll(".pricing-card");
+function selectPricingCard(card, e) {
+  if (e && e.target && e.target.classList.contains("pricing-btn")) {
+    const planName = card.querySelector("h3")?.textContent?.trim() || "";
+    openContactModal(planName);
+    return;
+  }
+  pricingCards.forEach(c => c.classList.remove("selected"));
+  card.classList.add("selected");
+}
 pricingCards.forEach(card => {
-  card.addEventListener("click", (e) => {
-    if (e.target.classList.contains("pricing-btn")) {
-      const planName = card.querySelector("h3")?.textContent?.trim() || "";
-      openContactModal(planName);
-      return;
+  card.addEventListener("click", (e) => selectPricingCard(card, e));
+  card.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      selectPricingCard(card);
     }
-    pricingCards.forEach(c => c.classList.remove("selected"));
-    card.classList.add("selected");
   });
 });
 
