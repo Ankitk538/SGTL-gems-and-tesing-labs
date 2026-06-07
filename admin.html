@@ -23,7 +23,7 @@
   --gold-dim: rgba(196,148,63,0.15);
   --text: #e8e6e3;
   --text-muted: #8a8a9a;
-  --text-dim: #5a5a6a;
+  --text-dim: #7a7a8a;
   --green: #2ecc71;
   --red: #e74c3c;
   --blue: #3498db;
@@ -792,6 +792,11 @@ html, body {
   margin-bottom: 6px;
   font-weight: 600;
 }
+.form-group label.required::after {
+  content: " *";
+  color: var(--red);
+  font-weight: 700;
+}
 .form-group input,
 .form-group select,
 .form-group textarea {
@@ -808,6 +813,13 @@ html, body {
 .form-group select:focus,
 .form-group textarea:focus {
   border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(196,148,63,0.15);
+}
+.form-group input:focus-visible,
+.form-group select:focus-visible,
+.form-group textarea:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
 }
 .form-group textarea { resize: vertical; min-height: 80px; }
 .form-group select { cursor: pointer; }
@@ -833,6 +845,7 @@ html, body {
   letter-spacing: 0.3px;
 }
 .btn:hover { opacity: 0.85; }
+.btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-primary {
   background: linear-gradient(135deg, var(--gold), #a67c2e);
@@ -970,6 +983,31 @@ html, body {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Loading overlay for table */
+.table-loading-overlay {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,20,0.75);
+  z-index: 20;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+}
+.table-loading-overlay.active { display: flex; }
+.table-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid rgba(196,148,63,0.2);
+  border-top-color: var(--gold);
+  border-radius: 50%;
+  animation: authSpin 0.7s linear infinite;
+}
+.table-loading-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+}
 .data-table tr:hover { background: var(--gold-dim); }
 .data-table .actions-cell {
   display: flex;
@@ -997,6 +1035,10 @@ html, body {
   color: var(--text-muted);
   cursor: pointer;
   font-size: 12px;
+}
+.pagination button:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 1px;
 }
 .pagination button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
 .pagination button.active { background: var(--gold); color: #fff; border-color: var(--gold); }
@@ -2208,11 +2250,11 @@ body {
           <h3>Certificate Information</h3>
           <div class="form-grid">
             <div class="form-group">
-              <label>Report ID (Auto-generated)</label>
+              <label class="required">Report ID (Auto-generated)</label>
               <input type="text" id="certReportNo" placeholder="SGTL-XXXXX" required>
             </div>
             <div class="form-group">
-              <label>Date</label>
+              <label class="required">Date</label>
               <input type="date" id="certDate" required>
             </div>
             <div class="form-group">
@@ -2220,7 +2262,7 @@ body {
               <input type="text" id="certCustomer" placeholder="Party name">
             </div>
             <div class="form-group">
-              <label>Stone Name / Gemstone Type</label>
+              <label class="required">Stone Name / Gemstone Type</label>
               <input type="text" id="certStoneName" placeholder="e.g. Natural Ruby" required>
             </div>
           </div>
@@ -2309,7 +2351,11 @@ body {
             <button class="btn btn-outline btn-sm" onclick="repairMissingNumbers()">Repair No.</button>
           </div>
         </div>
-        <div class="table-container-scroll">
+        <div class="table-container-scroll" style="position:relative;">
+          <div class="table-loading-overlay" id="tableLoadingOverlay">
+            <div class="table-spinner"></div>
+            <div class="table-loading-text" id="tableLoadingText">Loading data...</div>
+          </div>
           <table class="data-table">
           <thead>
     <tr id="dbTableHead">
@@ -2515,7 +2561,32 @@ let dbPage = 1;
 let dbLimit = 20; // Bound data row paging state
 let editingReport = null;
 // Format ISO date (YYYY-MM-DD) to DD-MM-YYYY for display
-function fmtDate(v) { if (!v) return ""; const m = String(v).match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? `${m[3]}-${m[2]}-${m[1]}` : v; }
+function fmtDate(v) {
+  if (!v) return "";
+  const s = String(v).trim();
+  // Already DD-MM-YYYY — pass through
+  if (/^\d{2}-\d{2}-\d{4}$/.test(s)) return s;
+  // YYYY-MM-DD — convert to DD-MM-YYYY
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return s;
+}
+// Convert DD-MM-YYYY to YYYY-MM-DD for date input value
+function dateToISO(v) {
+  if (!v) return "";
+  const s = String(v).trim();
+  const m = s.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  if (/^\d{4}-\d{2}-\d{2}/.test(s)) return s.substring(0, 10);
+  return s;
+}
+// Convert YYYY-MM-DD (from date picker) to DD-MM-YYYY for storage
+function isoToDDMMYYYY(v) {
+  if (!v) return "";
+  const m = String(v).trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+  return v;
+}
 const preferredDbColumns = [
   "No.", "Report No.", "Date", "Party Name", "Stone Name", "Report Type",
   "Weight", "Weight Type", "Colour", "Shapes", "Cut", "Dimensions",
@@ -2958,7 +3029,21 @@ async function handleChangePassword() {
 // ═══════════════════════════════════════
 // NAVIGATION
 // ═══════════════════════════════════════
+function isCertFormDirty() {
+  const form = document.getElementById("certForm");
+  if (!form) return false;
+  const stone = document.getElementById("certStoneName")?.value?.trim();
+  const weight = document.getElementById("certWeight")?.value?.trim();
+  const customer = document.getElementById("certCustomer")?.value?.trim();
+  const colour = document.getElementById("certColour")?.value?.trim();
+  return !!(stone || weight || customer || colour);
+}
+
 function navigateTo(page) {
+  // Warn if leaving New Certificate with unsaved data
+  if (currentPage === "new-cert" && page !== "new-cert" && isCertFormDirty()) {
+    if (!confirm("You have unsaved certificate data. Leave without saving?")) return;
+  }
   currentPage = page;
   document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
   document.querySelectorAll(".nav-item").forEach(n => n.classList.remove("active"));
@@ -3048,7 +3133,7 @@ async function handleCreateCertificate(e) {
   e.preventDefault();
   const record = {
     "Report No.": document.getElementById("certReportNo").value.trim().toUpperCase().replace(/\s+/g, ""),
-    "Date": document.getElementById("certDate").value,
+    "Date": isoToDDMMYYYY(document.getElementById("certDate").value),
     "Party Name": document.getElementById("certCustomer").value.trim(),
     "Stone Name": document.getElementById("certStoneName").value.trim(),
     "Report Type": document.getElementById("certReportType").value.trim(),
@@ -3131,13 +3216,31 @@ function generatePaginationArray(current, total) {
   return result;
 }
 
+function showTableLoading(show, text) {
+  const overlay = document.getElementById("tableLoadingOverlay");
+  const txt = document.getElementById("tableLoadingText");
+  if (show) {
+    if (text) txt.textContent = text;
+    overlay.classList.add("active");
+    // Show cold-start message after 5s
+    clearTimeout(window._coldStartTimer);
+    window._coldStartTimer = setTimeout(() => { txt.textContent = "Server waking up... please wait"; }, 5000);
+  } else {
+    clearTimeout(window._coldStartTimer);
+    overlay.classList.remove("active");
+    txt.textContent = "Loading data...";
+  }
+}
+
 async function loadCertificates() {
+  showTableLoading(true);
   const q = document.getElementById("dbSearch").value.trim();
   const endpoint = q
     ? `/certificates/search?q=${encodeURIComponent(q)}&page=${dbPage}&limit=${dbLimit}`
     : `/certificates/all?page=${dbPage}&limit=${dbLimit}`;
 
   const data = await apiFetch(endpoint);
+  showTableLoading(false);
   if (!data) return;
 
   document.getElementById("dbTotal").textContent = data.total || 0;
@@ -3252,8 +3355,8 @@ async function editCertificate(reportNo) {
       ${fields.map(([key, val]) => {
         const isReadonly = key === "Report No." || key === "No." ? "readonly" : "";
         if (key === "Date") {
-          // Date column is now proper date type — use date picker, value in YYYY-MM-DD
-          const isoVal = val ? String(val).substring(0, 10) : "";
+          // Date column is TEXT (DD-MM-YYYY). Convert for date picker input (needs YYYY-MM-DD).
+          const isoVal = dateToISO(val);
           return `<div class="form-group"><label>${escapeHtml(key)}</label><input type="date" class="edit-field" data-key="${escapeHtml(key)}" value="${escapeHtml(isoVal)}"></div>`;
         }
         return `<div class="form-group"><label>${escapeHtml(key)}</label><input type="text" class="edit-field" data-key="${escapeHtml(key)}" value="${escapeHtml(val || "")}" ${isReadonly}></div>`;
@@ -3272,7 +3375,9 @@ async function saveEdit() {
   if (!editingReport) return;
   const updates = {};
   document.querySelectorAll(".edit-field").forEach(input => {
-    updates[input.dataset.key] = input.value;
+    let val = input.value;
+    if (input.dataset.key === "Date") val = isoToDDMMYYYY(val);
+    updates[input.dataset.key] = val;
   });
   const data = await apiFetch("/certificate/" + encodeURIComponent(editingReport), {
     method: "PUT",
