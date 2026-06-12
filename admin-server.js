@@ -1310,7 +1310,7 @@ app.post("/enquiry/reply", authMiddleware, async (req, res) => {
           html: `
             <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#faf8f4;border:1px solid #e0d5c0;border-radius:8px;overflow:hidden;">
               <div style="background:#1a1a2e;color:#c4943f;padding:20px 24px;text-align:center;">
-                <h2 style="margin:0;">SG&TL - Sunil Gems & Testing Laboratories</h2>
+                <h2 style="margin:0;">SG&TL - Sunil Gems & Testing Lab</h2>
               </div>
               <div style="padding:20px 24px;">
                 <p style="color:#333;">Dear Customer,</p>
