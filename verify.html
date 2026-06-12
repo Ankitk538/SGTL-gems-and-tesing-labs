@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a1215">
   <title>SG&TL Gem Testing Lab | Gemstone Certificate Verification India</title>
   <meta name="description" content="Verify SG&TL gemstone certificates online. Sunil Gems & Stones Testing Laboratories provides gemstone identification, treatment disclosure, origin analysis, and trusted gem report verification in India.">
   <meta name="robots" content="index, follow, max-image-preview:large">
   <meta name="author" content="Sunil Gems & Stones Testing Laboratories">
   <meta name="keywords" content="SGTL gem testing, SG&TL, gemstone certificate verification, gem testing lab India, gemstone certification, diamond testing, ruby testing, emerald testing, sapphire testing">
-  <link rel="canonical" href="https://sgtlgemtesting.co.in/">
-  <link rel="alternate" href="https://sgtlgemtesting.co.in/" hreflang="en-IN">
+  <link rel="canonical" href="https://sgtlgemtesting.co.in/verify.html">
+  <link rel="alternate" href="https://sgtlgemtesting.co.in/verify.html" hreflang="en-IN">
   <link rel="icon" href="/assets/SG_logo.png" type="image/png">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="SG&TL">
   <meta property="og:title" content="SG&TL Gem Testing Lab | Gemstone Certificate Verification India">
   <meta property="og:description" content="Authenticate SG&TL gemstone reports online and learn about trusted gemstone testing, certification, treatment disclosure, and origin analysis services.">
-  <meta property="og:url" content="https://sgtlgemtesting.co.in/">
+  <meta property="og:url" content="https://sgtlgemtesting.co.in/verify.html">
   <meta property="og:image" content="https://sgtlgemtesting.co.in/assets/gem-report-hero.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="SG&TL Gem Testing Lab | Gemstone Certificate Verification India">
@@ -432,7 +433,7 @@ img { max-width: 100%; display: block; }
   padding: 6px 14px;
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.04);
@@ -952,7 +953,7 @@ img { max-width: 100%; display: block; }
 
 .about-image p {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.5;
 }
 
@@ -1240,7 +1241,7 @@ img { max-width: 100%; display: block; }
 
 .footer-brand p {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.45);
+  color: rgba(255, 255, 255, 0.65);
   line-height: 1.6;
   margin-bottom: 18px;
 }
@@ -1281,7 +1282,7 @@ img { max-width: 100%; display: block; }
 .footer-links a {
   display: block;
   font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.6);
   padding: 5px 0;
   transition: color var(--transition);
 }
@@ -1420,7 +1421,7 @@ img { max-width: 100%; display: block; }
   justify-content: center;
   align-items: center;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.5);
 }
 
 /* ─── ANIMATIONS ─── */
@@ -1608,13 +1609,86 @@ img { max-width: 100%; display: block; }
   #reportNumber{ font-size:1.2rem; padding:1.05rem 1.15rem; }
   .input-group button{ padding:1.05rem 1.6rem; }
 
+  /* ─── Skip to content (a11y) ─── */
+  .skip-to-content {
+    position: absolute;
+    top: -100%;
+    left: 16px;
+    z-index: 9999;
+    background: var(--gold);
+    color: #0a1215;
+    padding: 12px 24px;
+    border-radius: 0 0 8px 8px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: top .2s;
+  }
+  .skip-to-content:focus { top: 0; }
+
+  /* ─── Hamburger button (hidden on desktop) ─── */
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    z-index: 201;
+    position: relative;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px;
+    height: 2px;
+    background: var(--ink);
+    margin: 5px 0;
+    border-radius: 2px;
+    transition: transform .3s, opacity .3s;
+  }
+  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* ─── Mobile nav overlay ─── */
+  .mobile-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(10, 18, 21, 0.97);
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+  }
+  .mobile-nav-overlay.open { display: flex; }
+  .mobile-nav-overlay a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: .5px;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: background .2s, color .2s;
+  }
+  .mobile-nav-overlay a:hover,
+  .mobile-nav-overlay a:focus {
+    background: rgba(196, 148, 63, 0.15);
+    color: var(--gold);
+  }
+
+  @media (max-width: 600px) {
+    .hamburger { display: block; }
+  }
+
   </style>
 </head>
 <body>
+  <a href="#main-content" class="skip-to-content">Skip to main content</a>
 
   <!-- HEADER -->
   <header class="site-header" id="siteHeader">
-    <a href="#" class="brand">
+    <a href="index.html" class="brand">
       <div class="brand-mark">
         <img src="assets/SG_logo.png" alt="SG&amp;TL Logo">
       </div>
@@ -1635,11 +1709,24 @@ img { max-width: 100%; display: block; }
         Admin
       </a>
     </nav>
+    <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
   </header>
+
+  <!-- Mobile nav overlay -->
+  <div class="mobile-nav-overlay" id="mobileNav">
+    <a href="index.html">Home</a>
+    <a href="#verify">Verify</a>
+    <a href="#about">About</a>
+    <a href="#services">Services</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contact">Contact Us</a>
+  </div>
 
   <main>
     <!-- HERO -->
-    <section class="hero">
+    <section class="hero" id="main-content">
       <img src="assets/gem-report-hero.png" alt="" class="hero-bg">
       <div class="hero-overlay"></div>
       <div class="hero-glow"></div>
@@ -1664,10 +1751,11 @@ img { max-width: 100%; display: block; }
       <div class="verify-card">
           <form id="verifyForm">
             <div class="input-group">
-              <input type="text" id="reportNumber" placeholder="SGTL-2026-XXXX" autocomplete="off" spellcheck="false">
-              <button type="submit">Verify</button>
+              <input type="text" id="reportNumber" placeholder="SGTL-2026-XXXX" autocomplete="off" spellcheck="false" aria-label="Certificate report number">
+              <button type="submit" aria-label="Verify certificate">Verify</button>
             </div>
           </form>
+          <p class="input-hint">Enter the report number printed on your SG&TL certificate.</p>
           <p id="verifyStatus" class="verify-status-msg"></p>
           <div class="trust-badges">
             <div class="trust-badge-item">
@@ -1828,56 +1916,56 @@ img { max-width: 100%; display: block; }
 
       <div class="faq-list">
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-1">
             How long does gemstone certification take?
             <span class="faq-icon">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-answer-1" role="region">
             <p>Standard reports are delivered within 10 Min. Walk-in submissions at our lab are also welcome during business hours.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-2">
             What gemstones do you test?
             <span class="faq-icon">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-answer-2" role="region">
             <p>We test all natural gemstones including diamonds, rubies, emeralds, sapphires (Neelam), cat's eye (Lehsunia), yellow sapphire (Pukhraj), coral (Moonga), pearl (Moti), hessonite (Gomed), and all other precious and semi-precious stones popular in Indian astrology and jewellery.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-3">
             Can I verify my certificate online?
             <span class="faq-icon">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-answer-3" role="region">
             <p>Yes! Every SG&TL certificate comes with a unique report number and QR code. You can verify it instantly on our website by entering the report number or scanning the QR code with your phone camera. The verification is available 24/7.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-4">
             Do you provide Navratna stone testing?
             <span class="faq-icon">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-answer-4" role="region">
             <p>Absolutely. We specialize in testing all nine Navratna gemstones — Ruby (Manik), Pearl (Moti), Coral (Moonga), Emerald (Panna), Yellow Sapphire (Pukhraj), Diamond (Heera), Blue Sapphire (Neelam), Hessonite (Gomed), and Cat's Eye (Lehsunia). Our reports clearly state natural origin, any treatments, and suitability for astrological use.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-5">
             What is the cost of certification?
             <span class="faq-icon">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-answer-5" role="region">
             <p>Our pricing depends on the type of analysis required. We offer bulk pricing for jewellers and trade clients. Contact us for a detailed quotation.</p>
           </div>
         </div>
         <div class="faq-item">
-          <button class="faq-question">
+          <button class="faq-question" aria-expanded="false" aria-controls="faq-answer-6">
             How do I know if my stone is natural or synthetic?
             <span class="faq-icon">+</span>
           </button>
-          <div class="faq-answer">
+          <div class="faq-answer" id="faq-answer-6" role="region">
             <p>Our laboratory uses advanced instruments like Raman spectroscopy, FTIR, and photoluminescence to distinguish natural from synthetic or treated stones. The difference is often invisible to the naked eye, which is why scientific testing is essential before any significant purchase — especially for high-value Jyotish gems.</p>
           </div>
         </div>
@@ -1893,28 +1981,28 @@ img { max-width: 100%; display: block; }
         <p>Sunil Gems &amp; Stones Testing Laboratories. Delivering certified excellence in gemstone analysis since 2000. Trusted by jewellers across India.</p>
       </div>
 
-      <div class="footer-links">
+      <nav class="footer-links" aria-label="Footer">
         <h4>Quick Links</h4>
         <a href="#verify">Verify Report</a>
         <a href="#about">About Us</a>
         <a href="#services">Services</a>
         <a href="#faq">FAQ</a>
         <a href="#contact">Contact</a>
-      </div>
+      </nav>
 
       <div>
         <h4 style="font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px;">Quick Enquiry</h4>
         <form class="footer-contact-form" id="queryForm">
 	<div class="form-group-name" style="display: flex; gap: 15px;">
-	  <input type="text" name="first_name" id="firstName" placeholder="First Name*" required style="flex: 1;">
-	  <input type="text" name="last_name" id="lastName" placeholder="Last Name*" required style="flex: 1;">
+	  <input type="text" name="first_name" id="firstName" placeholder="First Name*" required style="flex: 1;" aria-label="First name">
+	  <input type="text" name="last_name" id="lastName" placeholder="Last Name*" required style="flex: 1;" aria-label="Last name">
 	</div>
           <div class="gmail-input-wrap">
-            <input type="text" name="emailUser" placeholder="Username" autocomplete="username" required>
+            <input type="text" name="emailUser" placeholder="Username" autocomplete="username" required aria-label="Gmail username">
             <span class="gmail-suffix">@gmail.com</span>
           </div>
-          <input type="tel" name="phone" placeholder="Phone number (optional)" autocomplete="tel">
-          <textarea name="message" placeholder="Your message" rows="3" required></textarea>
+          <input type="tel" name="phone" placeholder="Phone number (optional)" autocomplete="tel" aria-label="Phone number">
+          <textarea name="message" placeholder="Your message" rows="3" required aria-label="Your message"></textarea>
           <button type="submit">Send Enquiry</button>
         </form>
         <p id="queryStatus" class="query-status" role="status" aria-live="polite"></p>
@@ -1927,7 +2015,7 @@ img { max-width: 100%; display: block; }
   </footer>
 
   <!-- Success Popup Modal -->
-  <div class="sgtl-popup-overlay" id="successPopup">
+  <div class="sgtl-popup-overlay" id="successPopup" role="dialog" aria-modal="true" aria-label="Enquiry submitted successfully">
     <div class="sgtl-popup">
       <button class="sgtl-popup-close" id="popupClose">&times;</button>
       <div class="sgtl-popup-icon">
@@ -1939,6 +2027,7 @@ img { max-width: 100%; display: block; }
     </div>
   </div>
 
+  <noscript><style>.service-card,.standard-item,.verify-card,.testimonial-card,.faq-item,.about-grid{opacity:1!important;animation:none!important}</style></noscript>
   <script src="jspdf.umd.min.js"></script>
   <script>
 // ─── Supabase Config ───
@@ -2074,17 +2163,40 @@ input.addEventListener("input", () => {
 const successPopup = document.getElementById("successPopup");
 const popupClose = document.getElementById("popupClose");
 const popupOk = document.getElementById("popupOk");
+let _popupTrigger = null;
 
 function showSuccessPopup() {
+  _popupTrigger = document.activeElement;
   successPopup.classList.add("active");
+  popupClose.focus();
 }
 function hideSuccessPopup() {
   successPopup.classList.remove("active");
+  if (_popupTrigger && _popupTrigger.focus) _popupTrigger.focus();
+  _popupTrigger = null;
 }
 popupClose.addEventListener("click", hideSuccessPopup);
 popupOk.addEventListener("click", hideSuccessPopup);
 successPopup.addEventListener("click", (e) => {
   if (e.target === successPopup) hideSuccessPopup();
+});
+// Escape key closes popup
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && successPopup.classList.contains("active")) {
+    hideSuccessPopup();
+  }
+});
+// Focus trap inside popup
+successPopup.addEventListener("keydown", (e) => {
+  if (e.key !== "Tab") return;
+  const focusable = successPopup.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey) {
+    if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+  } else {
+    if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
 });
 
 // ─── Contact Form → Supabase ───
@@ -2207,15 +2319,40 @@ function updateActiveNav() {
 window.addEventListener("scroll", updateActiveNav);
 updateActiveNav();
 
+// ─── Hamburger Menu ───
+const hamburgerBtn = document.getElementById("hamburgerBtn");
+const mobileNav = document.getElementById("mobileNav");
+if (hamburgerBtn && mobileNav) {
+  hamburgerBtn.addEventListener("click", () => {
+    const isOpen = hamburgerBtn.classList.toggle("active");
+    mobileNav.classList.toggle("open");
+    hamburgerBtn.setAttribute("aria-expanded", String(isOpen));
+  });
+  mobileNav.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", () => {
+      hamburgerBtn.classList.remove("active");
+      mobileNav.classList.remove("open");
+      hamburgerBtn.setAttribute("aria-expanded", "false");
+    });
+  });
+}
+
 // ─── FAQ Accordion ───
 document.querySelectorAll(".faq-question").forEach(btn => {
   btn.addEventListener("click", () => {
     const item = btn.parentElement;
     const isOpen = item.classList.contains("open");
-    // Close all
-    document.querySelectorAll(".faq-item").forEach(i => i.classList.remove("open"));
+    // Close all & reset aria
+    document.querySelectorAll(".faq-item").forEach(i => {
+      i.classList.remove("open");
+      const b = i.querySelector(".faq-question");
+      if (b) b.setAttribute("aria-expanded", "false");
+    });
     // Open clicked if it wasn't open
-    if (!isOpen) item.classList.add("open");
+    if (!isOpen) {
+      item.classList.add("open");
+      btn.setAttribute("aria-expanded", "true");
+    }
   });
 });
 
