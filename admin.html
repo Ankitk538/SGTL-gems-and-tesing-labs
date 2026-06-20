@@ -3342,9 +3342,9 @@ function drawPVCFront(doc, W, H, report, qrDataUrl, gemImageDataUrl) {
 
   // Step 2: Overlay dynamic form values at hardcoded mm coordinates
   // These positions match the colon positions on the Canva template
-  const valX = 26;       // X position for values (right of the colon ":")
-  let fy = 12.5;         // Starting Y for first field (Report No.)
-  const lineH = 3.8;     // Vertical spacing between fields
+  const valX = 27;       // X position for values (right of the colon ":")
+  let fy = 15.3;         // Starting Y for first field (Report No.) — matched to Canva template
+  const lineH = 3.83;    // Vertical spacing between fields — matched to Canva template
 
   // Dynamic field values from the form
   const fields = [
@@ -3361,7 +3361,7 @@ function drawPVCFront(doc, W, H, report, qrDataUrl, gemImageDataUrl) {
   ];
 
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(3.8);
+  doc.setFontSize(3.5);
   doc.setTextColor(40, 40, 40);
 
   fields.forEach(function(val) {
