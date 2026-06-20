@@ -1003,6 +1003,14 @@ html, body {
   border-radius: 50%;
   animation: authSpin 0.7s linear infinite;
 }
+.spinner-ring {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: authSpin 0.7s linear infinite;
+}
 .table-loading-text {
   font-size: 12px;
   color: var(--text-muted);
@@ -2245,7 +2253,7 @@ body {
 
     <div class="page" id="page-new-cert">
       <h2 class="page-title">Issue New Certificate</h2>
-      <form id="certForm" onsubmit="handleCreateCertificate(event)">
+      <form id="certForm" onsubmit="handleSaveIssueDownload(event)">
         <div class="form-section">
           <h3>Certificate Information</h3>
           <div class="form-grid">
@@ -2346,9 +2354,8 @@ body {
           <div id="customFieldsContainer"></div>
         </div>
         <div class="form-actions">
-          <button type="submit" class="btn btn-primary">&#x1f512; Save & Issue Certificate</button>
-          <button type="button" class="btn btn-outline" onclick="downloadCertificatePDF()" style="background:rgba(52,152,219,0.1);border-color:rgba(52,152,219,0.3);color:#3498db;">&#128196; Save & Download PDF</button>
-          <button type="reset" class="btn btn-outline" onclick="resetCertForm()">Clear Form</button>
+          <button type="submit" id="certSubmitBtn" class="btn btn-primary" style="min-width:280px;">&#x1f512; Save, Issue & Download Certificate</button>
+          <button type="button" class="btn btn-outline" onclick="resetCertForm()">Clear Form</button>
         </div>
       </form>
     </div>
@@ -3143,46 +3150,102 @@ function renderActivityLog(logs, containerId) {
 // ═══════════════════════════════════════
 // CERTIFICATES
 // ═══════════════════════════════════════
-async function handleCreateCertificate(e) {
+async function handleSaveIssueDownload(e) {
   e.preventDefault();
-  const record = {
-    "Report No.": document.getElementById("certReportNo").value.trim().toUpperCase().replace(/\s+/g, ""),
-    "Date": isoToDDMMYYYY(document.getElementById("certDate").value),
-    "Party Name": document.getElementById("certCustomer").value.trim(),
-    "Stone Name": document.getElementById("certStoneName").value.trim(),
-    "Report Type": document.getElementById("certReportType").value.trim(),
-    "Weight": document.getElementById("certWeight").value.trim(),
-    "Weight Type": document.getElementById("certWeightType").value,
-    "Colour": document.getElementById("certColour").value.trim(),
-    "Shapes": document.getElementById("certShape").value.trim(),
-    "Cut": document.getElementById("certCut").value.trim(),
-    "Dimensions": document.getElementById("certDimensions").value.trim(),
-    "Origin": document.getElementById("certOrigin").value.trim(),
-    "Mounted / UnMounted": document.getElementById("certMounted").value,
-    "Specific Gravity": document.getElementById("certSG").value.trim(),
-    "Refractive Index": document.getElementById("certRI").value.trim(),
-    "Optic Character": document.getElementById("certOptic").value.trim(),
-    "Magnification": document.getElementById("certMagnification").value.trim(),
-    "Comment": document.getElementById("certComment").value.trim(),
-  };
+  const btn = document.getElementById("certSubmitBtn");
+  const origHTML = btn.innerHTML;
 
-  // Add custom fields
-  document.querySelectorAll(".custom-field-pair").forEach(pair => {
-    const key = pair.querySelector(".cf-key").value.trim();
-    const val = pair.querySelector(".cf-val").value.trim();
-    if (key && val) record[key] = val;
-  });
+  // ── Validate ──
+  const reportNo = document.getElementById("certReportNo").value.trim();
+  const stoneName = document.getElementById("certStoneName").value.trim();
+  if (!reportNo || !stoneName) {
+    showToast("Report ID and Stone Name are required", "error");
+    return;
+  }
 
-  const data = await apiFetch("/certificate/create", {
-    method: "POST",
-    body: JSON.stringify(record)
-  });
+  // ── Loading state ──
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px;"><span class="spinner-ring"></span> Processing & Generating PDF...</span>';
 
-  if (data && !data.error) {
-    showToast("Certificate created successfully!", "success");
+  try {
+    // ── 1. Collect form data ──
+    const record = {
+      "Report No.": reportNo.toUpperCase().replace(/\s+/g, ""),
+      "Date": isoToDDMMYYYY(document.getElementById("certDate").value),
+      "Party Name": document.getElementById("certCustomer").value.trim(),
+      "Stone Name": stoneName,
+      "Report Type": document.getElementById("certReportType").value.trim(),
+      "Weight": document.getElementById("certWeight").value.trim(),
+      "Weight Type": document.getElementById("certWeightType").value,
+      "Colour": document.getElementById("certColour").value.trim(),
+      "Shapes": document.getElementById("certShape").value.trim(),
+      "Cut": document.getElementById("certCut").value.trim(),
+      "Dimensions": document.getElementById("certDimensions").value.trim(),
+      "Origin": document.getElementById("certOrigin").value.trim(),
+      "Mounted / UnMounted": document.getElementById("certMounted").value,
+      "Specific Gravity": document.getElementById("certSG").value.trim(),
+      "Refractive Index": document.getElementById("certRI").value.trim(),
+      "Optic Character": document.getElementById("certOptic").value.trim(),
+      "Magnification": document.getElementById("certMagnification").value.trim(),
+      "Comment": document.getElementById("certComment").value.trim(),
+    };
+
+    // Add custom fields
+    document.querySelectorAll(".custom-field-pair").forEach(pair => {
+      const key = pair.querySelector(".cf-key").value.trim();
+      const val = pair.querySelector(".cf-val").value.trim();
+      if (key && val) record[key] = val;
+    });
+
+    // ── 2. Save to database ──
+    const data = await apiFetch("/certificate/create", {
+      method: "POST",
+      body: JSON.stringify(record)
+    });
+
+    if (!data || data.error) {
+      showToast(data?.error || "Failed to save certificate", "error");
+      return;
+    }
+
+    showToast("Certificate saved! Generating PDF...", "success");
+
+    // ── 3. Generate PVC card PDF ──
+    if (!window.jspdf) {
+      showToast("PDF library still loading. PDF will be available shortly.", "error");
+      return;
+    }
+
+    // Load QR code
+    let qrDataUrl = null;
+    try {
+      const verifyUrl = "https://sgtlgemtesting.co.in/verify.html#verify?report=" + encodeURIComponent(record["Report No."]);
+      const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(verifyUrl);
+      qrDataUrl = await loadImageAsBase64(qrUrl).catch(() => null);
+    } catch(e) {}
+
+    const { jsPDF } = window.jspdf;
+    // CR80 PVC Card: 85.6mm x 53.98mm (landscape orientation)
+    const CW = 85.6, CH = 53.98;
+    const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [CH, CW] });
+
+    // Page 1 — FRONT: Gemstone Identification Report
+    drawPVCFront(doc, CW, CH, record, qrDataUrl, _gemImageDataUrl);
+
+    // Page 2 — BACK: Terms & Conditions
+    doc.addPage([CH, CW], "landscape");
+    drawPVCBack(doc, CW, CH);
+
+    doc.save("SGTL_Certificate_" + record["Report No."] + ".pdf");
+    showToast("Certificate issued & PDF downloaded!", "success");
     resetCertForm();
-  } else {
-    showToast(data?.error || "Failed to create certificate", "error");
+
+  } catch(err) {
+    console.error("Certificate error:", err);
+    showToast("An error occurred: " + err.message, "error");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
   }
 }
 
@@ -3290,113 +3353,46 @@ function drawSGLogoOutline(doc, cx, cy, size) {
   doc.text("G", cx + size * 0.05, cy + size * 0.55);
 }
 
-async function downloadCertificatePDF() {
-  if (!window.jspdf) {
-    showToast("PDF library is still loading. Please wait a moment.", "error");
-    return;
-  }
+// ══════════════════════════════════════════════════════
+// PVC CARD PDF — CR80 format (85.6mm × 53.98mm)
+// ══════════════════════════════════════════════════════
 
-  // Validate required fields
-  const reportNo = document.getElementById("certReportNo").value.trim();
-  const stoneName = document.getElementById("certStoneName").value.trim();
-  if (!reportNo || !stoneName) {
-    showToast("Report ID and Stone Name are required for PDF", "error");
-    return;
-  }
-
-  // Collect all form data
-  const record = {
-    "Report No.": reportNo.toUpperCase().replace(/\s+/g, ""),
-    "Date": isoToDDMMYYYY(document.getElementById("certDate").value),
-    "Party Name": document.getElementById("certCustomer").value.trim(),
-    "Stone Name": stoneName,
-    "Report Type": document.getElementById("certReportType").value.trim(),
-    "Weight": document.getElementById("certWeight").value.trim(),
-    "Weight Type": document.getElementById("certWeightType").value,
-    "Colour": document.getElementById("certColour").value.trim(),
-    "Shapes": document.getElementById("certShape").value.trim(),
-    "Cut": document.getElementById("certCut").value.trim(),
-    "Dimensions": document.getElementById("certDimensions").value.trim(),
-    "Origin": document.getElementById("certOrigin").value.trim(),
-    "Mounted / UnMounted": document.getElementById("certMounted").value,
-    "Specific Gravity": document.getElementById("certSG").value.trim(),
-    "Refractive Index": document.getElementById("certRI").value.trim(),
-    "Optic Character": document.getElementById("certOptic").value.trim(),
-    "Magnification": document.getElementById("certMagnification").value.trim(),
-    "Comment": document.getElementById("certComment").value.trim(),
-  };
-
-  showToast("Generating PDF...", "info");
-
-  // Load QR code
-  let qrDataUrl = null;
-  try {
-    const verifyUrl = "https://sgtlgemtesting.co.in/verify.html#verify?report=" + encodeURIComponent(record["Report No."]);
-    const qrUrl = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(verifyUrl);
-    qrDataUrl = await loadImageAsBase64(qrUrl).catch(() => null);
-  } catch(e) { /* QR not available */ }
-
-  const { jsPDF } = window.jspdf;
-  // A4 portrait in mm
-  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-  const W = 210, H = 297;
-
-  // ══════════════════════════════════════
-  // PAGE 1: FRONT — Gemstone Report Card
-  // ══════════════════════════════════════
-  drawFrontPage(doc, W, H, record, qrDataUrl, _gemImageDataUrl);
-
-  // ══════════════════════════════════════
-  // PAGE 2: BACK — Terms & Conditions
-  // ══════════════════════════════════════
-  doc.addPage("a4", "portrait");
-  drawBackPage(doc, W, H);
-
-  doc.save("SGTL_Certificate_" + record["Report No."] + ".pdf");
-  showToast("PDF downloaded!", "success");
-}
-
-function drawFrontPage(doc, W, H, report, qrDataUrl, gemImageDataUrl) {
-  const navy = [10, 25, 60];
+function drawPVCFront(doc, W, H, report, qrDataUrl, gemImageDataUrl) {
+  // W = 85.6mm, H = 53.98mm (landscape CR80)
   const black = [0, 0, 0];
+  const white = [255, 255, 255];
+  const navy = [10, 25, 60];
   const darkGray = [40, 40, 40];
   const midGray = [100, 100, 100];
-  const lightGray = [200, 200, 200];
+  const gold = [180, 145, 75];
+  const M = 2.5; // margin
 
-  // White background (default)
+  // ── BLACK HEADER BAR ──
+  doc.setFillColor(navy[0], navy[1], navy[2]);
+  doc.rect(0, 0, W, 8.5, "F");
 
-  // ── SG Logo (top-left) ──
-  drawSGLogo(doc, 28, 28, 12);
-
-  // ── Company name (top, next to logo) ──
+  // Header text — company name
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.setTextColor(black[0], black[1], black[2]);
-  doc.setCharSpace(2.5);
-  doc.text("SUNIL GEMS & TESTING LABS", 48, 24);
+  doc.setFontSize(5.5);
+  doc.setTextColor(white[0], white[1], white[2]);
+  doc.setCharSpace(1);
+  doc.text("SUNIL GEMS & TESTING LABS", W / 2, 3.8, { align: "center" });
   doc.setCharSpace(0);
 
-  // Subtitle
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "italic");
-  doc.setTextColor(midGray[0], midGray[1], midGray[2]);
-  doc.setCharSpace(2);
-  doc.text("GEMSTONE IDENTIFICATION REPORT", 48, 33);
+  // Sub-header — report type
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(3.5);
+  doc.setTextColor(gold[0], gold[1], gold[2]);
+  doc.setCharSpace(0.8);
+  doc.text("GEMSTONE IDENTIFICATION REPORT", W / 2, 7, { align: "center" });
   doc.setCharSpace(0);
 
-  // ── Thin separator line ──
-  doc.setDrawColor(black[0], black[1], black[2]);
-  doc.setLineWidth(0.6);
-  doc.line(15, 42, W - 15, 42);
-
-  // ══════════════════════════════════════
-  // LEFT COLUMN: Report fields
-  // ══════════════════════════════════════
-  const labelX = 18;
-  const colonX = 62;
-  const valX = 66;
-  let fy = 58;
-  const lineH = 14;
+  // ── LEFT COLUMN: Report fields ──
+  const labelX = M + 1;
+  const colonX = 24;
+  const valX = 26;
+  let fy = 12.5;
+  const lineH = 3.8;
 
   const fields = [
     { label: "Report No.", val: report["Report No."] },
@@ -3404,212 +3400,189 @@ function drawFrontPage(doc, W, H, report, qrDataUrl, gemImageDataUrl) {
     { label: "Shape/Cut", val: [report["Shapes"], report["Cut"]].filter(Boolean).join(" / ") || "" },
     { label: "Dimension", val: report["Dimensions"] },
     { label: "Colour", val: report["Colour"] },
-    { label: "Refractive Index", val: report["Refractive Index"] },
-    { label: "Specific Gravity", val: report["Specific Gravity"] },
-    { label: "Species/Group", val: report["Origin"] || report["Report Type"] },
+    { label: "R.I.", val: report["Refractive Index"] },
+    { label: "S.G.", val: report["Specific Gravity"] },
+    { label: "Species", val: report["Origin"] || report["Report Type"] },
     { label: "Hardness", val: report["Optic Character"] || "" },
     { label: "Comments", val: report["Comment"] || report["Magnification"] || "" },
   ];
 
   fields.forEach(f => {
-    // Label
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(3.8);
     doc.setTextColor(black[0], black[1], black[2]);
     doc.text(f.label, labelX, fy);
-
-    // Colon
     doc.text(":", colonX, fy);
 
-    // Value
     if (f.val && String(f.val).trim()) {
       doc.setFont("helvetica", "normal");
       doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-      const valStr = String(f.val).length > 40 ? String(f.val).substring(0, 38) + "..." : String(f.val);
+      const valStr = String(f.val).length > 22 ? String(f.val).substring(0, 20) + ".." : String(f.val);
       doc.text(valStr, valX, fy);
     }
-
     fy += lineH;
   });
 
-  // ══════════════════════════════════════
-  // CENTER: SG Watermark (large, faded)
-  // ══════════════════════════════════════
+  // ── CENTER: SG Watermark (faded) ──
   doc.setFont("times", "bolditalic");
-  doc.setFontSize(120);
-  doc.setTextColor(230, 230, 230);
-  doc.text("SG", W / 2 - 10, 160, { align: "center" });
+  doc.setFontSize(38);
+  doc.setTextColor(235, 235, 235);
+  doc.text("SG", W / 2 + 2, 34, { align: "center" });
 
-  // ══════════════════════════════════════
-  // RIGHT: Gemstone image + Stone Name
-  // ══════════════════════════════════════
-  const imgX = 135, imgY = 50, imgW = 58, imgH = 55;
+  // ── RIGHT: Gemstone image ──
+  const imgX = W - M - 18, imgY = 10.5, imgW = 16, imgH = 14;
 
   if (gemImageDataUrl) {
-    // Draw the actual uploaded image
     doc.addImage(gemImageDataUrl, "JPEG", imgX, imgY, imgW, imgH);
     doc.setDrawColor(black[0], black[1], black[2]);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(0.2);
     doc.rect(imgX, imgY, imgW, imgH);
   } else {
-    // Placeholder box with gem icon
     doc.setFillColor(240, 240, 240);
     doc.rect(imgX, imgY, imgW, imgH, "F");
-    doc.setDrawColor(black[0], black[1], black[2]);
-    doc.setLineWidth(0.5);
+    doc.setDrawColor(midGray[0], midGray[1], midGray[2]);
+    doc.setLineWidth(0.2);
     doc.rect(imgX, imgY, imgW, imgH);
-
-    // Mountain/landscape placeholder icon
-    const icx = imgX + imgW / 2, icy = imgY + imgH / 2;
-    doc.setDrawColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.setLineWidth(0.6);
-    doc.line(icx - 15, icy + 10, icx - 5, icy - 8);
-    doc.line(icx - 5, icy - 8, icx + 2, icy);
-    doc.line(icx + 2, icy, icx + 10, icy - 12);
-    doc.line(icx + 10, icy - 12, icx + 18, icy + 10);
-    doc.line(icx - 15, icy + 10, icx + 18, icy + 10);
-    doc.setFillColor(darkGray[0], darkGray[1], darkGray[2]);
-    doc.circle(icx + 12, icy - 16, 3, "F");
+    doc.setFontSize(3);
+    doc.setTextColor(midGray[0], midGray[1], midGray[2]);
+    doc.text("No Image", imgX + imgW / 2, imgY + imgH / 2 + 0.5, { align: "center" });
   }
 
-  // Stone Name label
+  // Stone Name label below image
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(black[0], black[1], black[2]);
+  doc.setFontSize(4);
+  doc.setTextColor(navy[0], navy[1], navy[2]);
   const stoneTxt = (report["Stone Name"] || "GEMSTONE").toUpperCase();
-  doc.text(stoneTxt, imgX + imgW / 2, imgY + imgH + 10, { align: "center" });
+  const truncStone = stoneTxt.length > 16 ? stoneTxt.substring(0, 14) + ".." : stoneTxt;
+  doc.text(truncStone, imgX + imgW / 2, imgY + imgH + 3.5, { align: "center" });
 
-  // ══════════════════════════════════════
-  // QR Code + Scan info (right side, below stone)
-  // ══════════════════════════════════════
-  const qrX = 148, qrY = 128, qrSize = 22;
+  // ── QR Code (right side, below stone name) ──
+  const qrX = W - M - 15, qrY = 30, qrSize = 9;
   if (qrDataUrl) {
     doc.addImage(qrDataUrl, "PNG", qrX, qrY, qrSize, qrSize);
   } else {
-    doc.setDrawColor(lightGray[0], lightGray[1], lightGray[2]);
+    doc.setDrawColor(midGray[0], midGray[1], midGray[2]);
+    doc.setLineWidth(0.15);
     doc.rect(qrX, qrY, qrSize, qrSize);
-    doc.setFontSize(6);
+    doc.setFontSize(2.5);
     doc.setTextColor(midGray[0], midGray[1], midGray[2]);
-    doc.text("QR", qrX + qrSize / 2, qrY + qrSize / 2 + 1, { align: "center" });
+    doc.text("QR", qrX + qrSize / 2, qrY + qrSize / 2 + 0.5, { align: "center" });
   }
 
-  // Scan to verify text
+  // QR text
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(7.5);
+  doc.setFontSize(2.5);
   doc.setTextColor(black[0], black[1], black[2]);
-  doc.text("Scan to verify", qrX + qrSize + 4, qrY + 7);
-  doc.setFont("helvetica", "bold");
-  doc.text("Report No.", qrX + qrSize + 4, qrY + 12);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(7);
+  doc.text("Scan to verify", qrX + qrSize / 2, qrY + qrSize + 2, { align: "center" });
+  doc.setFontSize(2.2);
   doc.setTextColor(midGray[0], midGray[1], midGray[2]);
-  doc.text("Issued date", qrX + qrSize + 4, qrY + 17);
+  doc.text("Report No. " + (report["Report No."] || ""), qrX + qrSize / 2, qrY + qrSize + 4, { align: "center" });
+  doc.text("Issued: " + (report["Date"] || ""), qrX + qrSize / 2, qrY + qrSize + 6, { align: "center" });
 
-  // ══════════════════════════════════════
-  // BOTTOM LEFT: Contact info
-  // ══════════════════════════════════════
-  const botY = 208;
+  // ── BOTTOM LEFT: Contact info ──
+  const botY = H - 4;
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(8);
+  doc.setFontSize(2.8);
   doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
-  doc.text("sunilgems126@gmail.com", 22, botY);
-  doc.text("www.sgtlgemtesting.co.in", 22, botY + 5);
+  doc.text("sunilgems126@gmail.com", M + 1, botY);
+  doc.text("www.sgtlgemtesting.co.in", M + 1, botY + 2.5);
 
-  // ══════════════════════════════════════
-  // BOTTOM RIGHT: Lab Director + Seal
-  // ══════════════════════════════════════
+  // ── BOTTOM RIGHT: Lab Director + Gold Seal ──
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(9);
+  doc.setFontSize(3);
   doc.setTextColor(black[0], black[1], black[2]);
-  doc.text("Lab Director", 148, botY - 8);
+  doc.text("Lab Director", W - M - 22, botY - 2);
 
-  // Signature (cursive style)
+  // Signature
   doc.setFont("times", "italic");
-  doc.setFontSize(14);
+  doc.setFontSize(5);
   doc.setTextColor(150, 100, 50);
-  doc.text("Namit Verma", 148, botY);
+  doc.text("Namit Verma", W - M - 22, botY + 1.5);
 
-  // Gold seal circle
-  const sealX = 186, sealY = botY - 4, sealR = 6;
-  doc.setFillColor(180, 145, 75);
+  // Gold seal
+  const sealX = W - M - 5, sealY = botY - 1, sealR = 3;
+  doc.setFillColor(gold[0], gold[1], gold[2]);
   doc.circle(sealX, sealY, sealR, "F");
   doc.setFont("times", "bold");
-  doc.setFontSize(5);
-  doc.setTextColor(255, 255, 255);
-  doc.text("SG", sealX, sealY - 0.5, { align: "center" });
-  doc.setFontSize(3.5);
-  doc.text("CERTIFIED", sealX, sealY + 2.5, { align: "center" });
+  doc.setFontSize(2.5);
+  doc.setTextColor(white[0], white[1], white[2]);
+  doc.text("SG", sealX, sealY - 0.3, { align: "center" });
+  doc.setFontSize(1.8);
+  doc.text("CERTIFIED", sealX, sealY + 1.3, { align: "center" });
 
   // ── Bottom border ──
-  doc.setDrawColor(black[0], black[1], black[2]);
+  doc.setDrawColor(navy[0], navy[1], navy[2]);
   doc.setLineWidth(0.3);
-  doc.line(15, 218, W - 15, 218);
-
-  // Disclaimer
-  doc.setFont("helvetica", "italic");
-  doc.setFontSize(6);
-  doc.setTextColor(midGray[0], midGray[1], midGray[2]);
-  doc.text("Computer-generated certificate of authenticity. Verify at www.sgtlgemtesting.co.in", W / 2, 223, { align: "center" });
+  doc.line(M, H - 1, W - M, H - 1);
 }
 
-function drawBackPage(doc, W, H) {
+function drawPVCBack(doc, W, H) {
+  // W = 85.6mm, H = 53.98mm
   const navy = [10, 25, 60];
   const black = [0, 0, 0];
+  const white = [255, 255, 255];
   const midGray = [100, 100, 100];
+  const gold = [180, 145, 75];
+  const M = 2.5;
 
   // ── SG Logo (centered, top) ──
-  drawSGLogoOutline(doc, W / 2, 40, 16);
+  drawSGLogoOutline(doc, W / 2, 9, 5);
 
   // ── Company name ──
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
+  doc.setFontSize(5);
   doc.setTextColor(navy[0], navy[1], navy[2]);
-  doc.setCharSpace(2);
-  doc.text("SUNIL GEMS & TESTING LABS", W / 2, 68, { align: "center" });
+  doc.setCharSpace(0.8);
+  doc.text("SUNIL GEMS & TESTING LABS", W / 2, 17, { align: "center" });
   doc.setCharSpace(0);
 
   // ── TERMS & CONDITIONS heading ──
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
+  doc.setFontSize(4);
   doc.setTextColor(black[0], black[1], black[2]);
-  doc.text("TERMS & CONDITIONS", W / 2, 85, { align: "center" });
+  doc.text("TERMS & CONDITIONS", W / 2, 21.5, { align: "center" });
+
+  // ── Thin line ──
+  doc.setDrawColor(midGray[0], midGray[1], midGray[2]);
+  doc.setLineWidth(0.15);
+  doc.line(M + 5, 23, W - M - 5, 23);
 
   // ── T&C body text ──
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
+  doc.setFontSize(2.6);
   doc.setTextColor(40, 40, 40);
-  const tcText = "All SGTL Reports are printed on original paper with logo of SGTL. No corrections or alterations in any form shall be accepted for the SGTL Reports. The photographic image printed on the report may be differ from its physical appearance. The results of the report can be differ from previous report if the same gemstone is re-examined. Neither SGTL nor its any employees will be held responsible for any loss and damage happens during the examination. This report is considered to be null and void, if in any case alterations are made either to the gemstone or to the report at any time after the report has been prepared.";
-  const lines = doc.splitTextToSize(tcText, W - 40);
-  doc.text(lines, 20, 98);
+  const tcText = "All SGTL Reports are printed on original paper with logo of SGTL. No corrections or alterations in any form shall be accepted for the SGTL Reports. The photographic image printed on the report may differ from its physical appearance. The results of the report can differ from a previous report if the same gemstone is re-examined. Neither SGTL nor its employees will be held responsible for any loss and damage during the examination. This report is null and void if alterations are made to the gemstone or to the report after it has been prepared.";
+  const lines = doc.splitTextToSize(tcText, W - M * 2 - 6);
+  doc.text(lines, M + 3, 25.5);
 
   // ── Social icons (centered) ──
-  const socY = 145;
+  const socY = 42;
   const icons = ["IG", "FB", "WA", "✉"];
-  const iconGap = 14;
+  const iconGap = 7;
   const startX = W / 2 - ((icons.length - 1) * iconGap) / 2;
 
   icons.forEach((icon, i) => {
     const ix = startX + i * iconGap;
-    doc.setDrawColor(black[0], black[1], black[2]);
-    doc.setLineWidth(0.4);
-    doc.circle(ix, socY, 4.5, "S");
+    doc.setDrawColor(navy[0], navy[1], navy[2]);
+    doc.setLineWidth(0.2);
+    doc.circle(ix, socY, 2, "S");
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(6);
-    doc.setTextColor(black[0], black[1], black[2]);
-    doc.text(icon, ix, socY + 1.5, { align: "center" });
+    doc.setFontSize(2.5);
+    doc.setTextColor(navy[0], navy[1], navy[2]);
+    doc.text(icon, ix, socY + 0.7, { align: "center" });
   });
 
   // ── Website ──
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(9);
+  doc.setFontSize(3);
   doc.setTextColor(black[0], black[1], black[2]);
-  doc.text("www.sgtlgemtesting.co.in", W / 2, socY + 14, { align: "center" });
+  doc.text("www.sgtlgemtesting.co.in", W / 2, socY + 5, { align: "center" });
 
   // ── Embossed seal disclaimer ──
   doc.setFont("helvetica", "italic");
-  doc.setFontSize(7.5);
+  doc.setFontSize(2.5);
   doc.setTextColor(midGray[0], midGray[1], midGray[2]);
-  doc.text("Authenticity guaranteed only with the embossed laboratory seal.", W / 2, socY + 22, { align: "center" });
+  doc.text("Authenticity guaranteed only with the embossed laboratory seal.", W / 2, socY + 8, { align: "center" });
 }
 
 // ═══════════════════════════════════════
