@@ -2409,25 +2409,64 @@ async function loadImageAsDataUrl(url) {
   });
 }
 
+function buildReportVerifyUrl(reportNumber) {
+  return window.location.origin + window.location.pathname + "#verify?report=" + encodeURIComponent(reportNumber || "");
+}
+
+async function loadReportQrDataUrl(reportNumber) {
+  const verifyUrl = buildReportVerifyUrl(reportNumber);
+  const qrUrls = [
+    `https://api.qrserver.com/v1/create-qr-code/?size=260x260&format=png&margin=10&data=${encodeURIComponent(verifyUrl)}`,
+    `https://quickchart.io/qr?size=260&margin=1&text=${encodeURIComponent(verifyUrl)}`
+  ];
+
+  for (const url of qrUrls) {
+    const dataUrl = await loadImageAsDataUrl(url).catch(() => null);
+    if (dataUrl) return dataUrl;
+  }
+
+  return await loadImageAsDataUrl("assets/SGTL QR code.png")
+    .catch(() => loadImageAsDataUrl("assets/QR Code.png").catch(() => null));
+}
+
+function getPdfImageFormat(dataUrl) {
+  const match = String(dataUrl || "").match(/^data:image\/(png|jpe?g|webp);/i);
+  if (!match) return "JPEG";
+  return match[1].toLowerCase() === "png" ? "PNG" : "JPEG";
+}
+
+function addPdfImageSafe(doc, dataUrl, x, y, w, h) {
+  if (!dataUrl) return false;
+  try {
+    doc.addImage(dataUrl, getPdfImageFormat(dataUrl), x, y, w, h);
+    return true;
+  } catch(e) {
+    try {
+      doc.addImage(dataUrl, "JPEG", x, y, w, h);
+      return true;
+    } catch(err) {
+      return false;
+    }
+  }
+}
+
 async function generateCertificatePDF(reportNumber, report) {
   if (!window.jspdf) {
     alert("PDF library is still loading. Please wait a moment and try again.");
     return;
   }
   const { jsPDF } = window.jspdf;
-  // Landscape A4
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
-  const W = 297, H = 210;
+  // Portrait A4 — SG&TL "Crystalline Noir" certificate design
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const W = 210, H = 297;
 
-  // Load QR code image
-  let qrDataUrl = null;
-  try {
-    const verifyUrl = window.location.origin + window.location.pathname + "#verify?report=" + encodeURIComponent(reportNumber);
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(verifyUrl)}`;
-    qrDataUrl = await loadImageAsDataUrl(qrUrl).catch(() => null);
-  } catch(e) { /* QR not available */ }
+  const gemImg = report["Gemstone Image"] || report["Gem Image"] || report["Gemstone Photo"] || report["Image"] || null;
+  const [qrDataUrl, logoDataUrl] = await Promise.all([
+    loadReportQrDataUrl(reportNumber),
+    loadImageAsDataUrl("assets/SG_logo.png")
+  ]);
 
-  drawCertificateOfAuthenticity(doc, W, H, reportNumber, report, qrDataUrl);
+  drawCertificatePortrait(doc, W, H, reportNumber, report, qrDataUrl, logoDataUrl, gemImg);
   doc.save(`SGTL_Certificate_${reportNumber}.pdf`);
 }
 
@@ -2526,28 +2565,28 @@ function drawCertificateOfAuthenticity(doc, W, H, reportNumber, report, qr) {
   doc.setLineWidth(0.6);
   doc.roundedRect(imgX, imgY, imgW, imgH, 3, 3, "S");
 
-  // Gem icon inside placeholder
-  const gcx = imgX + imgW / 2, gcy = imgY + imgH / 2;
-  doc.setDrawColor(goldDark[0], goldDark[1], goldDark[2]);
-  doc.setLineWidth(0.7);
-  const gs = 16;
-  // Crown
-  doc.line(gcx - gs, gcy - 3, gcx + gs, gcy - 3);
-  doc.line(gcx - gs * 0.6, gcy - gs, gcx + gs * 0.6, gcy - gs);
-  doc.line(gcx - gs, gcy - 3, gcx - gs * 0.6, gcy - gs);
-  doc.line(gcx + gs, gcy - 3, gcx + gs * 0.6, gcy - gs);
-  // Pavilion
-  doc.line(gcx - gs, gcy - 3, gcx, gcy + gs);
-  doc.line(gcx + gs, gcy - 3, gcx, gcy + gs);
-  // Cross facets
-  doc.setLineWidth(0.3);
-  doc.line(gcx, gcy - gs, gcx - gs * 0.4, gcy - 3);
-  doc.line(gcx, gcy - gs, gcx + gs * 0.4, gcy - 3);
-  doc.line(gcx, gcy - 3, gcx, gcy + gs);
+  const gemImage = report["Gemstone Image"] || report["Gem Image"] || report["Gemstone Photo"] || report["Image"];
+  if (!addPdfImageSafe(doc, gemImage, imgX + 2, imgY + 2, imgW - 4, imgH - 4)) {
+    // Gem icon inside placeholder
+    const gcx = imgX + imgW / 2, gcy = imgY + imgH / 2;
+    doc.setDrawColor(goldDark[0], goldDark[1], goldDark[2]);
+    doc.setLineWidth(0.7);
+    const gs = 16;
+    doc.line(gcx - gs, gcy - 3, gcx + gs, gcy - 3);
+    doc.line(gcx - gs * 0.6, gcy - gs, gcx + gs * 0.6, gcy - gs);
+    doc.line(gcx - gs, gcy - 3, gcx - gs * 0.6, gcy - gs);
+    doc.line(gcx + gs, gcy - 3, gcx + gs * 0.6, gcy - gs);
+    doc.line(gcx - gs, gcy - 3, gcx, gcy + gs);
+    doc.line(gcx + gs, gcy - 3, gcx, gcy + gs);
+    doc.setLineWidth(0.3);
+    doc.line(gcx, gcy - gs, gcx - gs * 0.4, gcy - 3);
+    doc.line(gcx, gcy - gs, gcx + gs * 0.4, gcy - 3);
+    doc.line(gcx, gcy - 3, gcx, gcy + gs);
 
-  doc.setFontSize(7);
-  doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
-  doc.text("GEMSTONE", gcx, gcy + gs + 8, { align: "center" });
+    doc.setFontSize(7);
+    doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
+    doc.text("GEMSTONE", gcx, gcy + gs + 8, { align: "center" });
+  }
 
   // ══════════════════════════════════════
   // RIGHT: Report details with underlines
@@ -2666,7 +2705,7 @@ function drawCertificateOfAuthenticity(doc, W, H, reportNumber, report, qr) {
 
   // QR Code
   if (qr) {
-    doc.addImage(qr, "PNG", W - 45, H - 47, 24, 24);
+    addPdfImageSafe(doc, qr, W - 45, H - 47, 24, 24);
     doc.setFontSize(5);
     doc.setTextColor(goldDark[0], goldDark[1], goldDark[2]);
     doc.text("Scan to verify", W - 33, H - 21, { align: "center" });
@@ -2687,6 +2726,165 @@ function drawCertificateOfAuthenticity(doc, W, H, reportNumber, report, qr) {
   doc.setFont("helvetica", "normal");
   doc.setTextColor(150, 125, 75);
   doc.text("Computer-generated certificate of authenticity. Verify at sgtl.in", W / 2, H - 7, { align: "center" });
+}
+
+// ═══════════════════════════════════════
+// SG&TL "Crystalline Noir" certificate — Portrait A4
+// ═══════════════════════════════════════
+function drawGuilloche(doc, W, H, inset, band, color) {
+  doc.setDrawColor(color[0], color[1], color[2]);
+  doc.setLineWidth(0.12);
+  const A = band * 0.32, lam = 13;
+  const phs = [0, 2.1, 4.2];
+  const x0 = inset, x1 = W - inset, y0 = inset, y1 = H - inset;
+  const comp = (p, ph) => A * Math.sin(2 * Math.PI * p / lam + ph) + A * 0.5 * Math.sin(4 * Math.PI * p / lam + ph * 1.3);
+  phs.forEach(ph => {
+    let px, py;
+    px = null;
+    for (let x = x0; x <= x1; x += 1.2) { const v = comp(x - x0, ph), yy = y0 + band / 2 + v; if (px != null) doc.line(px, py, x, yy); px = x; py = yy; }
+    px = null;
+    for (let x = x0; x <= x1; x += 1.2) { const v = comp(x - x0, ph), yy = y1 - band / 2 + v; if (px != null) doc.line(px, py, x, yy); px = x; py = yy; }
+    px = null;
+    for (let y = y0; y <= y1; y += 1.2) { const v = comp(y - y0, ph), xx = x0 + band / 2 + v; if (px != null) doc.line(px, py, xx, y); px = xx; py = y; }
+    px = null;
+    for (let y = y0; y <= y1; y += 1.2) { const v = comp(y - y0, ph), xx = x1 - band / 2 + v; if (px != null) doc.line(px, py, xx, y); px = xx; py = y; }
+  });
+}
+
+function drawSeal(doc, cx, cy, r, gold, goldDark) {
+  const N = 28;
+  doc.setFillColor(goldDark[0], goldDark[1], goldDark[2]);
+  for (let i = 0; i < N; i++) { const a = i / N * 2 * Math.PI; doc.circle(cx + r * Math.cos(a), cy + r * Math.sin(a), r * 0.085, "F"); }
+  doc.setFillColor(gold[0], gold[1], gold[2]); doc.circle(cx, cy, r * 0.86, "F");
+  doc.setDrawColor(255, 255, 255); doc.setLineWidth(0.3); doc.circle(cx, cy, r * 0.7, "S");
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(6); doc.text("SG&TL", cx, cy - 1.5, { align: "center" });
+  const ds = 1.5; doc.setFillColor(255, 255, 255);
+  doc.triangle(cx, cy + 0.6 - ds, cx + ds, cy + 0.6, cx, cy + 0.6 + ds, "F");
+  doc.triangle(cx, cy + 0.6 - ds, cx, cy + 0.6 + ds, cx - ds, cy + 0.6, "F");
+  doc.setFont("helvetica", "bold"); doc.setFontSize(3.8); doc.text("AUTHENTICATED", cx, cy + 5, { align: "center" });
+}
+
+function drawCertificatePortrait(doc, W, H, reportNumber, report, qr, logo, gemImg) {
+  const navy = [28, 43, 82], gold = [196, 148, 63], goldDark = [133, 96, 23];
+  const goldInk = [107, 78, 31], muted = [90, 100, 112], sep = [206, 211, 220];
+
+  doc.setFillColor(255, 255, 255); doc.rect(0, 0, W, H, "F");
+
+  // guilloché frame + double rule border
+  drawGuilloche(doc, W, H, 8, 6, navy);
+  doc.setDrawColor(navy[0], navy[1], navy[2]); doc.setLineWidth(0.5); doc.rect(12, 12, W - 24, H - 24);
+  doc.setDrawColor(gold[0], gold[1], gold[2]); doc.setLineWidth(0.3); doc.rect(14, 14, W - 28, H - 28);
+
+  // faint SG monogram watermark (only if GState supported)
+  if (logo) {
+    try {
+      const g = new doc.GState({ opacity: 0.06 });
+      doc.setGState(g);
+      addPdfImageSafe(doc, logo, W / 2 - 55, H / 2 - 55, 110, 110);
+      doc.setGState(new doc.GState({ opacity: 1 }));
+    } catch (e) {}
+  }
+
+  // header
+  if (logo) addPdfImageSafe(doc, logo, W / 2 - 7.5, 19, 15, 15);
+  doc.setFont("times", "bold"); doc.setFontSize(16); doc.setTextColor(navy[0], navy[1], navy[2]);
+  doc.text("Sunil Gems & Testing Labs", W / 2, 42, { align: "center" });
+  doc.setFont("helvetica", "bold"); doc.setFontSize(7.5); doc.setTextColor(goldInk[0], goldInk[1], goldInk[2]);
+  doc.text("GEMSTONE IDENTIFICATION REPORT", W / 2, 48, { align: "center", charSpace: 0.3 });
+  doc.setDrawColor(gold[0], gold[1], gold[2]); doc.setLineWidth(0.3);
+  doc.line(W / 2 - 54, 47, W / 2 - 42, 47); doc.line(W / 2 + 42, 47, W / 2 + 54, 47);
+
+  // title
+  doc.setFont("times", "bold"); doc.setFontSize(27); doc.setTextColor(navy[0], navy[1], navy[2]);
+  doc.text("Certificate of Authenticity", W / 2, 62, { align: "center" });
+  doc.setFont("helvetica", "normal"); doc.setFontSize(9); doc.setTextColor(muted[0], muted[1], muted[2]);
+  doc.text("OF GEMSTONE IDENTIFICATION", W / 2, 69, { align: "center", charSpace: 0.7 });
+
+  // data grid (left)
+  const F = (k) => { const v = report[k]; return (v != null && String(v).trim() !== "" && v !== "N/A") ? String(v).trim() : null; };
+  const weight = report["Weight"] ? (report["Weight"] + " " + (report["Weight Type"] || "")).trim() : null;
+  const shapeCut = [F("Shapes"), F("Cut")].filter(Boolean).join(" ") || null;
+  let rows = [
+    ["Report No", F("Report No.") || reportNumber],
+    ["Stone Name", F("Stone Name")],
+    ["Weight", weight],
+    ["Shape / Cut", shapeCut],
+    ["Colour", F("Colour")],
+    ["Refractive Index", F("Refractive Index")],
+    ["Specific Gravity", F("Specific Gravity")],
+    ["Optic Character", F("Optic Character")],
+    ["Dimensions", F("Dimensions")],
+    ["Magnification", F("Magnification")],
+    ["Origin", F("Origin")],
+    ["Date", F("Date")],
+    ["Comment", F("Comment")]
+  ].filter(r => r[1]);
+  if (rows.length > 11) rows = rows.slice(0, 11);
+
+  const gridX = 20, gridR = 116, gridTop = 84, gridBottomMax = 208;
+  const gap = Math.min(11, (gridBottomMax - gridTop) / rows.length);
+  let y = gridTop;
+  doc.setDrawColor(sep[0], sep[1], sep[2]); doc.setLineWidth(0.2); doc.line(gridX, y, gridR, y);
+  rows.forEach(([label, val]) => {
+    const cy = y + gap * 0.62;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(7.2); doc.setTextColor(muted[0], muted[1], muted[2]);
+    doc.text(String(label).toUpperCase(), gridX, cy, { charSpace: 0.25 });
+    doc.setFont("courier", "normal"); doc.setFontSize(9.3); doc.setTextColor(navy[0], navy[1], navy[2]);
+    let v = String(val); if (v.length > 26) v = v.slice(0, 24) + "\u2026";
+    doc.text(v, gridR, cy, { align: "right" });
+    y += gap;
+    doc.setDrawColor(sep[0], sep[1], sep[2]); doc.setLineWidth(0.2); doc.line(gridX, y, gridR, y);
+  });
+
+  // right column
+  const rcx = 158, bx = 128, bw = 60, by = 84, bh = 48;
+  doc.setDrawColor(navy[0], navy[1], navy[2]); doc.setLineWidth(0.5); doc.rect(bx, by, bw, bh);
+  if (!addPdfImageSafe(doc, gemImg, bx + 2, by + 2, bw - 4, bh - 4)) {
+    const gcx = bx + bw / 2, gcy = by + bh / 2 - 3;
+    doc.setDrawColor(navy[0], navy[1], navy[2]); doc.setLineWidth(0.4);
+    doc.line(gcx - 9, gcy - 1, gcx + 9, gcy - 1);
+    doc.line(gcx - 5, gcy - 7, gcx + 5, gcy - 7);
+    doc.line(gcx - 9, gcy - 1, gcx - 5, gcy - 7);
+    doc.line(gcx + 9, gcy - 1, gcx + 5, gcy - 7);
+    doc.line(gcx - 9, gcy - 1, gcx, gcy + 9);
+    doc.line(gcx + 9, gcy - 1, gcx, gcy + 9);
+    doc.line(gcx - 5, gcy - 7, gcx, gcy + 9);
+    doc.line(gcx + 5, gcy - 7, gcx, gcy + 9);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(6.5); doc.setTextColor(muted[0], muted[1], muted[2]);
+    doc.text("SPECIMEN IMAGE", gcx, by + bh - 5, { align: "center", charSpace: 0.3 });
+  }
+  doc.setFont("times", "bold"); doc.setFontSize(14); doc.setTextColor(navy[0], navy[1], navy[2]);
+  doc.text(F("Stone Name") || "Gemstone", rcx, by + bh + 9, { align: "center" });
+  if (qr) {
+    const qs = 26, qx = rcx - qs / 2, qy = by + bh + 14;
+    addPdfImageSafe(doc, qr, qx, qy, qs, qs);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(6.5); doc.setTextColor(muted[0], muted[1], muted[2]);
+    doc.text("SCAN TO VERIFY", rcx, qy + qs + 5, { align: "center", charSpace: 0.3 });
+    const issued = F("Date");
+    if (issued) { doc.setFont("courier", "normal"); doc.setFontSize(7); doc.text("Issued " + issued, rcx, qy + qs + 10, { align: "center" }); }
+  }
+
+  // footer
+  const fY = H - 40;
+  doc.setFont("times", "italic"); doc.setFontSize(19); doc.setTextColor(navy[0], navy[1], navy[2]);
+  doc.text("Namit Verma", 24, fY);
+  doc.setDrawColor(navy[0], navy[1], navy[2]); doc.setLineWidth(0.4); doc.line(24, fY + 3, 70, fY + 3);
+  doc.setFont("helvetica", "bold"); doc.setFontSize(7); doc.setTextColor(muted[0], muted[1], muted[2]);
+  doc.text("LAB DIRECTOR", 24, fY + 8, { charSpace: 0.3 });
+  drawSeal(doc, W - 34, fY - 2, 13, gold, goldDark);
+
+  // contact line
+  const cY = H - 22;
+  doc.setDrawColor(sep[0], sep[1], sep[2]); doc.setLineWidth(0.2); doc.line(20, cY - 5, W - 20, cY - 5);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(muted[0], muted[1], muted[2]);
+  doc.text("sunilgems126@gmail.com", W / 2 - 3, cY, { align: "right" });
+  doc.text("www.sgtlgemtesting.co.in", W / 2 + 3, cY, { align: "left" });
+  const dx = W / 2, dy = cY - 1, ds2 = 1.1; doc.setFillColor(gold[0], gold[1], gold[2]);
+  doc.triangle(dx, dy - ds2, dx + ds2, dy, dx, dy + ds2, "F");
+  doc.triangle(dx, dy - ds2, dx, dy + ds2, dx - ds2, dy, "F");
+  doc.setFontSize(7); doc.setTextColor(150, 156, 162);
+  doc.text("Computer-generated certificate of authenticity", W / 2, cY + 6, { align: "center" });
 }
 
 // ─── Auto-verify from QR code URL hash ───
