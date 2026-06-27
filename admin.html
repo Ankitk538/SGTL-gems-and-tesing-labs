@@ -4852,12 +4852,23 @@ async function printLookupReport() {
   btn.innerHTML = '<span class="spinner-ring"></span> Searching...';
 
   try {
-    const res = await fetch(API + "/api/certificates", {
-      headers: { "Authorization": "Bearer " + authToken }
-    });
-    if (!res.ok) throw new Error("Failed to load certificates");
+    // Try fetching all certificates (Render free tier may need wake-up)
+    let res;
+    try {
+      res = await fetch(API + "/api/certificates", {
+        headers: { "Authorization": "Bearer " + authToken }
+      });
+    } catch (netErr) {
+      // Retry once — backend may be waking up
+      showToast("Server waking up, retrying...", "info");
+      await new Promise(r => setTimeout(r, 3000));
+      res = await fetch(API + "/api/certificates", {
+        headers: { "Authorization": "Bearer " + authToken }
+      });
+    }
+    if (!res.ok) throw new Error("Server returned " + res.status + ". Please log in again if session expired.");
     const data = await res.json();
-    const record = data.find(r => r["Report No."] === reportNo);
+    const record = data.find(r => r["Report No."] === reportNo || r["Report No."] === reportNo.trim());
 
     if (!record) {
       showToast("Report not found: " + reportNo, "error");
