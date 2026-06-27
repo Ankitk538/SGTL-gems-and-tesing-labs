@@ -2733,9 +2733,20 @@ body {
           </button>
         </div>
 
-        <!-- PDF Preview Embed -->
-        <div class="form-section" style="padding:0; overflow:hidden; min-height:500px;">
-          <iframe id="printPDFPreview" style="width:100%; height:700px; border:none; border-radius:16px;" src="about:blank"></iframe>
+        <!-- PDF Previews -->
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
+          <div>
+            <h4 style="margin:0 0 8px 0; font-size:14px; color:var(--text-dim);">Gemstone Report (A4) Preview</h4>
+            <div class="form-section" style="padding:0; overflow:hidden;">
+              <iframe id="printPDFPreview" style="width:100%; height:600px; border:none; border-radius:12px;" src="about:blank"></iframe>
+            </div>
+          </div>
+          <div>
+            <h4 style="margin:0 0 8px 0; font-size:14px; color:var(--text-dim);">PVC Card Preview</h4>
+            <div class="form-section" style="padding:0; overflow:hidden;">
+              <iframe id="printPVCPreview" style="width:100%; height:600px; border:none; border-radius:12px;" src="about:blank"></iframe>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -3722,7 +3733,7 @@ function drawPVCFront(doc, W, H, report, qrDataUrl, gemImageDataUrl) {
   var fieldRows = [
     { label: "Report No.",       val: r["Report No."] || "" },
     { label: "Weight",           val: r["Weight"] ? (r["Weight"] + " " + (r["Weight Type"] || "")).trim() : "" },
-    { label: "Shape / Cut",      val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" / ") || "" },
+    { label: "Shapes / Cut",     val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" / ") || "" },
     { label: "Dimension",        val: r["Dimensions"] || "" },
     { label: "Colour",           val: r["Colour"] || "" },
     { label: "Refractive Index", val: r["Refractive Index"] || "" },
@@ -4852,23 +4863,15 @@ async function printLookupReport() {
   btn.innerHTML = '<span class="spinner-ring"></span> Searching...';
 
   try {
-    // Try fetching all certificates (Render free tier may need wake-up)
-    let res;
-    try {
-      res = await fetch(API + "/api/certificates", {
-        headers: { "Authorization": "Bearer " + authToken }
-      });
-    } catch (netErr) {
-      // Retry once — backend may be waking up
-      showToast("Server waking up, retrying...", "info");
-      await new Promise(r => setTimeout(r, 3000));
-      res = await fetch(API + "/api/certificates", {
-        headers: { "Authorization": "Bearer " + authToken }
-      });
+    // Fetch the specific certificate by report number
+    const data = await apiFetch("/certificate/" + encodeURIComponent(reportNo));
+    if (!data || !data.data) {
+      showToast("Report not found: " + reportNo, "error");
+      document.getElementById("printPreviewArea").style.display = "none";
+      document.getElementById("printEmptyState").style.display = "block";
+      return;
     }
-    if (!res.ok) throw new Error("Server returned " + res.status + ". Please log in again if session expired.");
-    const data = await res.json();
-    const record = data.find(r => r["Report No."] === reportNo || r["Report No."] === reportNo.trim());
+    const record = data.data;
 
     if (!record) {
       showToast("Report not found: " + reportNo, "error");
@@ -4917,21 +4920,30 @@ async function printLookupReport() {
 
 async function printGeneratePreview(record) {
   try {
-    // Generate the gemstone report PDF for preview
     const { jsPDF } = window.jspdf;
+    const qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(record["Report No."]));
+
+    // Generate Gemstone Report (A4) preview
     const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    // Register fonts
     doc.addFileToVFS("Inter-Regular.ttf", INTER_REGULAR_B64);
     doc.addFont("Inter-Regular.ttf", "Inter", "normal");
     doc.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
     doc.addFont("Inter-Bold.ttf", "Inter", "bold");
+    await drawGemstoneReport(doc, 210, 297, record, qrDataUrl, null);
+    var reportBlob = doc.output("blob");
+    document.getElementById("printPDFPreview").src = URL.createObjectURL(reportBlob);
 
-    const qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(record["Report No."]));
-    await drawGemstoneReport(doc, record, null, qrDataUrl);
-
-    const pdfBlob = doc.output("blob");
-    const url = URL.createObjectURL(pdfBlob);
-    document.getElementById("printPDFPreview").src = url;
+    // Generate PVC Card preview
+    const doc2 = new jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 53.98] });
+    doc2.addFileToVFS("Inter-Regular.ttf", INTER_REGULAR_B64);
+    doc2.addFont("Inter-Regular.ttf", "Inter", "normal");
+    doc2.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
+    doc2.addFont("Inter-Bold.ttf", "Inter", "bold");
+    await drawPVCFront(doc2, 85.6, 53.98, record, qrDataUrl, null);
+    doc2.addPage([85.6, 53.98], "landscape");
+    drawPVCBack(doc2, 85.6, 53.98);
+    var pvcBlob = doc2.output("blob");
+    document.getElementById("printPVCPreview").src = URL.createObjectURL(pvcBlob);
   } catch (err) {
     console.error("Preview generation error:", err);
   }
@@ -4957,7 +4969,7 @@ async function printGeneratePDF(type) {
       doc.addFont("Inter-Regular.ttf", "Inter", "normal");
       doc.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
       doc.addFont("Inter-Bold.ttf", "Inter", "bold");
-      await drawGemstoneReport(doc, r, null, qrDataUrl);
+      await drawGemstoneReport(doc, 210, 297, r, qrDataUrl, null);
       doc.save("SGTL_Report_" + (r["Report No."] || "certificate") + ".pdf");
     }
 
@@ -4967,9 +4979,9 @@ async function printGeneratePDF(type) {
       doc2.addFont("Inter-Regular.ttf", "Inter", "normal");
       doc2.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
       doc2.addFont("Inter-Bold.ttf", "Inter", "bold");
-      await drawPVCFront(doc2, r, null, qrDataUrl);
+      await drawPVCFront(doc2, 85.6, 53.98, r, qrDataUrl, null);
       doc2.addPage([85.6, 53.98], "landscape");
-      drawPVCBack(doc2);
+      drawPVCBack(doc2, 85.6, 53.98);
       doc2.save("SGTL_PVC_" + (r["Report No."] || "card") + ".pdf");
     }
 
