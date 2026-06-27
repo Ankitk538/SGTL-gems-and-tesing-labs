@@ -2707,6 +2707,159 @@ body {
         </div>
       </div>
 
+      <!-- ═══ HIDDEN HTML TEMPLATES FOR PDF RENDERING ═══ -->
+      <!-- These are rendered offscreen by html2canvas, then placed into jsPDF -->
+
+      <!-- PVC FRONT TEMPLATE (CR80: 85.6mm × 53.98mm = 323px × 204px at 96dpi, we use 3x = 970×612) -->
+      <div id="pvcFrontTpl" style="position:absolute;left:-9999px;top:-9999px;">
+        <div style="width:970px;height:612px;font-family:'Inter',Arial,sans-serif;background:#fff;position:relative;overflow:hidden;box-sizing:border-box;">
+          <!-- Navy Header Bar -->
+          <div style="background:#1c2b52;padding:12px 20px;display:flex;align-items:center;gap:12px;">
+            <div style="width:42px;height:42px;border-radius:50%;border:2px solid #c4943f;background:#fff;display:flex;align-items:center;justify-content:center;">
+              <span style="font-weight:700;font-size:16px;color:#1c2b52;">SG</span>
+            </div>
+            <div>
+              <div style="color:#fff;font-weight:700;font-size:14px;letter-spacing:1.5px;">SUNIL GEMS & TESTING LABS</div>
+              <div style="color:#c4943f;font-size:10px;letter-spacing:2px;margin-top:2px;">GEMSTONE IDENTIFICATION REPORT</div>
+            </div>
+          </div>
+
+          <!-- Body: 2-column layout -->
+          <div style="display:flex;padding:10px 20px 0 20px;gap:16px;">
+            <!-- Left: Field rows -->
+            <div style="flex:1;min-width:0;">
+              <div id="pvcFrontFields" style="display:flex;flex-direction:column;gap:1px;"></div>
+            </div>
+
+            <!-- Right: Stone image + QR -->
+            <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px;">
+              <div id="pvcGemImageBox" style="width:200px;height:120px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;background:#f9f9f9;overflow:hidden;">
+                <span style="color:#999;font-size:11px;">SPECIMEN</span>
+              </div>
+              <div id="pvcStoneName" style="font-weight:700;font-size:13px;color:#1c2b52;text-transform:uppercase;text-align:center;">NATURAL</div>
+              <div style="display:flex;align-items:flex-start;gap:10px;">
+                <div id="pvcQrBox" style="width:64px;height:64px;border:1px solid #ccc;display:flex;align-items:center;justify-content:center;">
+                  <span style="color:#999;font-size:9px;">QR</span>
+                </div>
+                <div style="font-size:9px;color:#555;line-height:1.4;padding-top:4px;">
+                  <div>Scan to verify</div>
+                  <div id="pvcReportNoSmall" style="font-weight:600;color:#1c2b52;"></div>
+                  <div id="pvcIssuedDate"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer: Contact + Lab Director -->
+          <div style="position:absolute;bottom:0;left:0;right:0;padding:8px 20px;display:flex;align-items:flex-end;justify-content:space-between;">
+            <div style="font-size:10px;color:#333;line-height:1.5;">
+              <div style="display:flex;align-items:center;gap:5px;">
+                <span style="display:inline-flex;width:16px;height:16px;border-radius:50%;background:#1c2b52;color:#fff;align-items:center;justify-content:center;font-size:8px;">✉</span>
+                <b>sunilgems126@gmail.com</b>
+              </div>
+              <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
+                <span style="display:inline-flex;width:16px;height:16px;border-radius:50%;background:#1c2b52;color:#fff;align-items:center;justify-content:center;font-size:8px;">⊕</span>
+                <b>www.sgtlgemtesting.co.in</b>
+              </div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-size:9px;color:#555;">Lab Director</div>
+              <div id="pvcSignatureArea" style="width:80px;height:30px;"></div>
+              <div id="pvcBadgeArea" style="width:36px;height:36px;position:absolute;bottom:6px;right:20px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PVC BACK TEMPLATE -->
+      <div id="pvcBackTpl" style="position:absolute;left:-9999px;top:-9999px;">
+        <div style="width:970px;height:612px;font-family:'Inter',Arial,sans-serif;background:#fff;position:relative;overflow:hidden;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:30px 40px;text-align:center;">
+          <div style="width:52px;height:52px;border-radius:50%;border:2px solid #c4943f;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:12px;">
+            <span style="font-weight:700;font-size:20px;color:#1c2b52;">SG</span>
+          </div>
+          <div style="font-weight:700;font-size:16px;color:#1c2b52;letter-spacing:1.5px;margin-bottom:6px;">SUNIL GEMS & TESTING LABS</div>
+          <div style="color:#c4943f;font-weight:700;font-size:11px;letter-spacing:2px;margin-bottom:14px;">TERMS & CONDITIONS</div>
+          <div style="font-size:10px;color:#333;line-height:1.6;text-align:justify;max-width:820px;">
+            All SGTL Reports are printed on original paper with logo of SGTL. No corrections or alterations in any form shall be accepted for the SGTL Reports. The photographic image printed on the report may be differ from its physical appearance. The results of the report can be differ from previous report if the same gemstone is re-examined. Neither SGTL nor its any employees will be held responsible for any loss and damage happens during the examination. This report is considered to be null and void, if in any case alterations are made either to the gemstone or to the report at any time after the report has been prepared.
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;align-items:center;">
+            <span style="display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #1c2b52;align-items:center;justify-content:center;font-size:10px;color:#1c2b52;">IG</span>
+            <span style="display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #1c2b52;align-items:center;justify-content:center;font-size:10px;color:#1c2b52;">FB</span>
+            <span style="display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #1c2b52;align-items:center;justify-content:center;font-size:10px;color:#1c2b52;">WA</span>
+            <span style="display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #1c2b52;align-items:center;justify-content:center;font-size:10px;color:#1c2b52;">✉</span>
+          </div>
+          <div style="margin-top:10px;font-size:10px;color:#1c2b52;font-weight:600;">www.sgtlgemtesting.co.in</div>
+          <div style="margin-top:14px;font-size:9px;color:#888;font-style:italic;">Authenticity guaranteed only with the embossed laboratory seal.</div>
+        </div>
+      </div>
+
+      <!-- A4 GEMSTONE REPORT TEMPLATE (210×297mm = 794×1123px at 96dpi, we use 2x = 1588×2246) -->
+      <div id="gemReportTpl" style="position:absolute;left:-9999px;top:-9999px;">
+        <div style="width:1588px;height:2246px;font-family:'Inter',Arial,sans-serif;background:#fff;position:relative;overflow:hidden;box-sizing:border-box;padding:60px;">
+          <!-- Double border -->
+          <div style="border:2px solid #1c2b52;padding:8px;height:calc(100% - 120px);">
+            <div style="border:1.5px solid #c4943f;height:100%;padding:40px 50px;display:flex;flex-direction:column;align-items:center;position:relative;">
+
+              <!-- Logo circle -->
+              <div style="width:64px;height:64px;border-radius:50%;border:3px solid #1c2b52;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:10px;">
+                <span style="font-weight:700;font-size:24px;color:#1c2b52;">SG</span>
+              </div>
+              <div style="font-weight:700;font-size:28px;color:#1c2b52;letter-spacing:1px;">Sunil Gems & Testing Labs</div>
+              <div style="display:flex;align-items:center;gap:12px;margin:10px 0;">
+                <div style="width:60px;height:1.5px;background:#c4943f;"></div>
+                <span style="font-weight:700;font-size:12px;color:#6b4e1f;letter-spacing:2px;">GEMSTONE IDENTIFICATION REPORT</span>
+                <div style="width:60px;height:1.5px;background:#c4943f;"></div>
+              </div>
+
+              <!-- Main title -->
+              <div style="font-weight:700;font-size:52px;color:#1c2b52;margin:16px 0 4px;">Certificate of Authenticity</div>
+              <div style="font-weight:700;font-size:14px;color:#5a6470;letter-spacing:2px;margin-bottom:30px;">OF GEMSTONE IDENTIFICATION</div>
+
+              <!-- 2-column: data grid + right column -->
+              <div style="display:flex;width:100%;gap:30px;flex:1;">
+                <!-- Left: Data grid -->
+                <div id="gemReportFields" style="flex:1;min-width:0;"></div>
+
+                <!-- Right: Image + Stone Name + QR -->
+                <div style="width:380px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;">
+                  <div id="gemReportImageBox" style="width:340px;height:300px;border:2px solid #1c2b52;display:flex;align-items:center;justify-content:center;background:#fafafa;overflow:hidden;">
+                    <span style="color:#999;font-size:18px;">SPECIMEN IMAGE</span>
+                  </div>
+                  <div id="gemReportStoneName" style="font-weight:700;font-size:28px;color:#1c2b52;margin:16px 0;text-align:center;"></div>
+                  <div id="gemReportQrBox" style="width:160px;height:160px;display:flex;align-items:center;justify-content:center;margin:8px 0;">
+                    <span style="color:#999;font-size:14px;">QR</span>
+                  </div>
+                  <div style="font-weight:700;font-size:12px;color:#5a6470;margin-top:8px;">SCAN TO VERIFY</div>
+                  <div id="gemReportIssuedDate" style="font-size:12px;color:#5a6470;margin-top:4px;"></div>
+                </div>
+              </div>
+
+              <!-- Footer: Signature + Badge -->
+              <div style="width:100%;display:flex;justify-content:space-between;align-items:flex-end;margin-top:auto;padding-top:20px;">
+                <div style="text-align:center;">
+                  <div id="gemReportSignature" style="width:160px;height:60px;"></div>
+                  <div style="width:160px;height:1.5px;background:#1c2b52;margin:4px 0;"></div>
+                  <div style="font-weight:700;font-size:12px;color:#5a6470;">LAB DIRECTOR</div>
+                </div>
+                <div id="gemReportBadge" style="width:120px;height:120px;"></div>
+              </div>
+
+              <!-- Contact bar -->
+              <div style="width:100%;border-top:1px solid #1c2b52;margin-top:16px;padding-top:12px;text-align:center;">
+                <div style="font-size:14px;color:#5a6470;">sunilgems126@gmail.com  ◆  www.sgtlgemtesting.co.in</div>
+                <div style="display:flex;gap:12px;justify-content:center;margin-top:8px;">
+                  <span style="display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #1c2b52;align-items:center;justify-content:center;font-size:9px;color:#1c2b52;">IG</span>
+                  <span style="display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #1c2b52;align-items:center;justify-content:center;font-size:9px;color:#1c2b52;">FB</span>
+                  <span style="display:inline-flex;width:22px;height:22px;border-radius:50%;border:1.5px solid #1c2b52;align-items:center;justify-content:center;font-size:9px;color:#1c2b52;">WA</span>
+                </div>
+                <div style="font-size:12px;color:#9aa0a6;margin-top:8px;">Computer-generated certificate of authenticity</div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Report Preview Area -->
       <div id="printPreviewArea" style="display:none;">
         <!-- Report Info Card -->
@@ -4918,71 +5071,240 @@ async function printLookupReport() {
   }
 }
 
+// ═══ HTML TEMPLATE → PDF RENDER PIPELINE ═══
+// Populates hidden HTML templates, renders via html2canvas, places into jsPDF
+
+function populatePVCFront(r, qrDataUrl, gemImageDataUrl) {
+  // Build field rows HTML
+  var fieldRows = [
+    { label: "Report No.",       val: r["Report No."] || "" },
+    { label: "Weight",           val: r["Weight"] ? (r["Weight"] + " " + (r["Weight Type"] || "")).trim() : "" },
+    { label: "Shapes / Cut",     val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" / ") || "" },
+    { label: "Dimension",        val: r["Dimensions"] || "" },
+    { label: "Colour",           val: r["Colour"] || "" },
+    { label: "Refractive Index", val: r["Refractive Index"] || "" },
+    { label: "Specific Gravity", val: r["Specific Gravity"] || "" },
+    { label: "Species / Group",  val: r["Origin"] || r["Report Type"] || "" },
+    { label: "Hardness",         val: r["Optic Character"] || "" },
+    { label: "Comments",         val: r["Comment"] || r["Magnification"] || "" }
+  ];
+
+  var fieldsHtml = fieldRows.map(function(f) {
+    return '<div style="display:flex;align-items:baseline;gap:6px;padding:2px 0;font-size:12px;line-height:1.4;">' +
+      '<span style="font-weight:700;color:#1e1e1e;white-space:nowrap;min-width:120px;">' + f.label + ' :</span>' +
+      '<span style="color:#1e1e1e;word-break:break-word;">' + f.val + '</span>' +
+    '</div>';
+  }).join('');
+  document.getElementById("pvcFrontFields").innerHTML = fieldsHtml;
+
+  // Gemstone image
+  var gemBox = document.getElementById("pvcGemImageBox");
+  if (gemImageDataUrl) {
+    gemBox.innerHTML = '<img src="' + gemImageDataUrl + '" style="max-width:100%;max-height:100%;object-fit:contain;">';
+  } else {
+    gemBox.innerHTML = '<span style="color:#999;font-size:11px;">SPECIMEN</span>';
+  }
+
+  // Stone name
+  document.getElementById("pvcStoneName").textContent = (r["Stone Name"] || "GEMSTONE").toUpperCase();
+
+  // QR code
+  var qrBox = document.getElementById("pvcQrBox");
+  if (qrDataUrl) {
+    qrBox.innerHTML = '<img src="' + qrDataUrl + '" style="width:100%;height:100%;">';
+  }
+
+  // Report no + date
+  document.getElementById("pvcReportNoSmall").textContent = r["Report No."] || "";
+  document.getElementById("pvcIssuedDate").textContent = "Issued: " + (r["Date"] || "");
+
+  // Signature
+  var sigArea = document.getElementById("pvcSignatureArea");
+  if (typeof SIGN_IMG_B64 !== "undefined" && SIGN_IMG_B64) {
+    sigArea.innerHTML = '<img src="data:image/png;base64,' + SIGN_IMG_B64 + '" style="width:80px;height:30px;object-fit:contain;">';
+  }
+
+  // Badge
+  var badgeArea = document.getElementById("pvcBadgeArea");
+  if (typeof BADGE_IMG_B64 !== "undefined" && BADGE_IMG_B64) {
+    badgeArea.innerHTML = '<img src="data:image/png;base64,' + BADGE_IMG_B64 + '" style="width:36px;height:36px;object-fit:contain;">';
+  }
+}
+
+function populateGemReport(r, qrDataUrl, gemImageDataUrl) {
+  // Build field rows — A4 report uses different labels than PVC
+  var fields = [
+    { label: "REPORT NO",        val: r["Report No."] || "" },
+    { label: "WEIGHT",           val: r["Weight"] ? r["Weight"] + (r["Weight Type"] === "Ratti" ? " Ratti" : " ct") : "" },
+    { label: "SHAPE / CUT",      val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" ") || "" },
+    { label: "OPTIC CHARACTER",  val: r["Optic Character"] || "" },
+    { label: "COLOUR",           val: r["Colour"] || "" },
+    { label: "REFRACTIVE INDEX", val: r["Refractive Index"] || "" },
+    { label: "SPECIFIC GRAVITY", val: r["Specific Gravity"] || "" },
+    { label: "STONE NAME",       val: r["Stone Name"] || "" },
+    { label: "JEWELLER",         val: r["Jeweller"] || "" },
+    { label: "COMMENTS",         val: r["Comment"] || r["Magnification"] || "" }
+  ];
+
+  var fieldsHtml = fields.map(function(f) {
+    return '<div style="display:flex;align-items:center;border-top:1px solid rgba(28,43,82,0.15);padding:10px 4px;">' +
+      '<span style="font-weight:700;font-size:12px;color:#5a6470;letter-spacing:0.5px;min-width:200px;">' + f.label + '</span>' +
+      '<span style="font-size:16px;color:#1c2b52;flex:1;text-align:right;">' + f.val + '</span>' +
+    '</div>';
+  }).join('');
+  // Add bottom border
+  fieldsHtml += '<div style="border-top:1px solid rgba(28,43,82,0.15);"></div>';
+  document.getElementById("gemReportFields").innerHTML = fieldsHtml;
+
+  // Gemstone image
+  var imgBox = document.getElementById("gemReportImageBox");
+  if (gemImageDataUrl) {
+    imgBox.innerHTML = '<img src="' + gemImageDataUrl + '" style="max-width:100%;max-height:100%;object-fit:contain;">';
+  } else {
+    imgBox.innerHTML = '<span style="color:#999;font-size:18px;">SPECIMEN IMAGE</span>';
+  }
+
+  // Stone name
+  document.getElementById("gemReportStoneName").textContent = (r["Stone Name"] || r["Origin"] || "GEMSTONE").toUpperCase();
+
+  // QR code
+  var qrBox = document.getElementById("gemReportQrBox");
+  if (qrDataUrl) {
+    qrBox.innerHTML = '<img src="' + qrDataUrl + '" style="width:160px;height:160px;">';
+  }
+
+  // Issued date
+  document.getElementById("gemReportIssuedDate").textContent = "Issued " + (r["Date"] || "");
+
+  // Signature
+  var sigBox = document.getElementById("gemReportSignature");
+  if (typeof SIGN_IMG_B64 !== "undefined" && SIGN_IMG_B64) {
+    sigBox.innerHTML = '<img src="data:image/png;base64,' + SIGN_IMG_B64 + '" style="width:160px;height:60px;object-fit:contain;">';
+  }
+
+  // Badge
+  var badgeBox = document.getElementById("gemReportBadge");
+  if (typeof BADGE_IMG_B64 !== "undefined" && BADGE_IMG_B64) {
+    badgeBox.innerHTML = '<img src="data:image/png;base64,' + BADGE_IMG_B64 + '" style="width:120px;height:120px;object-fit:contain;">';
+  }
+}
+
+async function renderTemplateToPDF(templateId, pdfWidthMM, pdfHeightMM, orientation, scale) {
+  var el = document.getElementById(templateId).firstElementChild;
+  // Temporarily make visible for html2canvas
+  var parent = document.getElementById(templateId);
+  parent.style.position = "fixed";
+  parent.style.left = "0";
+  parent.style.top = "0";
+  parent.style.zIndex = "-1";
+  parent.style.opacity = "0";
+
+  var canvas = await html2canvas(el, {
+    scale: scale || 2,
+    useCORS: true,
+    allowTaint: true,
+    backgroundColor: "#ffffff",
+    logging: false
+  });
+
+  // Hide again
+  parent.style.position = "absolute";
+  parent.style.left = "-9999px";
+  parent.style.top = "-9999px";
+  parent.style.zIndex = "";
+  parent.style.opacity = "";
+
+  var imgData = canvas.toDataURL("image/jpeg", 0.95);
+  var { jsPDF } = window.jspdf;
+  var doc = new jsPDF({ orientation: orientation, unit: "mm", format: [pdfWidthMM, pdfHeightMM] });
+  doc.addImage(imgData, "JPEG", 0, 0, pdfWidthMM, pdfHeightMM);
+  return doc;
+}
+
 async function printGeneratePreview(record) {
   try {
-    const { jsPDF } = window.jspdf;
-    const qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(record["Report No."]));
+    var qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(record["Report No."]));
 
-    // Generate Gemstone Report (A4) preview
-    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    doc.addFileToVFS("Inter-Regular.ttf", INTER_REGULAR_B64);
-    doc.addFont("Inter-Regular.ttf", "Inter", "normal");
-    doc.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
-    doc.addFont("Inter-Bold.ttf", "Inter", "bold");
-    await drawGemstoneReport(doc, 210, 297, record, qrDataUrl, null);
-    var reportBlob = doc.output("blob");
+    // ── Gemstone Report (A4) ──
+    populateGemReport(record, qrDataUrl, null);
+    var gemDoc = await renderTemplateToPDF("gemReportTpl", 210, 297, "portrait", 2);
+    var reportBlob = gemDoc.output("blob");
     document.getElementById("printPDFPreview").src = URL.createObjectURL(reportBlob);
 
-    // Generate PVC Card preview
-    const doc2 = new jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 53.98] });
-    doc2.addFileToVFS("Inter-Regular.ttf", INTER_REGULAR_B64);
-    doc2.addFont("Inter-Regular.ttf", "Inter", "normal");
-    doc2.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
-    doc2.addFont("Inter-Bold.ttf", "Inter", "bold");
-    await drawPVCFront(doc2, 85.6, 53.98, record, qrDataUrl, null);
-    doc2.addPage([85.6, 53.98], "landscape");
-    drawPVCBack(doc2, 85.6, 53.98);
-    var pvcBlob = doc2.output("blob");
+    // ── PVC Card (Front + Back) ──
+    populatePVCFront(record, qrDataUrl, null);
+    var pvcFrontDoc = await renderTemplateToPDF("pvcFrontTpl", 85.6, 53.98, "landscape", 3);
+
+    // PVC Back — static content, just render the template
+    var backEl = document.getElementById("pvcBackTpl").firstElementChild;
+    var backParent = document.getElementById("pvcBackTpl");
+    backParent.style.position = "fixed";
+    backParent.style.left = "0";
+    backParent.style.top = "0";
+    backParent.style.zIndex = "-1";
+    backParent.style.opacity = "0";
+    var backCanvas = await html2canvas(backEl, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: "#ffffff", logging: false });
+    backParent.style.position = "absolute";
+    backParent.style.left = "-9999px";
+    backParent.style.top = "-9999px";
+    backParent.style.zIndex = "";
+    backParent.style.opacity = "";
+
+    var backImgData = backCanvas.toDataURL("image/jpeg", 0.95);
+    pvcFrontDoc.addPage([85.6, 53.98], "landscape");
+    pvcFrontDoc.addImage(backImgData, "JPEG", 0, 0, 85.6, 53.98);
+
+    var pvcBlob = pvcFrontDoc.output("blob");
     document.getElementById("printPVCPreview").src = URL.createObjectURL(pvcBlob);
   } catch (err) {
     console.error("Preview generation error:", err);
+    showToast("Preview error: " + err.message, "error");
   }
 }
 
 async function printGeneratePDF(type) {
   if (!printReportData) { showToast("No report loaded", "error"); return; }
 
-  const btnId = type === "report" ? "printReportBtn" : type === "pvc" ? "printPVCBtn" : "printBothBtn";
-  const btn = document.getElementById(btnId);
-  const origHTML = btn.innerHTML;
+  var btnId = type === "report" ? "printReportBtn" : type === "pvc" ? "printPVCBtn" : "printBothBtn";
+  var btn = document.getElementById(btnId);
+  var origHTML = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner-ring"></span> Generating...';
 
   try {
-    const { jsPDF } = window.jspdf;
-    const r = printReportData;
-    const qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(r["Report No."]));
+    var r = printReportData;
+    var qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(r["Report No."]));
 
     if (type === "report" || type === "both") {
-      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      doc.addFileToVFS("Inter-Regular.ttf", INTER_REGULAR_B64);
-      doc.addFont("Inter-Regular.ttf", "Inter", "normal");
-      doc.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
-      doc.addFont("Inter-Bold.ttf", "Inter", "bold");
-      await drawGemstoneReport(doc, 210, 297, r, qrDataUrl, null);
-      doc.save("SGTL_Report_" + (r["Report No."] || "certificate") + ".pdf");
+      populateGemReport(r, qrDataUrl, null);
+      var gemDoc = await renderTemplateToPDF("gemReportTpl", 210, 297, "portrait", 2);
+      gemDoc.save("SGTL_Report_" + (r["Report No."] || "certificate") + ".pdf");
     }
 
     if (type === "pvc" || type === "both") {
-      const doc2 = new jsPDF({ orientation: "landscape", unit: "mm", format: [85.6, 53.98] });
-      doc2.addFileToVFS("Inter-Regular.ttf", INTER_REGULAR_B64);
-      doc2.addFont("Inter-Regular.ttf", "Inter", "normal");
-      doc2.addFileToVFS("Inter-Bold.ttf", INTER_BOLD_B64);
-      doc2.addFont("Inter-Bold.ttf", "Inter", "bold");
-      await drawPVCFront(doc2, 85.6, 53.98, r, qrDataUrl, null);
-      doc2.addPage([85.6, 53.98], "landscape");
-      drawPVCBack(doc2, 85.6, 53.98);
-      doc2.save("SGTL_PVC_" + (r["Report No."] || "card") + ".pdf");
+      populatePVCFront(r, qrDataUrl, null);
+      var pvcDoc = await renderTemplateToPDF("pvcFrontTpl", 85.6, 53.98, "landscape", 3);
+
+      // Render PVC back
+      var backEl2 = document.getElementById("pvcBackTpl").firstElementChild;
+      var backParent2 = document.getElementById("pvcBackTpl");
+      backParent2.style.position = "fixed";
+      backParent2.style.left = "0";
+      backParent2.style.top = "0";
+      backParent2.style.zIndex = "-1";
+      backParent2.style.opacity = "0";
+      var backCanvas2 = await html2canvas(backEl2, { scale: 3, useCORS: true, allowTaint: true, backgroundColor: "#ffffff", logging: false });
+      backParent2.style.position = "absolute";
+      backParent2.style.left = "-9999px";
+      backParent2.style.top = "-9999px";
+      backParent2.style.zIndex = "";
+      backParent2.style.opacity = "";
+
+      var backImg2 = backCanvas2.toDataURL("image/jpeg", 0.95);
+      pvcDoc.addPage([85.6, 53.98], "landscape");
+      pvcDoc.addImage(backImg2, "JPEG", 0, 0, 85.6, 53.98);
+
+      pvcDoc.save("SGTL_PVC_" + (r["Report No."] || "card") + ".pdf");
     }
 
     showToast("PDF downloaded successfully!", "success");
@@ -5003,6 +5325,7 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 <script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
