@@ -3400,7 +3400,7 @@ body {
 // ═══════════════════════════════════════
 // STATE & CONFIG
 // ═══════════════════════════════════════
-const API = "https://sgtl-gems-and-tesing-labs.onrender.com";
+const API = (location.hostname === "localhost" || location.hostname === "127.0.0.1") ? "http://localhost:3000" : "https://sgtl-gems-and-tesing-labs.onrender.com";
 /* ADMIN_EMAIL removed from client — validated server-side only */
 let authToken = localStorage.getItem("sgtl_token") || null;
 let refreshToken = localStorage.getItem("sgtl_refresh") || null;
@@ -3742,6 +3742,11 @@ function generateReportNo() {
 // ═══════════════════════════════════════
 // AUTH
 // ═══════════════════════════════════════
+// ── Warm up Render backend on page load (free tier cold start) ──
+(function warmUpServer() {
+  fetch(API + "/health", { method: "GET" }).catch(function() {});
+})();
+
 async function handleLogin() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("password").value;
@@ -3749,31 +3754,54 @@ async function handleLogin() {
   const btn = document.getElementById("loginBtn");
 
   if (!email || !password) { errEl.textContent = "Please enter email and password"; return; }
-  btn.disabled = true; btn.textContent = "Signing in...";
+  btn.disabled = true;
   errEl.textContent = "";
 
-  try {
-    const res = await fetch(API + "/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (data.error) {
-      errEl.textContent = data.error.includes("Invalid login credentials")
-        ? "Invalid login credentials. Check your email and password, reset the password, or run first-time setup if the admin account has not been created yet."
-        : data.error;
-    } else if (data.token) {
-      authToken = data.token;
-      refreshToken = data.refresh_token;
-      localStorage.setItem("sgtl_token", authToken);
-      localStorage.setItem("sgtl_refresh", refreshToken);
-      document.getElementById("userEmail").textContent = data.user.email;
-      showAdminPanel();
+  var maxRetries = 3;
+  var attempt = 0;
+  var lastError = null;
+
+  while (attempt < maxRetries) {
+    attempt++;
+    try {
+      if (attempt === 1) btn.textContent = "Signing in...";
+      else btn.textContent = "Server waking up... (attempt " + attempt + "/" + maxRetries + ")";
+
+      var controller = new AbortController();
+      var timeout = setTimeout(function() { controller.abort(); }, attempt === 1 ? 15000 : 30000);
+
+      var res = await fetch(API + "/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email, password: password }),
+        signal: controller.signal
+      });
+      clearTimeout(timeout);
+
+      var data = await res.json();
+      if (data.error) {
+        errEl.textContent = data.error.includes("Invalid login credentials")
+          ? "Invalid login credentials. Check your email and password, reset the password, or run first-time setup if the admin account has not been created yet."
+          : data.error;
+      } else if (data.token) {
+        authToken = data.token;
+        refreshToken = data.refresh_token;
+        localStorage.setItem("sgtl_token", authToken);
+        localStorage.setItem("sgtl_refresh", refreshToken);
+        document.getElementById("userEmail").textContent = data.user.email;
+        showAdminPanel();
+      }
+      btn.disabled = false; btn.textContent = "Sign In Securely";
+      return;
+    } catch (e) {
+      lastError = e;
+      if (attempt < maxRetries) {
+        errEl.textContent = "Server is starting up, retrying in a moment...";
+        await new Promise(function(r) { setTimeout(r, 2000); });
+      }
     }
-  } catch (e) {
-    errEl.textContent = "Connection failed. Is the server running?";
   }
+  errEl.textContent = "Could not reach the server after " + maxRetries + " attempts. Please try again in a minute.";
   btn.disabled = false; btn.textContent = "Sign In Securely";
 }
 

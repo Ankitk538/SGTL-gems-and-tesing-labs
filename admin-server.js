@@ -15,7 +15,26 @@ const multer = require("multer");
 const uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 const app = express();
+
+// Trust first proxy (Render / Vercel / Cloudflare) for correct req.ip behind reverse proxy
+app.set("trust proxy", 1);
+
+// Block oversized payloads
 app.use(express.json({ limit: "5mb" }));
+
+// ── Global rate limiter — prevents DDoS and brute-force on ALL routes ──
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 300,                   // 300 requests per window per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests. Please slow down." },
+  keyGenerator: (req) => req.ip
+});
+app.use(globalLimiter);
+
+// Health check endpoint (for warm-up pings and uptime monitors)
+app.get("/health", (req, res) => res.json({ status: "ok", ts: Date.now() }));
 
 // CORS allowlist (no wildcard). Configure ALLOWED_ORIGINS in .env.
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ||
@@ -38,8 +57,11 @@ app.use(cors({ origin: (origin, cb) => cb(null, isAllowedOrigin(origin)), creden
 app.use((req, res, next) => {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=()");
+  res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  res.setHeader("X-Permitted-Cross-Domain-Policies", "none");
   res.setHeader("Content-Security-Policy", [
     "default-src 'self'",
     "script-src 'self' 'unsafe-inline' https:",
@@ -582,18 +604,33 @@ async function authMiddleware(req, res, next) {
 // Static Files
 // ═══════════════════════════════════════
 app.use((req, res, next) => {
+  // Block directory traversal attempts
+  if (req.path.includes("..") || req.path.includes("%2e%2e") || req.path.includes("%252e")) {
+    logAudit("DIRECTORY_TRAVERSAL_BLOCKED", null, { ip: req.ip, path: req.path });
+    return res.status(400).send("Bad request");
+  }
+
   const blockedStaticFiles = new Set([
     "/admin-server.js",
     "/server.js",
+    "/load-env.js",
     "/package.json",
     "/package-lock.json",
     "/.env",
     "/.env.example",
+    "/.gitignore",
     "/admin-server.log",
-    "/admin-server-error.log"
+    "/admin-server-error.log",
+    "/server-out",
+    "/server-err"
   ]);
 
-  if (blockedStaticFiles.has(req.path) || req.path.startsWith("/node_modules/")) {
+  // Block sensitive files, node_modules, git metadata, and hidden files
+  if (blockedStaticFiles.has(req.path)
+    || req.path.startsWith("/node_modules/")
+    || req.path.startsWith("/.git")
+    || req.path.endsWith(".log")
+    || req.path.endsWith(".env")) {
     return res.status(404).send("Not found");
   }
 
@@ -624,9 +661,35 @@ app.use(express.static(path.join(__dirname), {
   }
 }));
 
+// ── Rate limiters for public endpoints (prevent enumeration & spam) ──
+const verifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,    // 30 verify lookups per 15 min per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many verification requests. Please try again later." },
+  keyGenerator: (req) => req.ip
+});
+const enquiryLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,    // 10 enquiry submissions per hour per IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many enquiry submissions. Please try again later." },
+  keyGenerator: (req) => req.ip
+});
+const refreshLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many refresh attempts." },
+  keyGenerator: (req) => req.ip
+});
+
 // Public exact-match certificate verification. This keeps the website from needing
 // broad anon SELECT access to the certificate table.
-app.get("/verify/:reportNo", async (req, res) => {
+app.get("/verify/:reportNo", verifyLimiter, async (req, res) => {
   try {
     const reportNo = normalizeReportNo(req.params.reportNo);
     if (!reportNo) {
@@ -672,7 +735,8 @@ app.get("/verify/:reportNo", async (req, res) => {
 
     res.json({ data: decrypted });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error("[Verify Error]", e.message);
+    res.status(500).json({ error: "Verification service temporarily unavailable" });
   }
 });
 
@@ -683,7 +747,7 @@ app.get("/verify/:reportNo", async (req, res) => {
 // Rate limiter for auth endpoints — 5 attempts per 15 minutes per IP
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 8,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: "Too many login attempts. Please try again after 15 minutes." },
@@ -829,7 +893,7 @@ app.post("/auth/reset-password", authLimiter, async (req, res) => {
 });
 
 // POST /auth/refresh
-app.post("/auth/refresh", async (req, res) => {
+app.post("/auth/refresh", refreshLimiter, async (req, res) => {
   const { refresh_token } = req.body;
   try {
     const { data, error } = await supabase.auth.refreshSession({ refresh_token });
@@ -1171,10 +1235,23 @@ const PRIORITY_LEVELS = {
 // ═══════════════════════════════════════
 // Website form POSTs here instead of direct Supabase insert
 // Saves to DB + sends notification email to admin Gmail
-app.post("/api/enquiry", async (req, res) => {
+app.post("/api/enquiry", enquiryLimiter, async (req, res) => {
   const { email, phone, message, name, first_name, last_name, category } = req.body;
   if (!email || !message) {
     return res.status(400).json({ error: "Email and message are required" });
+  }
+  // Input validation — reject obviously malicious or oversized input
+  if (typeof email !== "string" || email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    return res.status(400).json({ error: "Invalid email format" });
+  }
+  if (typeof message !== "string" || message.length > 5000) {
+    return res.status(400).json({ error: "Message too long (max 5000 characters)" });
+  }
+  if (phone && (typeof phone !== "string" || phone.length > 20)) {
+    return res.status(400).json({ error: "Invalid phone number" });
+  }
+  if (name && (typeof name !== "string" || name.length > 200)) {
+    return res.status(400).json({ error: "Name too long" });
   }
 
   try {
@@ -1249,7 +1326,8 @@ app.post("/api/enquiry", async (req, res) => {
 
     res.json({ success: true, message: "Enquiry submitted successfully" });
   } catch (e) {
-    res.status(500).json({ error: e.message });
+    console.error("[Enquiry Error]", e.message);
+    res.status(500).json({ error: "Enquiry service temporarily unavailable" });
   }
 });
 
@@ -1634,6 +1712,22 @@ app.get("/admin", (req, res) => {
 // Catch-all for SPA routes
 app.get("/admin/*", (req, res) => {
   res.sendFile(path.join(__dirname, "admin.html"));
+});
+
+// ═══════════════════════════════════════
+// GLOBAL ERROR HANDLER — never leak stack traces to clients
+// ═══════════════════════════════════════
+app.use((err, req, res, next) => {
+  console.error("[Unhandled Error]", err.stack || err.message);
+  logAudit("UNHANDLED_ERROR", null, { ip: req.ip, path: req.path, error: err.message });
+  res.status(500).json({ error: "Internal server error" });
+});
+
+// ═══════════════════════════════════════
+// 404 handler — catch all undefined routes
+// ═══════════════════════════════════════
+app.use((req, res) => {
+  res.status(404).json({ error: "Not found" });
 });
 
 // ═══════════════════════════════════════
