@@ -2184,58 +2184,32 @@ body {
    NEW PVC CARD — scoped under .sgtlpvc — no global leakage.
    CR80: 85.6 × 54 mm trim + 3 mm bleed = 91.6 × 60 mm.
    Artboard: 1082 × 709 px (300 DPI).
+   Matches: PVC Card design/PVC Report Card (Final).html
    ============================================================ */
 .sgtlpvc{
   --navy:#0a1c48; --navy2:#081634; --gold:#d3a446; --gold2:#b7862f;
   --gold-soft:#f0d69b; --cream:#ffffff; --ink:#14213f; --label:#243156;
   --muted:#5b6579; --line:rgba(20,33,63,.16);
-  --cyan:#4cc9f0; --violet:#8b5cf6;
   --u:11.811px;
   font-family:'Inter',sans-serif; color:var(--ink);
   -webkit-font-smoothing:antialiased;
 }
 .sgtlpvc *{box-sizing:border-box;}
 
-/* ---- card shell (includes 3mm bleed) — neo-luxury aurora ---- */
+/* ---- card shell (includes 3mm bleed) ---- */
 .sgtlpvc .card{
   position:relative; width:1082px; height:709px; overflow:hidden;
-  background:
-    radial-gradient(ellipse at 22% 45%, rgba(76,201,240,.13), transparent 50%),
-    radial-gradient(ellipse at 78% 22%, rgba(139,92,246,.10), transparent 45%),
-    radial-gradient(ellipse at 55% 82%, rgba(211,164,70,.09), transparent 48%),
-    linear-gradient(160deg, #04091a 0%, #0a1c48 28%, #0e2558 50%, #0a1c48 72%, #04091a 100%);
-  box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+  background:var(--cream); box-shadow:0 30px 70px rgba(0,0,0,.4);
 }
-/* animated aurora shimmer overlay */
-@keyframes sgtlAurora{
-  0%  { transform:translate(0,0) scale(1);     opacity:.55; }
-  33% { transform:translate(28px,-18px) scale(1.06); opacity:1; }
-  66% { transform:translate(-18px,12px) scale(.96);  opacity:.7; }
-  100%{ transform:translate(0,0) scale(1);     opacity:.55; }
-}
-.sgtlpvc .card::before{
-  content:""; position:absolute; inset:-30px; z-index:0; pointer-events:none;
-  background:
-    radial-gradient(ellipse at 18% 58%, rgba(76,201,240,.20), transparent 42%),
-    radial-gradient(ellipse at 82% 28%, rgba(139,92,246,.16), transparent 38%),
-    radial-gradient(ellipse at 48% 88%, rgba(211,164,70,.14), transparent 42%);
-  animation:sgtlAurora 15s ease-in-out infinite;
-}
-/* ensure content layers above aurora */
-.sgtlpvc .hd{ z-index:2; }
-.sgtlpvc .ft{ z-index:2; }
-.sgtlpvc .body{ z-index:1; }
-.sgtlpvc .back .bbody{ z-index:1; }
-.sgtlpvc .watermark{ z-index:0; }
-/* crop marks in the bleed margin */
-.sgtlpvc .crop{display:none;}
+/* crop marks hidden in preview (shown only in print-ready export) */
+.sgtlpvc .crop{position:absolute; background:#0a1c48; z-index:9;}
+.sgtlpvc .crop.h{width:22px; height:1.5px;}
+.sgtlpvc .crop.v{width:1.5px; height:22px;}
 
-/* ---- header band — frosted glass ---- */
+/* ---- header band ---- */
 .sgtlpvc .hd{
   position:absolute; top:0; left:0; width:100%; height:150px;
-  background:linear-gradient(120deg, rgba(12,35,80,.88) 0%, rgba(10,28,72,.92) 55%, rgba(8,23,52,.95) 100%);
-  border-bottom:1px solid rgba(211,164,70,.18);
-  box-shadow:0 4px 30px rgba(76,201,240,.06), inset 0 -1px 0 rgba(255,255,255,.04);
+  background:linear-gradient(120deg,#0c2350 0%,#0a1c48 55%,#081734 100%);
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;
   padding-top:14px;
 }
@@ -2245,25 +2219,26 @@ body {
   text-shadow:0 1px 0 rgba(0,0,0,.3);
 }
 .sgtlpvc .hd .orn{display:flex; align-items:center; gap:14px;}
+.sgtlpvc .hd .orn .ln{width:120px; height:1.5px; background:linear-gradient(90deg,transparent,var(--gold));}
+.sgtlpvc .hd .orn .ln.r{background:linear-gradient(90deg,var(--gold),transparent);}
+.sgtlpvc .hd .orn .di{color:var(--gold); font-size:14px; letter-spacing:6px;}
 .sgtlpvc .hd .sub{font-size:22px; font-weight:600; letter-spacing:.24em; color:#eef1f6; text-transform:uppercase; white-space:nowrap;}
 
-/* ---- footer band — frosted glass ---- */
+/* ---- footer band ---- */
 .sgtlpvc .ft{
   position:absolute; bottom:0; left:0; width:100%; height:70px;
-  background:linear-gradient(120deg, rgba(12,35,80,.92), rgba(8,23,52,.96));
-  border-top:1px solid rgba(211,164,70,.14);
-  box-shadow:0 -4px 24px rgba(76,201,240,.05), inset 0 1px 0 rgba(255,255,255,.03);
+  background:linear-gradient(120deg,#0c2350,#081734);
   display:flex; align-items:center; justify-content:space-between; padding:0 96px; gap:0;
   color:#eef1f6; font-size:22px; font-weight:500;
 }
 .sgtlpvc .ft .it{display:flex; align-items:center; gap:12px;}
 .sgtlpvc .ft .it svg{width:26px; height:26px; flex:none;}
+.sgtlpvc .ft .divider{width:1px; height:30px; background:rgba(240,214,155,.3);}
 
-/* ---- front body — clean white panel ---- */
+/* ---- front body ---- */
 .sgtlpvc .body{
   position:absolute; top:150px; left:0; right:0; bottom:70px;
   padding:34px 82px 20px; display:flex; gap:40px;
-  background:#ffffff;
 }
 .sgtlpvc .watermark{
   position:absolute; top:150px; left:50%; transform:translateX(-58%);
@@ -2276,14 +2251,11 @@ body {
 .sgtlpvc .row .c{color:var(--label); font-weight:700;}
 .sgtlpvc .row .v{font-size:18px; font-weight:600; color:var(--ink); letter-spacing:.01em; text-transform:uppercase;}
 
-.sgtlpvc .side{width:246px; flex:none; display:flex; flex-direction:column; align-items:center;}
-/* ---- gem image — rectangular gold frame with glow ---- */
+.sgtlpvc .side{width:246px; flex:none; display:flex; flex-direction:column; align-items:flex-start;}
+/* ---- gem image ---- */
 .sgtlpvc .gem{
-  width:208px; height:176px; border-radius:10px; position:relative; overflow:hidden;
-  background:rgba(245,245,248,.95);
-  border:2px solid var(--gold);
-  box-shadow:0 0 18px rgba(211,164,70,.18), 0 0 36px rgba(76,201,240,.06), inset 0 0 12px rgba(0,0,0,.06);
-  display:flex; align-items:center; justify-content:center;
+  width:200px; height:150px; border-radius:0; position:relative; overflow:visible;
+  background:transparent; display:flex; align-items:center; justify-content:center;
 }
 .sgtlpvc .gem img{
   width:100%; height:100%; object-fit:cover; border-radius:8px;
@@ -2312,21 +2284,23 @@ body {
 }
 .sgtlpvc .side .gname{
   margin-top:12px; font-family:'Fraunces',serif; font-size:20px; font-weight:600;
-  color:var(--ink); letter-spacing:.05em; text-transform:uppercase; text-align:center;
+  color:var(--ink); letter-spacing:.05em; text-transform:uppercase; text-align:left;
 }
-.sgtlpvc .side .gname .u{display:block; width:40px; height:1.5px; background:var(--gold); margin:7px auto 0;}
+.sgtlpvc .side .gname .u{display:block; width:40px; height:1.5px; background:var(--gold); margin:7px 0 0;}
 
 .sgtlpvc .qr{margin-top:14px; width:122px; height:122px; padding:8px; background:#fff; border:1px solid var(--line); border-radius:6px;}
 .sgtlpvc .qr img{width:100%; height:100%; display:block; image-rendering:pixelated;}
-.sgtlpvc .issued{margin-top:10px; text-align:center;}
+.sgtlpvc .issued{margin-top:10px; text-align:left;}
 .sgtlpvc .issued .l{font-size:14px; font-weight:700; letter-spacing:.12em; color:var(--label); text-transform:uppercase;}
 .sgtlpvc .issued .d{font-size:17px; font-weight:700; color:var(--ink); margin-top:4px; letter-spacing:.03em;}
 
-/* ---- back — clean white panel ---- */
+/* verified seal */
+.sgtlpvc .seal{position:absolute; left:760px; bottom:80px; width:92px; height:92px; z-index:6;}
+
+/* ---- back ---- */
 .sgtlpvc .back .bbody{
   position:absolute; top:150px; left:0; right:0; bottom:70px;
   padding:30px 70px 18px; display:flex; flex-direction:column; align-items:center;
-  background:#ffffff;
 }
 .sgtlpvc .tc-pill{
   display:inline-flex; align-items:center; gap:12px; padding:8px 26px; border-radius:999px;
