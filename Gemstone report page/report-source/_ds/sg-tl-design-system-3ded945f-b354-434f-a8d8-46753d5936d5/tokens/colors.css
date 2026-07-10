@@ -1,0 +1,85 @@
+/* ───────────────────────────────────────────────────────────
+   SG&TL — Color tokens
+   "Crystalline Noir": pressurized darkness (navy void) into which
+   two chromatic veins emerge — auric GOLD and subterranean TEAL.
+   A single RUBY note marks errors / invalid states.
+
+   The brand runs two surfaces:
+     · DARK  — marketing landing + admin console (the void)
+     · LIGHT — verification app (warm paper, navy hero band)
+   ─────────────────────────────────────────────────────────── */
+:root {
+  /* ─ Void / navy scale ─ */
+  --navy: #0a1215;          /* primary dark surface (near-black, warm) */
+  --navy-mid: #111d22;      /* raised dark panel */
+  --navy-soft: #0e1e23;     /* modal / card gradient top */
+  --ink: #0f1a17;           /* darkest text on light surfaces */
+
+  /* ─ Logo navy (heraldic blue of the SG monogram) ─ */
+  --logo-navy: #1c2b52;
+  --logo-navy-line: #c19a5b; /* gold keyline around the monogram */
+
+  /* ─ Gold vein (auric — trapped sunlight) ─ */
+  --gold: #c4943f;          /* core gold — fills, borders, icons */
+  --gold-light: #d4a94f;
+  --gold-dark: #9e7430;
+  --gold-soft: #f0d69b;     /* highlight gold on dark */
+  --gold-pale: #f2d99a;     /* lightest stop of the CTA gradient */
+  --gold-ink: #6b4e1f;      /* gold-AS-TEXT on light (AAA ~7:1) */
+
+  /* ─ Teal vein (subterranean water through copper) ─ */
+  --teal: #0d6b63;
+  --teal-dark: #084b46;
+  --teal-light: #e1f5ee;
+  --teal-ink: #094c46;      /* teal-AS-TEXT on light (AAA) */
+  --teal-bright: #35d6c3;   /* electric teal — auth console accent */
+
+  /* ─ Ruby (error / invalid / Navratna ruby) ─ */
+  --ruby: #a9253f;
+
+  /* ─ Light surfaces (verification app) ─ */
+  --paper: #fafbfa;
+  --white: #ffffff;
+  --line: #e2e8e5;          /* hairline on light */
+  --muted: #39443f;         /* secondary text on light (AAA) */
+  --subtle: #434e49;        /* tertiary text on light (AAA) */
+
+  /* ─ Admin console palette ─ */
+  --bg-dark: #0a0a14;
+  --bg-card: #12121e;
+  --bg-sidebar: #0d0d1a;
+  --bg-input: #1a1a2e;
+  --console-text: #e8e6e3;
+  --console-text-muted: #8a8a9a;
+  --console-text-dim: #5a5a6a;
+
+  /* ─ Status (admin metrics / toasts) ─ */
+  --status-green: #2ecc71;
+  --status-red: #e74c3c;
+  --status-blue: #3498db;
+  --status-orange: #f39c12;
+
+  /* ─────── Semantic aliases ─────── */
+  /* Dark theme (default for marketing + console) */
+  --surface-void: var(--navy);
+  --surface-panel: var(--navy-mid);
+  --text-on-dark: rgba(255, 255, 255, 0.92);
+  --text-on-dark-muted: #c2cbc7;     /* lifted to AAA (was rgba .5) */
+  --text-on-dark-faint: #9aa7a2;
+  --hairline-dark: rgba(255, 255, 255, 0.08);
+  --hairline-gold: rgba(196, 148, 63, 0.16);
+
+  /* Light theme (verification app) */
+  --surface-paper: var(--paper);
+  --surface-card: rgba(255, 255, 255, 0.88);
+  --text-body: var(--ink);
+  --text-secondary: var(--muted);
+  --text-tertiary: var(--subtle);
+  --hairline-light: var(--line);
+
+  /* Accent roles (theme-agnostic) */
+  --accent-primary: var(--gold);     /* primary CTA = gold */
+  --accent-secondary: var(--teal);   /* secondary action = teal */
+  --accent-danger: var(--ruby);
+  --focus-ring: rgba(196, 148, 63, 0.18);
+}

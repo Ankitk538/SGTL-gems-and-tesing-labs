@@ -1,0 +1,13 @@
+/* ───────────────────────────────────────────────────────────
+   SG&TL — Webfonts
+   All four families are served from Google Fonts. If you need
+   self-hosted binaries, drop them in assets/fonts/ and replace
+   this @import with @font-face rules pointing at them.
+
+   • Fraunces      — display serif (headings, certificate titles)
+   • Inter         — UI + body sans
+   • IBM Plex Mono — lab data / report numbers (verification app)
+   • JetBrains Mono— console + admin numeric data
+   ─────────────────────────────────────────────────────────── */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap');

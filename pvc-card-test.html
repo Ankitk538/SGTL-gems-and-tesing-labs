@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SGTL PVC Card — Print-Ready Preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   SCOPED UNDER .sgtl-pvc — zero global CSS leakage
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Reset only inside scope ── */
+.sgtl-pvc *, .sgtl-pvc *::before, .sgtl-pvc *::after {
+  box-sizing: border-box; margin: 0; padding: 0;
+}
+
+/* ── Tokens ── */
+.sgtl-pvc {
+  --navy:         #0B1B3D;
+  --navy-mid:     #132a55;
+  --gold:         #D4AF37;
+  --gold-light:   #e2c55e;
+  --gold-pale:    #f5ecd3;
+  --white:        #ffffff;
+  --text-dark:    #0d1117;
+  --text-body:    #2c3340;
+  --text-mid:     #5a6470;
+  --text-light:   #9aa0a6;
+  --bg-page:      #eceef2;
+
+  /* CR-80 at 300 DPI render canvas */
+  --card-w: 1012px;   /* 85.6mm at ~300dpi */
+  --card-h: 638px;    /* 53.98mm at ~300dpi */
+  /* With 3mm bleed */
+  --bleed-w: 1083px;  /* 91.6mm */
+  --bleed-h: 709px;   /* 59.98mm */
+  --preview-scale: 0.55;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--bg-page);
+  color: var(--text-dark);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 36px 24px;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ── Admin Header ── */
+.sgtl-pvc .pvc-admin-header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px;
+}
+.sgtl-pvc .pvc-admin-header img {
+  width: 46px; height: 46px; object-fit: contain;
+}
+.sgtl-pvc .pvc-admin-header h1 {
+  font-family: 'Cinzel', serif;
+  font-size: 22px; font-weight: 700; color: var(--navy);
+  line-height: 1.2;
+}
+.sgtl-pvc .pvc-admin-header .pvc-admin-sub {
+  font-size: 12px; color: var(--text-mid); font-weight: 500; margin-top: 2px;
+}
+
+/* ── Toolbar ── */
+.sgtl-pvc .pvc-toolbar {
+  display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap;
+}
+.sgtl-pvc .pvc-toolbar button {
+  font-family: 'Inter', sans-serif;
+  padding: 10px 20px; border-radius: 7px;
+  border: 1.5px solid rgba(11,27,61,0.12);
+  background: var(--white); font-size: 13px; font-weight: 600;
+  color: var(--text-dark); cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; gap: 6px;
+}
+.sgtl-pvc .pvc-toolbar button:hover {
+  border-color: var(--navy); color: var(--navy);
+  box-shadow: 0 2px 8px rgba(11,27,61,0.08);
+}
+.sgtl-pvc .pvc-toolbar button.pvc-btn-primary {
+  background: var(--navy); color: var(--white); border-color: var(--navy);
+}
+.sgtl-pvc .pvc-toolbar button.pvc-btn-primary:hover { background: var(--navy-mid); }
+
+.sgtl-pvc .pvc-section-title {
+  font-size: 11px; font-weight: 700; color: var(--text-mid);
+  letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px;
+}
+
+/* ── Card Stage ── */
+.sgtl-pvc .pvc-stage {
+  display: flex; gap: 36px; justify-content: center;
+  flex-wrap: wrap; margin-bottom: 36px;
+}
+.sgtl-pvc .pvc-card-wrapper {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+}
+.sgtl-pvc .pvc-card-wrapper .pvc-label {
+  font-size: 11px; font-weight: 700; color: var(--text-mid);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+
+.sgtl-pvc .pvc-frame {
+  width: calc(var(--card-w) * var(--preview-scale));
+  height: calc(var(--card-h) * var(--preview-scale));
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 10px 28px rgba(11,27,61,0.12),
+              0 0 0 1px rgba(11,27,61,0.08);
+  background: var(--white); position: relative;
+}
+.sgtl-pvc .pvc-frame > .pvc-card {
+  transform: scale(var(--preview-scale));
+  transform-origin: top left;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PVC CARD BASE — CR-80 LOCKED
+   ═══════════════════════════════════════════════════════════════ */
+.sgtl-pvc .pvc-card {
+  width: var(--card-w);
+  height: var(--card-h);
+  font-family: 'Inter', Arial, sans-serif;
+  background: var(--white);
+  position: relative;
+  overflow: hidden;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  color-adjust: exact;
+}
+
+/* Watermark */
+.sgtl-pvc .pvc-watermark {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 320px; height: 320px;
+  opacity: 0.04;
+  pointer-events: none; z-index: 0;
+}
+.sgtl-pvc .pvc-card-inner {
+  position: relative; z-index: 1;
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ██  FRONT CARD — matches Canva reference exactly
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Navy header band ── */
+.sgtl-pvc .pvc-front .pvc-hdr {
+  background: var(--navy);
+  padding: 10px 28px 12px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.sgtl-pvc .pvc-front .pvc-hdr-title {
+  font-family: 'Cinzel', serif;
+  color: var(--white);
+  font-weight: 800; font-size: 20px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+.sgtl-pvc .pvc-front .pvc-hdr-sub {
+  color: var(--gold);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 3px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.sgtl-pvc .pvc-front .pvc-hdr-sub .pvc-dash {
+  width: 28px; height: 1.5px; background: var(--gold); display: inline-block;
+}
+
+/* ── Content area with gold border ── */
+.sgtl-pvc .pvc-front .pvc-body {
+  flex: 1; display: flex;
+  margin: 6px 10px 0;
+  border: 1.5px solid var(--gold);
+  border-bottom: none;
+  min-height: 0;
+  position: relative;
+}
+
+/* Left column: data fields */
+.sgtl-pvc .pvc-front .pvc-fields {
+  flex: 1; min-width: 0;
+  padding: 8px 14px 6px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+  gap: 0;
+}
+
+.sgtl-pvc .pvc-field-row {
+  display: flex; align-items: baseline;
+  padding: 2.5px 0;
+  font-size: 10px; line-height: 1.35;
+}
+
+.sgtl-pvc .pvc-field-lbl {
+  font-weight: 700; color: var(--navy);
+  white-space: nowrap;
+  min-width: 108px; flex-shrink: 0;
+  font-size: 9.5px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.sgtl-pvc .pvc-field-sep {
+  color: var(--navy);
+  font-weight: 700;
+  margin: 0 6px 0 2px;
+  font-size: 10px;
+}
+
+.sgtl-pvc .pvc-field-val {
+  color: var(--text-dark);
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  word-break: break-word;
+}
+
+/* Right column: visuals */
+.sgtl-pvc .pvc-front .pvc-visuals {
+  width: 260px; flex-shrink: 0;
+  padding: 8px 14px 8px 0;
+  display: flex; flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: 2px;
+}
+
+.sgtl-pvc .pvc-gem-frame {
+  width: 160px; height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  background: transparent;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+  padding: 4px;
+}
+.sgtl-pvc .pvc-gem-frame img {
+  max-width: 100%; max-height: 100%; object-fit: contain;
+}
+
+.sgtl-pvc .pvc-stone-label {
+  font-family: 'Cinzel', serif;
+  font-weight: 700; font-size: 11px;
+  color: var(--navy);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin: 4px 0 2px;
+}
+
+/* Gold diamond decorators */
+.sgtl-pvc .pvc-diamonds {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  color: var(--gold); font-size: 8px; margin: 2px 0;
+}
+
+.sgtl-pvc .pvc-qr-area {
+  display: flex; align-items: center; gap: 8px; margin-top: 2px;
+}
+.sgtl-pvc .pvc-qr-box {
+  width: 68px; height: 68px;
+  border: 2px solid var(--gold);
+  padding: 3px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--white);
+}
+.sgtl-pvc .pvc-qr-box img { width: 100%; height: 100%; }
+
+.sgtl-pvc .pvc-qr-meta {
+  text-align: center;
+  font-size: 9px; line-height: 1.4;
+}
+.sgtl-pvc .pvc-qr-meta .pvc-issued-lbl {
+  font-weight: 700; color: var(--navy);
+  text-transform: uppercase; letter-spacing: 0.5px;
+  font-size: 8.5px;
+}
+.sgtl-pvc .pvc-qr-meta .pvc-issued-date {
+  font-weight: 600; color: var(--text-dark);
+  font-size: 10px;
+}
+
+.sgtl-pvc .pvc-badge-front {
+  position: absolute;
+  bottom: 6px; right: 10px;
+  width: 56px; height: 56px;
+  object-fit: contain;
+}
+
+/* ── Navy footer ── */
+.sgtl-pvc .pvc-front .pvc-footer {
+  background: var(--navy);
+  padding: 7px 28px;
+  display: flex; align-items: center; justify-content: center;
+  gap: 32px; flex-shrink: 0;
+  margin: 0 10px 6px;
+  border: 1.5px solid var(--gold);
+  border-top: none;
+}
+
+.sgtl-pvc .pvc-contact-item {
+  display: flex; align-items: center; gap: 8px;
+  color: var(--white);
+  font-size: 10px; font-weight: 500;
+}
+.sgtl-pvc .pvc-contact-icon {
+  width: 22px; height: 22px; border-radius: 50%;
+  border: 1.5px solid var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.sgtl-pvc .pvc-contact-icon svg {
+  width: 12px; height: 12px; stroke: var(--gold); fill: none; stroke-width: 2;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ██  BACK CARD — T&C + Social + Authority
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Header — identical to front */
+.sgtl-pvc .pvc-back .pvc-hdr {
+  background: var(--navy);
+  padding: 10px 28px 12px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.sgtl-pvc .pvc-back .pvc-hdr-title {
+  font-family: 'Cinzel', serif;
+  color: var(--white);
+  font-weight: 800; font-size: 20px;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+}
+.sgtl-pvc .pvc-back .pvc-hdr-sub {
+  color: var(--gold);
+  font-size: 9px; font-weight: 600;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  margin-top: 3px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.sgtl-pvc .pvc-back .pvc-hdr-sub .pvc-dash {
+  width: 28px; height: 1.5px; background: var(--gold); display: inline-block;
+}
+
+/* Content */
+.sgtl-pvc .pvc-back .pvc-back-body {
+  flex: 1;
+  margin: 6px 10px 6px;
+  border: 1.5px solid var(--gold);
+  padding: 14px 22px 10px;
+  display: flex; flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* T&C heading pill */
+.sgtl-pvc .pvc-tc-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--navy);
+  color: var(--gold);
+  font-family: 'Cinzel', serif;
+  font-weight: 700; font-size: 10px;
+  letter-spacing: 2px;
+  padding: 5px 18px;
+  border-radius: 2px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.sgtl-pvc .pvc-tc-badge .pvc-diamond {
+  font-size: 8px;
+}
+
+.sgtl-pvc .pvc-tc-text {
+  font-size: 9px; color: var(--text-body);
+  line-height: 1.6;
+  text-align: justify;
+  max-width: 880px;
+  margin-bottom: 10px;
+}
+
+/* Social section */
+.sgtl-pvc .pvc-social-section {
+  margin-top: auto;
+}
+.sgtl-pvc .pvc-social-divider {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  color: var(--gold); font-size: 8px; margin-bottom: 6px;
+}
+
+.sgtl-pvc .pvc-social-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700; font-size: 9px; color: var(--navy);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sgtl-pvc .pvc-social-icons {
+  display: flex; gap: 10px; justify-content: center; margin-bottom: 8px;
+}
+.sgtl-pvc .pvc-social-icon {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--navy);
+  display: flex; align-items: center; justify-content: center;
+}
+.sgtl-pvc .pvc-social-icon svg {
+  width: 14px; height: 14px; fill: var(--white);
+}
+
+.sgtl-pvc .pvc-seal-notice {
+  font-size: 8.5px; color: var(--text-mid); font-style: italic;
+  display: flex; align-items: center; gap: 6px;
+}
+.sgtl-pvc .pvc-seal-notice .pvc-diamond {
+  color: var(--gold); font-size: 8px;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT SPECS SECTION (screen only)
+   ═══════════════════════════════════════════════════════════════ */
+.sgtl-pvc .pvc-specs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 20px; margin-bottom: 30px;
+}
+.sgtl-pvc .pvc-spec-card {
+  background: var(--white);
+  border-radius: 10px;
+  padding: 20px 24px;
+  border: 1px solid rgba(11,27,61,0.08);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.sgtl-pvc .pvc-spec-card h3 {
+  font-family: 'Cinzel', serif;
+  font-size: 13px; font-weight: 700; color: var(--navy);
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid var(--gold);
+}
+.sgtl-pvc .pvc-spec-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; font-size: 12px;
+  border-bottom: 1px solid rgba(11,27,61,0.04);
+}
+.sgtl-pvc .pvc-spec-row:last-child { border-bottom: none; }
+.sgtl-pvc .pvc-spec-label {
+  color: var(--text-mid); font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.sgtl-pvc .pvc-spec-label svg {
+  width: 14px; height: 14px; stroke: var(--gold); fill: none; stroke-width: 2;
+}
+.sgtl-pvc .pvc-spec-value {
+  font-weight: 700; color: var(--navy);
+}
+
+.sgtl-pvc .pvc-style-swatch {
+  display: flex; gap: 8px; align-items: center; margin-top: 4px;
+}
+.sgtl-pvc .pvc-swatch {
+  width: 28px; height: 28px; border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px; color: #fff; font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRINT STYLES
+   ═══════════════════════════════════════════════════════════════ */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  body { background: #fff !important; margin: 0; padding: 0; }
+
+  .sgtl-pvc { padding: 0; max-width: none; }
+
+  .sgtl-pvc .pvc-admin-header,
+  .sgtl-pvc .pvc-toolbar,
+  .sgtl-pvc .pvc-section-title,
+  .sgtl-pvc .pvc-card-wrapper .pvc-label,
+  .sgtl-pvc .pvc-specs,
+  .sgtl-pvc .pvc-qa-bar {
+    display: none !important;
+  }
+
+  .sgtl-pvc .pvc-stage {
+    display: block; gap: 0; margin: 0;
+  }
+  .sgtl-pvc .pvc-card-wrapper {
+    display: block; margin: 0; padding: 0;
+  }
+  .sgtl-pvc .pvc-frame {
+    width: 85.6mm; height: 53.98mm;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: hidden; margin: 0;
+  }
+  .sgtl-pvc .pvc-frame > .pvc-card {
+    transform: none !important;
+    width: 85.6mm !important; height: 53.98mm !important;
+  }
+  .sgtl-pvc .pvc-card {
+    width: 85.6mm !important; height: 53.98mm !important;
+    border-radius: 0 !important; box-shadow: none !important;
+  }
+
+  .sgtl-pvc .pvc-card-wrapper:first-child {
+    break-after: page; page-break-after: always;
+  }
+  .sgtl-pvc .pvc-card-wrapper:last-child {
+    break-before: page; page-break-before: always;
+  }
+
+  @page {
+    size: 85.6mm 53.98mm;
+    margin: 0;
+  }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) { .sgtl-pvc { --preview-scale: 0.44; } }
+@media (max-width: 900px) {
+  .sgtl-pvc .pvc-stage { flex-direction: column; align-items: center; }
+  .sgtl-pvc { --preview-scale: 0.48; }
+  .sgtl-pvc .pvc-specs { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .sgtl-pvc { --preview-scale: 0.34; padding: 16px 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="sgtl-pvc">
+
+  <!-- Admin Header -->
+  <div class="pvc-admin-header">
+    <img src="assets/SG_logo.png" alt="SG">
+    <div>
+      <h1>Print Report — PVC Card</h1>
+      <div class="pvc-admin-sub">CR-80 &bull; 85.6 &times; 53.98 mm &bull; 300 DPI &bull; CMYK Ready</div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="pvc-toolbar">
+    <button class="pvc-btn-primary" onclick="window.print()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print Cards
+    </button>
+    <button onclick="populateMock()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 105.64-12.36L1 10"/></svg>
+      Load Sample Data
+    </button>
+    <button onclick="clearData()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      Clear
+    </button>
+  </div>
+
+  <p class="pvc-section-title">Card Preview</p>
+
+  <!-- ═══════════ CARD STAGE ═══════════ -->
+  <div class="pvc-stage">
+
+    <!-- ════════════════════════════════════════════════════
+         FRONT CARD
+         ════════════════════════════════════════════════════ -->
+    <div class="pvc-card-wrapper">
+      <span class="pvc-label">Front</span>
+      <div class="pvc-frame">
+        <div class="pvc-card pvc-front" id="pvcFront">
+          <img src="assets/SG_logo.png" class="pvc-watermark" alt="">
+
+          <div class="pvc-card-inner">
+            <!-- Navy Header -->
+            <div class="pvc-hdr">
+              <div class="pvc-hdr-title">Sunil Gems and Testing Labs</div>
+              <div class="pvc-hdr-sub">
+                <span class="pvc-dash"></span>
+                Authentic Gemology Report
+                <span class="pvc-dash"></span>
+              </div>
+            </div>
+
+            <!-- Content Body -->
+            <div class="pvc-body">
+              <!-- Left: Fields -->
+              <div class="pvc-fields" id="frontFields">
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Report No.</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="reportNo">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Gemstone</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="gemstone">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Species</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="species">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Weight</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="weight">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Shape / Cut</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="shapesCut">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Dimensions</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="dimensions">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Colour</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="colour">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Refractive Index</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="ri">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Specific Gravity</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="sg">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Origin</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="origin">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Treatment</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="treatment">&mdash;</span></div>
+                <div class="pvc-field-row"><span class="pvc-field-lbl">Comments</span><span class="pvc-field-sep">:</span><span class="pvc-field-val" data-field="comments">&mdash;</span></div>
+              </div>
+
+              <!-- Right: Visuals -->
+              <div class="pvc-visuals">
+                <div class="pvc-gem-frame" id="frontSpecimen">
+                  <span style="font-size:10px;color:var(--text-light);font-weight:600;letter-spacing:1px;">SPECIMEN</span>
+                </div>
+                <div class="pvc-stone-label" id="frontStoneName">Natural Blue Sapphire</div>
+                <div class="pvc-diamonds"><span>&#9670;</span><span>&#9670;</span><span>&#9670;</span></div>
+
+                <div class="pvc-qr-area">
+                  <div class="pvc-qr-box" id="frontQR">
+                    <span style="font-size:18px;color:var(--text-light);font-weight:700;">QR</span>
+                  </div>
+                  <div class="pvc-qr-meta">
+                    <div class="pvc-issued-lbl">Issued Date</div>
+                    <div class="pvc-issued-date" id="frontDate">18 May 2024</div>
+                  </div>
+                </div>
+
+                <img src="assets/Badge.png" class="pvc-badge-front" alt="Verified">
+              </div>
+            </div>
+
+            <!-- Navy Footer -->
+            <div class="pvc-footer">
+              <div class="pvc-contact-item">
+                <span class="pvc-contact-icon">
+                  <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>
+                </span>
+                sunilgems126@gmail.com
+              </div>
+              <div class="pvc-contact-item">
+                <span class="pvc-contact-icon">
+                  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+                </span>
+                www.sgtlgemtesting.co.in
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════
+         BACK CARD
+         ════════════════════════════════════════════════════ -->
+    <div class="pvc-card-wrapper">
+      <span class="pvc-label">Back</span>
+      <div class="pvc-frame">
+        <div class="pvc-card pvc-back" id="pvcBack">
+          <img src="assets/SG_logo.png" class="pvc-watermark" alt="">
+
+          <div class="pvc-card-inner">
+            <!-- Navy Header (identical) -->
+            <div class="pvc-hdr">
+              <div class="pvc-hdr-title">Sunil Gems and Testing Labs</div>
+              <div class="pvc-hdr-sub">
+                <span class="pvc-dash"></span>
+                Authentic Gemology Report
+                <span class="pvc-dash"></span>
+              </div>
+            </div>
+
+            <!-- Body Content -->
+            <div class="pvc-back-body">
+              <!-- T&C Badge -->
+              <div class="pvc-tc-badge">
+                <span class="pvc-diamond">&#9670;</span>
+                Terms &amp; Conditions
+                <span class="pvc-diamond">&#9670;</span>
+              </div>
+
+              <!-- T&C Text -->
+              <div class="pvc-tc-text">
+                All SGTL Reports are printed on original paper with logo of SGTL. No corrections or alterations in any form shall be accepted for the SGTL Reports. The photographic image printed on the report may be different from its physical appearance. The results of the report can be differ from previous report if the same gemstone is re-examined. Neither SGTL nor its own employees will be held responsible for any loss and damage happens during the examination. This report is considered to be null and void, if in any case alterations are made either to the gemstone or to the report at any time after the report has been prepared.
+              </div>
+
+              <!-- Social Section -->
+              <div class="pvc-social-section">
+                <div class="pvc-social-divider">
+                  <span>&#9670;</span><span>&#9670;</span><span>&#9670;</span>
+                </div>
+                <div class="pvc-social-title">Stay Connected With Us</div>
+                <div class="pvc-social-icons">
+                  <!-- Mail -->
+                  <span class="pvc-social-icon">
+                    <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6" fill="none" stroke="#fff" stroke-width="2"/></svg>
+                  </span>
+                  <!-- Facebook -->
+                  <span class="pvc-social-icon">
+                    <svg viewBox="0 0 24 24"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg>
+                  </span>
+                  <!-- Instagram -->
+                  <span class="pvc-social-icon">
+                    <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="12" cy="12" r="4.5" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.5" fill="#fff"/></svg>
+                  </span>
+                  <!-- WhatsApp -->
+                  <span class="pvc-social-icon">
+                    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2z" fill="none" stroke="#fff" stroke-width="1.5"/></svg>
+                  </span>
+                </div>
+
+                <div class="pvc-seal-notice">
+                  <span class="pvc-diamond">&#9670;</span>
+                  Authenticity guaranteed only with the embossed laboratory seal.
+                  <span class="pvc-diamond">&#9670;</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pvc-stage -->
+
+  <!-- ═══════════ SPECS & STYLE GUIDE ═══════════ -->
+  <p class="pvc-section-title">Card Specifications &amp; Style Guide</p>
+
+  <div class="pvc-specs">
+    <div class="pvc-spec-card">
+      <h3>Card Specifications</h3>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/></svg> Card Size</span>
+        <span class="pvc-spec-value">85.60 &times; 53.98 mm (CR80)</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg> Corner Radius</span>
+        <span class="pvc-spec-value">3.18 mm</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg> Resolution</span>
+        <span class="pvc-spec-value">300 DPI</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="4"/><circle cx="16" cy="16" r="4"/></svg> Color Mode</span>
+        <span class="pvc-spec-value">CMYK (FOGRA39)</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="4"/></svg> Bleed Margin</span>
+        <span class="pvc-spec-value">3 mm (all sides)</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Safe Zone</span>
+        <span class="pvc-spec-value">4 mm inside trim</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16"/><line x1="4" y1="4" x2="20" y2="20"/></svg> QR Minimum</span>
+        <span class="pvc-spec-value">20 &times; 20 mm + 4 mm quiet</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/></svg> Material</span>
+        <span class="pvc-spec-value">PVC / Teslin / Polycarbonate</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5M5 16l7 5 7-5"/></svg> Finish</span>
+        <span class="pvc-spec-value">Glossy / Matte / Frosted</span>
+      </div>
+    </div>
+
+    <div class="pvc-spec-card">
+      <h3>Style Guide</h3>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label">Header Font</span>
+        <span class="pvc-spec-value">Cinzel 800, 20px</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label">Body Font</span>
+        <span class="pvc-spec-value">Inter 600-700, 9.5-10px</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label">Watermark</span>
+        <span class="pvc-spec-value">SG_logo.png @ 4% opacity</span>
+      </div>
+      <div class="pvc-spec-row" style="padding-top:10px; border-top: 1.5px solid rgba(11,27,61,0.06);">
+        <span class="pvc-spec-label">Color Swatches</span>
+        <span class="pvc-spec-value"></span>
+      </div>
+      <div class="pvc-style-swatch" style="padding:8px 0;">
+        <div class="pvc-swatch" style="background:#0B1B3D;">Navy</div>
+        <div class="pvc-swatch" style="background:#D4AF37;color:#0B1B3D;">Gold</div>
+        <div class="pvc-swatch" style="background:#ffffff;color:#0B1B3D;border-color:#ccc;">White</div>
+        <div class="pvc-swatch" style="background:#2c3340;">Body</div>
+      </div>
+      <div class="pvc-spec-row" style="padding-top:6px;">
+        <span class="pvc-spec-label">Navy CMYK</span>
+        <span class="pvc-spec-value">C95 M80 Y30 K75</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label">Gold CMYK</span>
+        <span class="pvc-spec-value">C10 M25 Y85 K0</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label">Assets</span>
+        <span class="pvc-spec-value">SG_logo / Sign / Badge</span>
+      </div>
+      <div class="pvc-spec-row">
+        <span class="pvc-spec-label">Laminate</span>
+        <span class="pvc-spec-value">Gloss over-laminate; matte spot on signature</span>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /sgtl-pvc -->
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     JAVASCRIPT — Data Population
+     ═══════════════════════════════════════════════════════════ -->
+<script>
+(function() {
+  "use strict";
+
+  var MOCK = {
+    "Report No.":       "SGTL2405180001",
+    "Stone Name":       "Natural Sapphire",
+    "Origin":           "Corundum",
+    "Report Type":      "Blue Sapphire",
+    "Weight":           "5.67",
+    "Weight Type":      "Carats",
+    "Shapes":           "Oval",
+    "Cut":              "Mixed Cut",
+    "Dimensions":       "11.23 x 9.07 x 6.02 mm",
+    "Colour":           "Vivid Blue",
+    "Refractive Index": "1.762 - 1.770",
+    "Specific Gravity": "3.98",
+    "Optic Character":  "Sri Lanka",
+    "Comment":          "No indications of heating",
+    "Magnification":    "Natural Inclusion(s) Pattern",
+    "Date":             "18 May 2024",
+    "Jeweller":         "Sunrise Jewellers"
+  };
+
+  function setField(key, val) {
+    var els = document.querySelectorAll('[data-field="' + key + '"]');
+    for (var i = 0; i < els.length; i++) {
+      els[i].textContent = val || "—";
+    }
+  }
+
+  window.populateMock = function() {
+    var r = MOCK;
+    setField("reportNo",    r["Report No."]);
+    setField("gemstone",    r["Stone Name"]);
+    setField("species",     r["Origin"]);
+    setField("weight",      (r["Weight"] + " " + (r["Weight Type"] || "")).trim());
+    setField("shapesCut",   [r["Shapes"], r["Cut"]].filter(Boolean).join(" "));
+    setField("dimensions",  r["Dimensions"]);
+    setField("colour",      r["Colour"]);
+    setField("ri",          r["Refractive Index"]);
+    setField("sg",          r["Specific Gravity"]);
+    setField("origin",      r["Optic Character"]);
+    setField("treatment",   r["Comment"]);
+    setField("comments",    r["Magnification"]);
+
+    document.getElementById("frontStoneName").textContent =
+      ("Natural " + (r["Report Type"] || r["Stone Name"] || "Gemstone")).toUpperCase();
+
+    document.getElementById("frontDate").textContent = r["Date"] || "DD MMM YYYY";
+
+    // Inject mock QR
+    var qr = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">' +
+      '<rect width="100" height="100" fill="#fff"/>' +
+      '<rect x="10" y="10" width="25" height="25" fill="#0B1B3D"/>' +
+      '<rect x="65" y="10" width="25" height="25" fill="#0B1B3D"/>' +
+      '<rect x="10" y="65" width="25" height="25" fill="#0B1B3D"/>' +
+      '<rect x="40" y="40" width="20" height="20" fill="#0B1B3D"/>' +
+      '<rect x="15" y="15" width="15" height="15" fill="#fff"/>' +
+      '<rect x="70" y="15" width="15" height="15" fill="#fff"/>' +
+      '<rect x="15" y="70" width="15" height="15" fill="#fff"/>' +
+      '<rect x="19" y="19" width="7" height="7" fill="#0B1B3D"/>' +
+      '<rect x="74" y="19" width="7" height="7" fill="#0B1B3D"/>' +
+      '<rect x="19" y="74" width="7" height="7" fill="#0B1B3D"/>' +
+      '<rect x="44" y="44" width="12" height="12" fill="#D4AF37"/>' +
+      '</svg>';
+    document.getElementById("frontQR").innerHTML =
+      '<img src="data:image/svg+xml;base64,' + btoa(qr) + '" style="width:100%;height:100%;">';
+
+    // Mock gem image
+    var gem = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 130">' +
+      '<defs><radialGradient id="g" cx="50%" cy="40%">' +
+      '<stop offset="0%" stop-color="#4169E1"/>' +
+      '<stop offset="50%" stop-color="#1a3a8f"/>' +
+      '<stop offset="100%" stop-color="#0B1B3D"/></radialGradient>' +
+      '<filter id="gl"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+      '<ellipse cx="90" cy="60" rx="50" ry="42" fill="url(#g)" filter="url(#gl)" opacity="0.92"/>' +
+      '<polygon points="90,22 112,54 90,46 68,54" fill="#6B8DD6" opacity="0.4"/>' +
+      '<polygon points="90,46 112,54 90,95 68,54" fill="#1e3a6e" opacity="0.25"/>' +
+      '<ellipse cx="76" cy="48" rx="8" ry="4" fill="#fff" opacity="0.22" transform="rotate(-18 76 48)"/>' +
+      '</svg>';
+    document.getElementById("frontSpecimen").innerHTML =
+      '<img src="data:image/svg+xml;base64,' + btoa(gem) + '" style="max-width:100%;max-height:100%;object-fit:contain;">';
+  };
+
+  window.clearData = function() {
+    var els = document.querySelectorAll("[data-field]");
+    for (var i = 0; i < els.length; i++) els[i].textContent = "—";
+    document.getElementById("frontStoneName").textContent = "GEMSTONE NAME";
+    document.getElementById("frontDate").textContent = "DD MMM YYYY";
+    document.getElementById("frontQR").innerHTML =
+      '<span style="font-size:18px;color:#9aa0a6;font-weight:700;">QR</span>';
+    document.getElementById("frontSpecimen").innerHTML =
+      '<span style="font-size:10px;color:#9aa0a6;font-weight:600;letter-spacing:1px;">SPECIMEN</span>';
+  };
+
+  document.addEventListener("DOMContentLoaded", window.populateMock);
+})();
+</script>
+
+</body>
+</html>

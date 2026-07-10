@@ -10,9 +10,12 @@ const { createClient } = require("@supabase/supabase-js");
 const nodemailer = require("nodemailer");
 const Imap = require("imap");
 const { simpleParser } = require("mailparser");
+const rateLimit = require("express-rate-limit");
+const multer = require("multer");
+const uploadMiddleware = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
 const app = express();
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "5mb" }));
 
 // CORS allowlist (no wildcard). Configure ALLOWED_ORIGINS in .env.
 const ALLOWED_ORIGINS = (process.env.ALLOWED_ORIGINS ||
@@ -393,7 +396,9 @@ const CERTIFICATE_FIELDS = [
   "Refractive Index",
   "Optic Character",
   "Magnification",
-  "Comment"
+  "Comment",
+  "gem_image_base64",
+  "gem_image_url"
 ];
 
 function normalizeReportNo(value) {
@@ -649,7 +654,23 @@ app.get("/verify/:reportNo", async (req, res) => {
 
     securityMetrics.integrityChecks++;
     securityMetrics.integrityPassed++;
-    res.json({ data: decryptRecord(data) });
+
+    // Attach signed URL for gem image if stored in Supabase Storage
+    const decrypted = decryptRecord(data);
+    if (decrypted.gem_image_url) {
+      try {
+        const { data: signed, error: signErr } = await supabaseAdmin.storage
+          .from("gem-images")
+          .createSignedUrl(decrypted.gem_image_url, 3600);
+        if (signed && !signErr) {
+          decrypted.gem_image_signed_url = signed.signedUrl;
+        }
+      } catch (imgErr) {
+        console.warn("Failed to generate signed URL for gem image:", imgErr.message);
+      }
+    }
+
+    res.json({ data: decrypted });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -659,8 +680,18 @@ app.get("/verify/:reportNo", async (req, res) => {
 // AUTH ENDPOINTS
 // ═══════════════════════════════════════
 
+// Rate limiter for auth endpoints — 5 attempts per 15 minutes per IP
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many login attempts. Please try again after 15 minutes." },
+  keyGenerator: (req) => req.ip
+});
+
 // POST /auth/login
-app.post("/auth/login", async (req, res) => {
+app.post("/auth/login", authLimiter, async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).json({ error: "Email and password required" });
@@ -670,10 +701,7 @@ app.post("/auth/login", async (req, res) => {
     if (error) {
       securityMetrics.unauthorizedBlocked++;
       logAudit("LOGIN_FAILED", email, { reason: error.message, ip: req.ip });
-      const hint = String(email || "").toLowerCase() === ADMIN_EMAIL.toLowerCase()
-        ? "Invalid login credentials. If this is the first login, create the admin account from First-time setup or reset the password."
-        : `Invalid login credentials. The admin email is ${ADMIN_EMAIL}.`;
-      return res.status(401).json({ error: error.message === "Invalid login credentials" ? hint : error.message });
+      return res.status(401).json({ error: "Invalid login credentials. Check your email and password, or use First-time setup if the admin account has not been created yet." });
     }
     // Check admin access
     if (String(data.user.email || "").toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
@@ -693,11 +721,12 @@ app.post("/auth/login", async (req, res) => {
 });
 
 // POST /auth/signup (for initial admin setup only)
-app.post("/auth/signup", async (req, res) => {
+app.post("/auth/signup", authLimiter, async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = String(email || "").trim().toLowerCase();
   if (normalizedEmail !== ADMIN_EMAIL) {
-    return res.status(403).json({ error: "Only admin email can register" });
+    // Generic error — don't reveal which email is the admin email
+    return res.status(403).json({ error: "Registration is not available." });
   }
   if (!password || password.length < 6) {
     return res.status(400).json({ error: "Password must be at least 6 characters" });
@@ -716,7 +745,11 @@ app.post("/auth/signup", async (req, res) => {
       ({ data, error } = await supabase.auth.signUp({ email: normalizedEmail, password }));
     }
 
-    if (error) return res.status(400).json({ error: error.message });
+    if (error) {
+      // Don't leak whether the account already exists — generic message
+      logAudit("SIGNUP_FAILED", normalizedEmail, { reason: error.message, ip: req.ip });
+      return res.status(400).json({ error: "Account setup failed. The account may already exist — try signing in instead." });
+    }
     logAudit("ACCOUNT_CREATED", normalizedEmail, { ip: req.ip });
     res.json({
       message: HAS_SERVICE_ROLE_KEY
@@ -730,11 +763,11 @@ app.post("/auth/signup", async (req, res) => {
 });
 
 // POST /auth/confirm-admin (auto-confirm admin account for setups without service key)
-app.post("/auth/confirm-admin", async (req, res) => {
+app.post("/auth/confirm-admin", authLimiter, async (req, res) => {
   const { email, password } = req.body;
   const normalizedEmail = String(email || "").trim().toLowerCase();
   if (normalizedEmail !== ADMIN_EMAIL) {
-    return res.status(403).json({ error: "Only admin email can be confirmed" });
+    return res.status(403).json({ error: "Registration is not available." });
   }
   try {
     // Delete existing unconfirmed user and recreate with OTP verification bypass
@@ -764,7 +797,7 @@ app.post("/auth/confirm-admin", async (req, res) => {
 });
 
 // POST /auth/forgot-password
-app.post("/auth/forgot-password", async (req, res) => {
+app.post("/auth/forgot-password", authLimiter, async (req, res) => {
   const { email } = req.body;
   try {
     const redirectBase = process.env.SITE_URL || `http://localhost:${PORT}`;
@@ -780,7 +813,7 @@ app.post("/auth/forgot-password", async (req, res) => {
 });
 
 // POST /auth/reset-password
-app.post("/auth/reset-password", async (req, res) => {
+app.post("/auth/reset-password", authLimiter, async (req, res) => {
   const { access_token, new_password } = req.body;
   try {
     const { error } = await supabase.auth.updateUser(
@@ -811,12 +844,75 @@ app.post("/auth/refresh", async (req, res) => {
 // CERTIFICATE ENDPOINTS
 // ═══════════════════════════════════════
 
+// POST /certificate/upload-image — Upload gem image to Supabase Storage
+app.post("/certificate/upload-image", authMiddleware, uploadMiddleware.single("image"), async (req, res) => {
+  try {
+    const reportNo = req.body.reportNo;
+    if (!reportNo) return res.status(400).json({ error: "reportNo is required" });
+    if (!req.file) return res.status(400).json({ error: "No image file provided" });
+    if (!req.file.mimetype.startsWith("image/")) {
+      return res.status(400).json({ error: "File must be an image" });
+    }
+
+    const filePath = `${reportNo}.jpg`;
+    // Upload to Supabase Storage (upsert: overwrite if exists)
+    const { error: uploadErr } = await supabaseAdmin.storage
+      .from("gem-images")
+      .upload(filePath, req.file.buffer, {
+        contentType: req.file.mimetype,
+        upsert: true
+      });
+    if (uploadErr) {
+      console.error("Storage upload error:", uploadErr);
+      return res.status(500).json({ error: "Failed to upload image: " + uploadErr.message });
+    }
+
+    // Update DB record with storage path
+    const db = adminDbClient(req);
+    await db.from("sgtl_database")
+      .update({ gem_image_url: filePath })
+      .eq('"Report No."', reportNo);
+
+    // Generate signed URL for immediate use
+    const { data: signed, error: signErr } = await supabaseAdmin.storage
+      .from("gem-images")
+      .createSignedUrl(filePath, 3600);
+
+    logAudit("GEM_IMAGE_UPLOADED", req.user.email, { reportNo });
+    res.json({
+      url: filePath,
+      signedUrl: signed && !signErr ? signed.signedUrl : null
+    });
+  } catch (e) {
+    console.error("Gem image upload error:", e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /certificate/gem-image/:reportNo — Proxy signed URL for gem image
+app.get("/certificate/gem-image/:reportNo", authMiddleware, async (req, res) => {
+  try {
+    const filePath = `${req.params.reportNo}.jpg`;
+    const { data, error } = await supabaseAdmin.storage
+      .from("gem-images")
+      .createSignedUrl(filePath, 3600);
+    if (error || !data) return res.status(404).json({ error: "Image not found" });
+    res.redirect(data.signedUrl);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 // POST /certificate/create
 app.post("/certificate/create", authMiddleware, async (req, res) => {
   try {
     const record = normalizeCertificateRecord(req.body);
     if (!record["Report No."]) {
       return res.status(400).json({ error: "Report No. is required" });
+    }
+    // Validate gem image if present — max 2MB base64 (~1.5MB binary)
+    if (record.gem_image_base64 && record.gem_image_base64.length > 2000000) {
+      return res.status(400).json({ error: "Gemstone image too large. Max 2MB." });
     }
 
     const db = adminDbClient(req);

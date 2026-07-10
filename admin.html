@@ -6,7 +6,7 @@
 <title>SG&TL | Admin Panel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ═══ IMPECCABLE: admin polish (cascade-last overrides live at end of styles) ═══ */
 /* Legacy login + password-toggle styles superseded by the AUTH console block below. */
@@ -2179,6 +2179,312 @@ body {
   gap: 12px;
   align-items: flex-end;
 }
+
+/* ============================================================
+   NEW PVC CARD — scoped under .sgtlpvc — no global leakage.
+   CR80: 85.6 × 54 mm trim + 3 mm bleed = 91.6 × 60 mm.
+   Artboard: 1082 × 709 px (300 DPI).
+   ============================================================ */
+.sgtlpvc{
+  --navy:#0a1c48; --navy2:#081634; --gold:#d3a446; --gold2:#b7862f;
+  --gold-soft:#f0d69b; --cream:#ffffff; --ink:#14213f; --label:#243156;
+  --muted:#5b6579; --line:rgba(20,33,63,.16);
+  --cyan:#4cc9f0; --violet:#8b5cf6;
+  --u:11.811px;
+  font-family:'Inter',sans-serif; color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+}
+.sgtlpvc *{box-sizing:border-box;}
+
+/* ---- card shell (includes 3mm bleed) — neo-luxury aurora ---- */
+.sgtlpvc .card{
+  position:relative; width:1082px; height:709px; overflow:hidden;
+  background:
+    radial-gradient(ellipse at 22% 45%, rgba(76,201,240,.13), transparent 50%),
+    radial-gradient(ellipse at 78% 22%, rgba(139,92,246,.10), transparent 45%),
+    radial-gradient(ellipse at 55% 82%, rgba(211,164,70,.09), transparent 48%),
+    linear-gradient(160deg, #04091a 0%, #0a1c48 28%, #0e2558 50%, #0a1c48 72%, #04091a 100%);
+  box-shadow:0 30px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+}
+/* animated aurora shimmer overlay */
+@keyframes sgtlAurora{
+  0%  { transform:translate(0,0) scale(1);     opacity:.55; }
+  33% { transform:translate(28px,-18px) scale(1.06); opacity:1; }
+  66% { transform:translate(-18px,12px) scale(.96);  opacity:.7; }
+  100%{ transform:translate(0,0) scale(1);     opacity:.55; }
+}
+.sgtlpvc .card::before{
+  content:""; position:absolute; inset:-30px; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse at 18% 58%, rgba(76,201,240,.20), transparent 42%),
+    radial-gradient(ellipse at 82% 28%, rgba(139,92,246,.16), transparent 38%),
+    radial-gradient(ellipse at 48% 88%, rgba(211,164,70,.14), transparent 42%);
+  animation:sgtlAurora 15s ease-in-out infinite;
+}
+/* ensure content layers above aurora */
+.sgtlpvc .hd{ z-index:2; }
+.sgtlpvc .ft{ z-index:2; }
+.sgtlpvc .body{ z-index:1; }
+.sgtlpvc .back .bbody{ z-index:1; }
+.sgtlpvc .watermark{ z-index:0; }
+/* crop marks in the bleed margin */
+.sgtlpvc .crop{display:none;}
+
+/* ---- header band — frosted glass ---- */
+.sgtlpvc .hd{
+  position:absolute; top:0; left:0; width:100%; height:150px;
+  background:linear-gradient(120deg, rgba(12,35,80,.88) 0%, rgba(10,28,72,.92) 55%, rgba(8,23,52,.95) 100%);
+  border-bottom:1px solid rgba(211,164,70,.18);
+  box-shadow:0 4px 30px rgba(76,201,240,.06), inset 0 -1px 0 rgba(255,255,255,.04);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;
+  padding-top:14px;
+}
+.sgtlpvc .hd h1{
+  margin:0; font-family:'Fraunces',serif; font-weight:700; font-size:45px;
+  letter-spacing:.005em; color:var(--gold); line-height:1; white-space:nowrap;
+  text-shadow:0 1px 0 rgba(0,0,0,.3);
+}
+.sgtlpvc .hd .orn{display:flex; align-items:center; gap:14px;}
+.sgtlpvc .hd .sub{font-size:22px; font-weight:600; letter-spacing:.24em; color:#eef1f6; text-transform:uppercase; white-space:nowrap;}
+
+/* ---- footer band — frosted glass ---- */
+.sgtlpvc .ft{
+  position:absolute; bottom:0; left:0; width:100%; height:70px;
+  background:linear-gradient(120deg, rgba(12,35,80,.92), rgba(8,23,52,.96));
+  border-top:1px solid rgba(211,164,70,.14);
+  box-shadow:0 -4px 24px rgba(76,201,240,.05), inset 0 1px 0 rgba(255,255,255,.03);
+  display:flex; align-items:center; justify-content:space-between; padding:0 96px; gap:0;
+  color:#eef1f6; font-size:22px; font-weight:500;
+}
+.sgtlpvc .ft .it{display:flex; align-items:center; gap:12px;}
+.sgtlpvc .ft .it svg{width:26px; height:26px; flex:none;}
+
+/* ---- front body — clean white panel ---- */
+.sgtlpvc .body{
+  position:absolute; top:150px; left:0; right:0; bottom:70px;
+  padding:34px 82px 20px; display:flex; gap:40px;
+  background:#ffffff;
+}
+.sgtlpvc .watermark{
+  position:absolute; top:150px; left:50%; transform:translateX(-58%);
+  width:360px; height:360px; opacity:.06; pointer-events:none;
+  background-size:contain; background-repeat:no-repeat; background-position:center;
+}
+.sgtlpvc .fields{flex:1.35; display:flex; flex-direction:column; justify-content:center; gap:0;}
+.sgtlpvc .row{display:grid; grid-template-columns:236px 16px 1fr; align-items:baseline; padding:5.5px 0;}
+.sgtlpvc .row .k{font-size:17px; font-weight:700; letter-spacing:.03em; color:var(--label); text-transform:uppercase;}
+.sgtlpvc .row .c{color:var(--label); font-weight:700;}
+.sgtlpvc .row .v{font-size:18px; font-weight:600; color:var(--ink); letter-spacing:.01em; text-transform:uppercase;}
+
+.sgtlpvc .side{width:246px; flex:none; display:flex; flex-direction:column; align-items:center;}
+/* ---- gem image — rectangular gold frame with glow ---- */
+.sgtlpvc .gem{
+  width:208px; height:176px; border-radius:10px; position:relative; overflow:hidden;
+  background:rgba(245,245,248,.95);
+  border:2px solid var(--gold);
+  box-shadow:0 0 18px rgba(211,164,70,.18), 0 0 36px rgba(76,201,240,.06), inset 0 0 12px rgba(0,0,0,.06);
+  display:flex; align-items:center; justify-content:center;
+}
+.sgtlpvc .gem img{
+  width:100%; height:100%; object-fit:cover; border-radius:8px;
+}
+.sgtlpvc .gem .oval{
+  position:relative; width:158px; height:118px; border-radius:50%;
+  background:
+    radial-gradient(75% 62% at 38% 28%, rgba(255,255,255,.85), rgba(150,190,255,.35) 24%, transparent 52%),
+    radial-gradient(130% 120% at 62% 74%, #2f6fd6 0%, #144aa8 42%, #0a2f7a 68%, #06205a 100%);
+  box-shadow:
+    inset 0 0 24px rgba(3,16,48,.6),
+    inset 0 3px 9px rgba(255,255,255,.5),
+    inset 0 -6px 12px rgba(3,16,48,.5),
+    0 12px 20px -6px rgba(8,23,58,.45);
+}
+.sgtlpvc .gem .oval::before{
+  content:""; position:absolute; inset:0; border-radius:50%;
+  background:
+    conic-gradient(from 210deg at 52% 44%, rgba(255,255,255,.22), transparent 24%, rgba(3,18,54,.28) 54%, transparent 80%, rgba(255,255,255,.16));
+  mix-blend-mode:screen; opacity:.75;
+}
+.sgtlpvc .gem .oval::after{
+  content:""; position:absolute; width:26px; height:14px; border-radius:50%;
+  top:20px; left:34px; background:radial-gradient(rgba(255,255,255,.95), rgba(255,255,255,0) 70%);
+  transform:rotate(-18deg);
+}
+.sgtlpvc .side .gname{
+  margin-top:12px; font-family:'Fraunces',serif; font-size:20px; font-weight:600;
+  color:var(--ink); letter-spacing:.05em; text-transform:uppercase; text-align:center;
+}
+.sgtlpvc .side .gname .u{display:block; width:40px; height:1.5px; background:var(--gold); margin:7px auto 0;}
+
+.sgtlpvc .qr{margin-top:14px; width:122px; height:122px; padding:8px; background:#fff; border:1px solid var(--line); border-radius:6px;}
+.sgtlpvc .qr img{width:100%; height:100%; display:block; image-rendering:pixelated;}
+.sgtlpvc .issued{margin-top:10px; text-align:center;}
+.sgtlpvc .issued .l{font-size:14px; font-weight:700; letter-spacing:.12em; color:var(--label); text-transform:uppercase;}
+.sgtlpvc .issued .d{font-size:17px; font-weight:700; color:var(--ink); margin-top:4px; letter-spacing:.03em;}
+
+/* ---- back — clean white panel ---- */
+.sgtlpvc .back .bbody{
+  position:absolute; top:150px; left:0; right:0; bottom:70px;
+  padding:30px 70px 18px; display:flex; flex-direction:column; align-items:center;
+  background:#ffffff;
+}
+.sgtlpvc .tc-pill{
+  display:inline-flex; align-items:center; gap:12px; padding:8px 26px; border-radius:999px;
+  background:var(--navy); border:1.5px solid var(--gold);
+  color:var(--gold-soft); font-size:19px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap;
+}
+.sgtlpvc .tc-pill .di{color:var(--gold); font-size:16px;}
+.sgtlpvc .tc-text{
+  margin-top:20px; max-width:906px; text-align:center;
+  font-size:16.5px; line-height:1.46; color:#26324e; font-weight:400;
+}
+.sgtlpvc .divorn{display:flex; align-items:center; gap:16px; margin:20px 0 4px;}
+.sgtlpvc .divorn .ln{width:150px; height:1.5px; background:linear-gradient(90deg,transparent,var(--gold));}
+.sgtlpvc .divorn .ln.r{background:linear-gradient(90deg,var(--gold),transparent);}
+.sgtlpvc .divorn .di{color:var(--gold); font-size:15px; letter-spacing:6px;}
+.sgtlpvc .connect{margin-top:12px; font-size:21px; font-weight:700; letter-spacing:.2em; color:var(--ink); text-transform:uppercase;}
+.sgtlpvc .socials{display:flex; gap:24px; margin-top:18px; align-items:center;}
+.sgtlpvc .socials a{width:34px; height:34px; display:flex; align-items:center; justify-content:center; background:transparent; border:0;}
+.sgtlpvc .socials svg{width:30px; height:30px; fill:#111417;}
+.sgtlpvc .back .ft{gap:16px;}
+.sgtlpvc .back .ft .di{color:var(--gold); font-size:15px; letter-spacing:5px;}
+
+/* ---- new PVC card preview wrapper ---- */
+.sgtlpvc-preview-wrap{
+  display:flex; flex-direction:column; align-items:center; gap:32px;
+  background:#3b3f46; border-radius:12px; padding:32px 24px; margin-top:16px;
+}
+.sgtlpvc-preview-wrap .sgtlpvc-label{
+  font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:#cfd3da;
+}
+
+/* ════════════════════════════════════════════════════════════
+   PRINT REPORT EDITOR — Live Preview + Real-time Editing
+   ════════════════════════════════════════════════════════════ */
+.print-export-bar{
+  display:flex; gap:12px; margin-bottom:24px; flex-wrap:wrap;
+  padding:20px 24px; background:#fff; border-radius:16px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+  align-items:center;
+  max-width:1100px; margin-left:auto; margin-right:auto;
+}
+.print-export-bar .bar-title{
+  font-size:14px; font-weight:700; color:var(--heading);
+  margin-right:auto; letter-spacing:.02em;
+}
+.export-btn{
+  display:inline-flex; align-items:center; gap:8px;
+  padding:11px 22px; font-size:13px; font-weight:600;
+  border:none; border-radius:10px; cursor:pointer;
+  transition:all .2s ease; font-family:inherit; white-space:nowrap;
+}
+.export-btn:hover{transform:translateY(-1px); box-shadow:0 4px 16px rgba(0,0,0,.12);}
+.export-btn:disabled{opacity:.5; cursor:not-allowed; transform:none; box-shadow:none;}
+.export-btn svg{width:17px; height:17px; flex:none;}
+.export-btn.print-btn{background:linear-gradient(135deg,#0a1c48,#0c2350); color:#f0d69b; border:1.5px solid #d3a446;}
+.export-btn.png-btn{background:linear-gradient(135deg,#1a7f4b,#1a965a); color:#fff;}
+.export-btn.pdf-btn{background:linear-gradient(135deg,#c0392b,#e74c3c); color:#fff;}
+.export-btn.a4-btn{background:linear-gradient(135deg,#2563eb,#3b82f6); color:#fff;}
+
+.print-editor-grid{display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start; max-width:1100px; margin:0 auto;}
+@media(max-width:1100px){.print-editor-grid{grid-template-columns:1fr;}}
+
+/* Live Preview Panel */
+.print-preview-col{
+  background:#f3f4f6; border-radius:16px; padding:32px 20px;
+  box-shadow:0 2px 12px rgba(0,0,0,.06);
+}
+.print-preview-label{
+  font-size:11px; font-weight:700; letter-spacing:.2em;
+  text-transform:uppercase; color:#6b7280; text-align:center; margin-bottom:12px;
+}
+.print-card-frame{
+  display:flex; justify-content:center; margin-bottom:24px; overflow:visible; border-radius:6px;
+}
+.print-card-frame:last-child{margin-bottom:0;}
+.print-card-scale{transform-origin:top left;}
+
+/* A4 Report separate section */
+.print-a4-section{
+  margin-top:32px; border-radius:16px; padding:32px 20px;
+  background:#f3f4f6; box-shadow:0 2px 12px rgba(0,0,0,.06);
+  max-width:1100px; margin-left:auto; margin-right:auto;
+}
+.print-a4-frame{
+  display:flex; justify-content:center; overflow:visible; border-radius:6px;
+}
+
+/* Gem image upload overlay on the card */
+.sgtlpvc .gem.uploadable{cursor:pointer; position:relative;}
+.sgtlpvc .gem.uploadable .upload-overlay{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  background:rgba(10,28,72,.6); border-radius:8px;
+  opacity:0; transition:opacity .25s; z-index:5; pointer-events:none;
+}
+.sgtlpvc .gem.uploadable:hover .upload-overlay{opacity:1;}
+.sgtlpvc .gem.uploadable .upload-overlay svg{width:32px; height:32px; stroke:#f0d69b; fill:none; stroke-width:2;}
+.sgtlpvc .gem.uploadable .upload-overlay span{margin-top:4px; font-size:11px; font-weight:600; color:#f0d69b; text-transform:uppercase; letter-spacing:.08em;}
+
+/* Edit Fields Panel */
+.print-fields-col{
+  background:#fff; border-radius:16px; padding:24px;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+  max-height:calc(100vh - 140px); overflow-y:auto;
+}
+.print-fields-col h3{margin:0 0 16px; font-size:15px; font-weight:700; color:var(--heading);}
+.print-field-row{margin-bottom:10px;}
+.print-field-row label{
+  display:block; font-size:10px; font-weight:700; color:var(--text-dim);
+  text-transform:uppercase; letter-spacing:.08em; margin-bottom:3px;
+}
+.print-field-row input,
+.print-field-row textarea{
+  width:100%; padding:7px 10px; font-size:13px; font-family:inherit;
+  border:1.5px solid #e5e5e5; border-radius:8px; background:#fafafa;
+  color:var(--heading); transition:border-color .2s;
+}
+.print-field-row input:focus,
+.print-field-row textarea:focus{border-color:var(--primary); outline:none; background:#fff;}
+.print-field-row textarea{resize:vertical; min-height:44px;}
+.print-field-row .field-pair{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+
+.print-gem-upload-zone{
+  width:100%; height:80px; border:2px dashed #d0d0d0; border-radius:10px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .2s; background:#fafafa; gap:4px; overflow:hidden;
+}
+.print-gem-upload-zone:hover{border-color:var(--primary); background:#f0f7ff;}
+.print-gem-upload-zone img{max-width:60px; max-height:50px; object-fit:contain; border-radius:6px;}
+.print-gem-upload-zone .hint{font-size:10px; color:var(--text-dim);}
+
+/* ---- @media print: exact card dimensions ---- */
+@media print{
+  /* Hide everything except the cards */
+  body *{visibility:hidden !important;}
+  #newPvcCardWrap,
+  #newPvcCardWrap *{visibility:visible !important;}
+  #newPvcCardWrap{
+    position:fixed !important; top:0 !important; left:0 !important;
+    width:auto !important; height:auto !important;
+    margin:0 !important; padding:0 !important;
+    background:#fff !important; z-index:99999 !important;
+  }
+  #newPvcCardWrap .sgtlpvc{
+    zoom:1 !important; background:transparent !important;
+    padding:0 !important; margin:0 !important;
+  }
+  .sgtlpvc .card{
+    box-shadow:none !important;
+    page-break-after:always;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact; color-adjust:exact;
+  }
+  .sgtlpvc .gem .upload-overlay{display:none !important;}
+  .print-export-bar, .print-fields-col, .print-preview-label,
+  .print-preview-col, .sidebar, .topbar, .form-section,
+  #printEmptyState, .page-title{display:none !important;}
+  @page{size:91.6mm 60mm; margin:0;}
+}
 </style>
 </head>
 <body>
@@ -2860,51 +3166,213 @@ body {
         </div>
       </div>
 
-      <!-- Report Preview Area -->
-      <div id="printPreviewArea" style="display:none;">
-        <!-- Report Info Card -->
-        <div class="form-section" id="printReportInfo">
-          <h3>Report Details</h3>
-          <div class="print-info-grid" id="printInfoGrid">
-            <!-- Dynamically filled -->
-          </div>
-        </div>
+      <!-- ═══ NEW PVC CARD TEMPLATES (scoped .sgtlpvc) ═══ -->
+      <!-- Hidden offscreen; rendered by html2canvas for PDF export -->
+      <div id="newPvcCardWrap" style="position:absolute;left:-9999px;top:-9999px;">
+        <div class="sgtlpvc" style="zoom:1;background:transparent;padding:0;margin:0;min-height:auto;display:block;">
 
-        <!-- Action Buttons -->
-        <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-          <button class="btn btn-primary" onclick="printGeneratePDF('report')" id="printReportBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
-            Download Gemstone Report (A4)
-          </button>
-          <button class="btn btn-outline" onclick="printGeneratePDF('pvc')" id="printPVCBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-            Download PVC Card
-          </button>
-          <button class="btn btn-outline" onclick="printGeneratePDF('both')" id="printBothBtn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Download Both
-          </button>
-        </div>
+          <!-- ===== FRONT ===== -->
+          <div class="card front" id="newPvcFront">
+            <div class="crop h" style="top:35px;left:0;"></div><div class="crop v" style="top:0;left:35px;"></div>
+            <div class="crop h" style="top:35px;right:0;"></div><div class="crop v" style="top:0;right:35px;"></div>
+            <div class="crop h" style="bottom:35px;left:0;"></div><div class="crop v" style="bottom:0;left:35px;"></div>
+            <div class="crop h" style="bottom:35px;right:0;"></div><div class="crop v" style="bottom:0;right:35px;"></div>
 
-        <!-- PDF Previews -->
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px;">
-          <div>
-            <h4 style="margin:0 0 8px 0; font-size:14px; color:var(--text-dim);">Gemstone Report (A4) Preview</h4>
-            <div class="form-section" style="padding:0; overflow:hidden;">
-              <iframe id="printPDFPreview" style="width:100%; height:600px; border:none; border-radius:12px;" src="about:blank"></iframe>
+            <div class="hd">
+              <h1>SUNIL GEMS AND TESTING LABS</h1>
+              <div class="orn"></div>
+              <div class="sub">Authentic Gemology Report</div>
+            </div>
+
+            <div class="watermark" style="background-image:url('assets/SG_logo.png');"></div>
+
+            <div class="body">
+              <div class="fields" id="newPvcFields">
+                <!-- 12 rows populated by JS -->
+              </div>
+              <div class="side" style="align-items:center;">
+                <div class="gem" id="newPvcGemBox"><div class="oval"></div></div>
+                <div class="gname" id="newPvcGemName" style="text-align:center;">—</div>
+                <div class="qr"><img id="newPvcQrImg" src="" alt="QR"></div>
+                <div class="issued" style="text-align:center;">
+                  <div class="l">Issued Date</div>
+                  <div class="d" id="newPvcIssuedDate">—</div>
+                </div>
+                <img class="sign" id="newPvcSign" src="assets/Sign.png" alt="Lab Director signature" style="width:146px;height:36px;object-fit:scale-down;display:block;margin-top:8px;">
+              </div>
+            </div>
+
+            <div class="ft">
+              <div class="it">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f0d69b" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
+                sunilgems126@gmail.com
+              </div>
+              <div class="it">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f0d69b" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg>
+                www.sgtlgemtesting.co.in
+              </div>
             </div>
           </div>
-          <div>
-            <h4 style="margin:0 0 8px 0; font-size:14px; color:var(--text-dim);">PVC Card Preview</h4>
-            <div class="form-section" style="padding:0; overflow:hidden;">
-              <iframe id="printPVCPreview" style="width:100%; height:600px; border:none; border-radius:12px;" src="about:blank"></iframe>
+
+          <!-- ===== BACK ===== -->
+          <div class="card back" id="newPvcBack">
+            <div class="crop h" style="top:35px;left:0;"></div><div class="crop v" style="top:0;left:35px;"></div>
+            <div class="crop h" style="top:35px;right:0;"></div><div class="crop v" style="top:0;right:35px;"></div>
+            <div class="crop h" style="bottom:35px;left:0;"></div><div class="crop v" style="bottom:0;left:35px;"></div>
+            <div class="crop h" style="bottom:35px;right:0;"></div><div class="crop v" style="bottom:0;right:35px;"></div>
+
+            <div class="hd">
+              <h1>SUNIL GEMS AND TESTING LABS</h1>
+              <div class="orn"></div>
+              <div class="sub">Authentic Gemology Report</div>
+            </div>
+
+            <div class="bbody">
+              <div class="tc-pill"><span class="di">&#9670;</span> Terms &amp; Conditions <span class="di">&#9670;</span></div>
+              <p class="tc-text">All SGTL Reports are printed on original paper with logo of SGTL. No corrections or alterations in any form shall be accepted for the SGTL Reports. The photographic image printed on the report may be different from its physical appearance. The results of the report can be differ from previous report if the same gemstone is re-examined. Neither SGTL nor its own employees will be held responsible for any loss and damage happens during the examination. This report is considered to be null and void, if in any case alterations are made either to the gemstone or to the report at any time after the report has been prepared.</p>
+              <div class="connect">Stay Connected With Us</div>
+              <div class="socials">
+                <a aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></svg></a>
+                <a aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.5.01-4.74.07-.9.04-1.38.19-1.71.32-.43.17-.74.37-1.06.69-.32.32-.52.63-.69 1.06-.13.33-.28.81-.32 1.71C3.21 8.5 3.2 8.85 3.2 12s.01 3.5.07 4.74c.04.9.19 1.38.32 1.71.17.43.37.74.69 1.06.32.32.63.52 1.06.69.33.13.81.28 1.71.32 1.24.06 1.59.07 4.74.07s3.5-.01 4.74-.07c.9-.04 1.38-.19 1.71-.32.43-.17.74-.37 1.06-.69.32-.32.52-.63.69-1.06.13-.33.28-.81.32-1.71.06-1.24.07-1.59.07-4.74s-.01-3.5-.07-4.74c-.04-.9-.19-1.38-.32-1.71a2.86 2.86 0 0 0-.69-1.06 2.86 2.86 0 0 0-1.06-.69c-.33-.13-.81-.28-1.71-.32C15.5 4.01 15.15 4 12 4zm0 3.06A4.94 4.94 0 1 1 12 16.94 4.94 4.94 0 0 1 12 7.06zm0 1.8A3.14 3.14 0 1 0 12 15.14 3.14 3.14 0 0 0 12 8.86zm5.14-3.24a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/></svg></a>
+                <a aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.16-1.35a9.9 9.9 0 0 0 4.88 1.24h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm0 18.13h-.01a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.1.81.83-3.02-.2-.31a8.16 8.16 0 0 1-1.25-4.36c0-4.55 3.7-8.25 8.26-8.25a8.25 8.25 0 0 1 8.24 8.26c0 4.55-3.7 8.25-8.25 8.25zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.8-.79.97-.14.16-.29.18-.54.06a6.76 6.76 0 0 1-1.99-1.23 7.46 7.46 0 0 1-1.38-1.71c-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01a.92.92 0 0 0-.67.31c-.23.25-.88.86-.88 2.1 0 1.24.9 2.43 1.03 2.6.12.16 1.77 2.71 4.3 3.8.6.26 1.07.42 1.44.53.6.2 1.15.17 1.59.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg></a>
+              </div>
+              <img class="badge" id="newPvcBadge" src="assets/Badge.png" alt="Authentication badge" style="position:absolute;left:825px;top:361px;width:102px;height:102px;object-fit:cover;">
+            </div>
+
+            <div class="ft" style="justify-content:center;">
+              Authenticity guaranteed only with the embossed laboratory seal.
             </div>
           </div>
+
         </div>
       </div>
 
+      <!-- ═══ PRINT EDITOR AREA (shown after lookup) ═══ -->
+      <div id="printEditorArea" style="display:none;">
+
+        <!-- Export Action Bar -->
+        <div class="print-export-bar">
+          <span class="bar-title">Export Options</span>
+          <button class="export-btn print-btn" onclick="printBothCards()" id="printBothBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+            Print Both
+          </button>
+          <button class="export-btn png-btn" onclick="download4KPNG()" id="download4KBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            Download 4K PNG
+          </button>
+          <button class="export-btn pdf-btn" onclick="downloadNewPvcCard()" id="printNewPvcBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+            Download PDF
+          </button>
+          <button class="export-btn a4-btn" onclick="printGeneratePDF('report')" id="printReportBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            A4 Report
+          </button>
+        </div>
+
+        <!-- Editor Grid: Preview + Fields -->
+        <div class="print-editor-grid">
+
+          <!-- Left: Live Card Preview -->
+          <div class="print-preview-col" id="printLivePreviewCol">
+            <div class="print-preview-label">Front</div>
+            <div class="print-card-frame" id="printFrontFrame">
+              <!-- Front card rendered here at scale via JS -->
+            </div>
+            <div class="print-preview-label">Back</div>
+            <div class="print-card-frame" id="printBackFrame">
+              <!-- Back card rendered here at scale via JS -->
+            </div>
+          </div>
+
+          <!-- Right: Editable Fields -->
+          <div class="print-fields-col">
+            <h3>Certificate Details</h3>
+            <div class="print-field-row">
+              <label>Report No.</label>
+              <input type="text" id="peReportNo" data-field="Report No." oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Shapes / Cut</label>
+              <div class="field-pair">
+                <input type="text" id="peShapes" placeholder="Shape" data-field="Shapes" oninput="liveUpdateCard(this)">
+                <input type="text" id="peCut" placeholder="Cut" data-field="Cut" oninput="liveUpdateCard(this)">
+              </div>
+            </div>
+            <div class="print-field-row">
+              <label>Carat</label>
+              <input type="text" id="peCarat" data-field="Carat" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Clarity</label>
+              <input type="text" id="peClarity" data-field="Clarity" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Specimen Description (Stone Name)</label>
+              <input type="text" id="peStoneName" data-field="Stone Name" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Weight</label>
+              <div class="field-pair">
+                <input type="text" id="peWeight" placeholder="Value" data-field="Weight" oninput="liveUpdateCard(this)">
+                <input type="text" id="peWeightType" placeholder="Ratti / ct" data-field="Weight Type" oninput="liveUpdateCard(this)">
+              </div>
+            </div>
+            <div class="print-field-row">
+              <label>Colour</label>
+              <input type="text" id="peColour" data-field="Colour" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Refractive Index</label>
+              <input type="text" id="peRI" data-field="Refractive Index" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Optic Character</label>
+              <input type="text" id="peOC" data-field="Optic Character" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Specific Gravity</label>
+              <input type="text" id="peSG" data-field="Specific Gravity" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Party Name</label>
+              <input type="text" id="peParty" data-field="Party Name" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Comments</label>
+              <textarea id="peComments" data-field="Comment" oninput="liveUpdateCard(this)"></textarea>
+            </div>
+            <div class="print-field-row">
+              <label>Date</label>
+              <input type="text" id="peDate" data-field="Date" oninput="liveUpdateCard(this)">
+            </div>
+            <div class="print-field-row">
+              <label>Gemstone Image</label>
+              <div class="print-gem-upload-zone" id="peGemUploadZone" onclick="document.getElementById('peGemFileInput').click();">
+                <span class="hint" id="peGemHint">Click to upload image</span>
+              </div>
+              <input type="file" id="peGemFileInput" accept="image/*" style="display:none;" onchange="handlePrintGemUpload(this)">
+            </div>
+          </div>
+        </div>
+
+        <!-- ═══ A4 REPORT PREVIEW (separate section) ═══ -->
+        <div class="print-a4-section" id="printA4Section">
+          <div class="print-preview-label">A4 Report Preview</div>
+          <div class="print-a4-frame" id="printA4Frame">
+            <!-- A4 Gemstone Report rendered here at scale via JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Hidden iframes for backward compat -->
+      <iframe id="printPDFPreview" style="display:none;" src="about:blank"></iframe>
+      <iframe id="printPVCPreview" style="display:none;" src="about:blank"></iframe>
+
       <!-- Empty State -->
-      <div id="printEmptyState" class="eq-empty" style="padding:60px 20px;">
+      <div id="printEmptyState" class="eq-empty" style="padding:60px 20px;max-width:1100px;margin:0 auto;text-align:center;">
         <div class="eq-empty-icon">🖨️</div>
         <h4>Search for a report to print</h4>
         <p>Enter a Report Number above to preview and download the certificate as a PDF.</p>
@@ -2932,10 +3400,8 @@ body {
 // ═══════════════════════════════════════
 // STATE & CONFIG
 // ═══════════════════════════════════════
-const API = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-  ? ""
-  : "https://sgtl-gems-and-tesing-labs.onrender.com";
-const ADMIN_EMAIL = "sunilgems126@gmail.com";
+const API = "https://sgtl-gems-and-tesing-labs.onrender.com";
+/* ADMIN_EMAIL removed from client — validated server-side only */
 let authToken = localStorage.getItem("sgtl_token") || null;
 let refreshToken = localStorage.getItem("sgtl_refresh") || null;
 let currentPage = "dashboard";
@@ -3295,7 +3761,7 @@ async function handleLogin() {
     const data = await res.json();
     if (data.error) {
       errEl.textContent = data.error.includes("Invalid login credentials")
-        ? `Invalid login credentials. Use ${ADMIN_EMAIL}, reset the password, or run first-time setup if the admin account has not been created yet.`
+        ? "Invalid login credentials. Check your email and password, reset the password, or run first-time setup if the admin account has not been created yet."
         : data.error;
     } else if (data.token) {
       authToken = data.token;
@@ -3325,7 +3791,7 @@ function showForgotPassword() {
   document.getElementById("loginForm").style.display = "none";
   document.getElementById("forgotForm").style.display = "block";
   document.getElementById("setupForm").style.display = "none";
-  document.getElementById("forgotEmail").value = document.getElementById("loginEmail").value.trim() || ADMIN_EMAIL;
+  document.getElementById("forgotEmail").value = document.getElementById("loginEmail").value.trim() || "";
 }
 function showLoginForm() {
   document.getElementById("loginForm").style.display = "block";
@@ -3336,7 +3802,7 @@ function showSetupForm() {
   document.getElementById("loginForm").style.display = "none";
   document.getElementById("forgotForm").style.display = "none";
   document.getElementById("setupForm").style.display = "block";
-  document.getElementById("setupEmail").value = document.getElementById("loginEmail").value.trim() || ADMIN_EMAIL;
+  document.getElementById("setupEmail").value = document.getElementById("loginEmail").value.trim() || "";
 }
 
 async function handleForgotPassword() {
@@ -3558,6 +4024,11 @@ async function handleSaveIssueDownload(e) {
       if (key && val) record[key] = val;
     });
 
+    // ── 1b. Attach gemstone image (same quality as uploaded preview) ──
+    if (_gemImageDataUrl) {
+      record["gem_image_base64"] = _gemImageDataUrl;
+    }
+
     // ── 2. Save to database ──
     const data = await apiFetch("/certificate/create", {
       method: "POST",
@@ -3570,6 +4041,29 @@ async function handleSaveIssueDownload(e) {
     }
 
     showToast("Certificate saved! Generating PDF...", "success");
+
+    // ── 2b. Upload gem image to Supabase Storage (async, non-blocking) ──
+    if (_gemImageDataUrl && record["Report No."]) {
+      (function(rk, dataUrl) {
+        try {
+          var byteString = atob(dataUrl.split(",")[1]);
+          var mimeString = dataUrl.split(",")[0].split(":")[1].split(";")[0];
+          var ab = new ArrayBuffer(byteString.length);
+          var ia = new Uint8Array(ab);
+          for (var i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+          var blob = new Blob([ab], { type: mimeString });
+          var fd = new FormData();
+          fd.append("reportNo", rk);
+          fd.append("image", blob, rk + ".jpg");
+          var uploadHeaders = {};
+          if (authToken) uploadHeaders["Authorization"] = "Bearer " + authToken;
+          fetch(API + "/certificate/upload-image", { method: "POST", headers: uploadHeaders, body: fd })
+            .then(function(r) { return r.json(); })
+            .then(function(resp) { if (resp && resp.url) console.log("Gem image uploaded to storage:", resp.url); })
+            .catch(function(err) { console.warn("Gem image storage upload failed:", err); });
+        } catch(e) { console.warn("Gem image upload prep failed:", e); }
+      })(record["Report No."], _gemImageDataUrl);
+    }
 
     // ── 3. Generate PVC card PDF ──
     if (!window.jspdf) {
@@ -3673,6 +4167,30 @@ function normalizeGemImageDataUrl(srcDataUrl, maxSize) {
     };
     img.onerror = function() { resolve(srcDataUrl); };
     img.src = srcDataUrl;
+  });
+}
+
+// Storage-optimised version: 600px max, JPEG 80% — keeps base64 under ~500KB
+function normalizeGemImageForStorage(srcDataUrl) {
+  return normalizeGemImageDataUrl(srcDataUrl, 600).then(function(dataUrl) {
+    // Re-encode at 80% quality for smaller payload
+    return new Promise(function(resolve) {
+      var img = new Image();
+      img.onload = function() {
+        try {
+          var c = document.createElement("canvas");
+          c.width = img.naturalWidth || img.width;
+          c.height = img.naturalHeight || img.height;
+          var ctx = c.getContext("2d");
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, c.width, c.height);
+          ctx.drawImage(img, 0, 0);
+          resolve(c.toDataURL("image/jpeg", 0.80));
+        } catch (e) { resolve(dataUrl); }
+      };
+      img.onerror = function() { resolve(dataUrl); };
+      img.src = dataUrl;
+    });
   });
 }
 
@@ -4093,7 +4611,7 @@ function drawGemstoneReport(doc, W, H, r, qrDataUrl, gemImageDataUrl) {
     { label: "REFRACTIVE INDEX", val: r["Refractive Index"] || "" },
     { label: "SPECIFIC GRAVITY", val: r["Specific Gravity"] || "" },
     { label: "STONE NAME",       val: r["Stone Name"] || "" },
-    { label: "JEWELLER",         val: r["Jeweller"] || "" },
+    { label: "JEWELLER",         val: r["Party Name"] || r["Jeweller"] || "" },
     { label: "COMMENTS",         val: r["Comment"] || r["Magnification"] || "" }
   ];
   var rowH = 7.5;
@@ -5016,11 +5534,10 @@ async function printLookupReport() {
   btn.innerHTML = '<span class="spinner-ring"></span> Searching...';
 
   try {
-    // Fetch the specific certificate by report number
     const data = await apiFetch("/certificate/" + encodeURIComponent(reportNo));
     if (!data || !data.data) {
       showToast("Report not found: " + reportNo, "error");
-      document.getElementById("printPreviewArea").style.display = "none";
+      document.getElementById("printEditorArea").style.display = "none";
       document.getElementById("printEmptyState").style.display = "block";
       return;
     }
@@ -5028,39 +5545,22 @@ async function printLookupReport() {
 
     if (!record) {
       showToast("Report not found: " + reportNo, "error");
-      document.getElementById("printPreviewArea").style.display = "none";
+      document.getElementById("printEditorArea").style.display = "none";
       document.getElementById("printEmptyState").style.display = "block";
       return;
     }
 
     printReportData = record;
     document.getElementById("printEmptyState").style.display = "none";
-    document.getElementById("printPreviewArea").style.display = "block";
+    document.getElementById("printEditorArea").style.display = "block";
 
-    // Fill info grid
-    const fields = [
-      { l: "Report No.", v: record["Report No."] },
-      { l: "Date", v: fmtDate(record["Date"]) },
-      { l: "Party Name", v: record["Party Name"] },
-      { l: "Stone Name", v: record["Stone Name"] },
-      { l: "Weight", v: record["Weight"] ? record["Weight"] + " " + (record["Weight Type"] || "ct") : "" },
-      { l: "Shape / Cut", v: [record["Shapes"], record["Cut"]].filter(Boolean).join(" ") },
-      { l: "Colour", v: record["Colour"] },
-      { l: "Report Type", v: record["Report Type"] },
-      { l: "Origin", v: record["Origin"] },
-      { l: "Specific Gravity", v: record["Specific Gravity"] },
-      { l: "Refractive Index", v: record["Refractive Index"] },
-      { l: "Optic Character", v: record["Optic Character"] }
-    ];
+    // Fill edit fields from record
+    populatePrintEditorFields(record);
 
-    document.getElementById("printInfoGrid").innerHTML = fields.map(f =>
-      `<div class="print-info-item">
-        <span class="print-info-label">${f.l}</span>
-        <span class="print-info-value">${f.v || "—"}</span>
-      </div>`
-    ).join("");
+    // Render live card preview
+    renderLivePreview(record);
 
-    // Auto-generate preview
+    // Also generate hidden A4 preview (for A4 Report export)
     printGeneratePreview(record);
 
   } catch (err) {
@@ -5142,7 +5642,7 @@ function populateGemReport(r, qrDataUrl, gemImageDataUrl) {
     { label: "REFRACTIVE INDEX", val: r["Refractive Index"] || "" },
     { label: "SPECIFIC GRAVITY", val: r["Specific Gravity"] || "" },
     { label: "STONE NAME",       val: r["Stone Name"] || "" },
-    { label: "JEWELLER",         val: r["Jeweller"] || "" },
+    { label: "JEWELLER",         val: r["Party Name"] || r["Jeweller"] || "" },
     { label: "COMMENTS",         val: r["Comment"] || r["Magnification"] || "" }
   ];
 
@@ -5225,14 +5725,17 @@ async function printGeneratePreview(record) {
   try {
     var qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(record["Report No."]));
 
+    // ── Resolve gem image from all available sources ──
+    var gemImg = record._localGemImage || record["gem_image_base64"] || null;
+
     // ── Gemstone Report (A4) ──
-    populateGemReport(record, qrDataUrl, null);
+    populateGemReport(record, qrDataUrl, gemImg);
     var gemDoc = await renderTemplateToPDF("gemReportTpl", 210, 297, "portrait", 2);
     var reportBlob = gemDoc.output("blob");
     document.getElementById("printPDFPreview").src = URL.createObjectURL(reportBlob);
 
     // ── PVC Card (Front + Back) ──
-    populatePVCFront(record, qrDataUrl, null);
+    populatePVCFront(record, qrDataUrl, gemImg);
     var pvcFrontDoc = await renderTemplateToPDF("pvcFrontTpl", 85.6, 53.98, "landscape", 3);
 
     // PVC Back — static content, just render the template
@@ -5272,17 +5775,19 @@ async function printGeneratePDF(type) {
   btn.innerHTML = '<span class="spinner-ring"></span> Generating...';
 
   try {
-    var r = printReportData;
+    var r = buildRecordFromEditor();
     var qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(r["Report No."]));
 
+    var storedGemImage = r._localGemImage || r["gem_image_base64"] || null;
+
     if (type === "report" || type === "both") {
-      populateGemReport(r, qrDataUrl, null);
+      populateGemReport(r, qrDataUrl, storedGemImage);
       var gemDoc = await renderTemplateToPDF("gemReportTpl", 210, 297, "portrait", 2);
       gemDoc.save("SGTL_Report_" + (r["Report No."] || "certificate") + ".pdf");
     }
 
     if (type === "pvc" || type === "both") {
-      populatePVCFront(r, qrDataUrl, null);
+      populatePVCFront(r, qrDataUrl, storedGemImage);
       var pvcDoc = await renderTemplateToPDF("pvcFrontTpl", 85.6, 53.98, "landscape", 3);
 
       // Render PVC back
@@ -5322,10 +5827,540 @@ document.addEventListener("DOMContentLoaded", function() {
   const inp = document.getElementById("printReportNo");
   if (inp) inp.addEventListener("keydown", function(e) { if (e.key === "Enter") printLookupReport(); });
 });
+
+// ═══════════════════════════════════════
+// NEW PVC CARD (reference design) — PIPELINE
+// ═══════════════════════════════════════
+
+function escHtml(s) {
+  if (!s) return "";
+  var d = document.createElement("div");
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function populateNewPvcFront(r) {
+  // Build 12 field rows matching reference design
+  var fieldDefs = [
+    { label: "Report No.",           val: r["Report No."] || "" },
+    { label: "Shapes / Cut",         val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" ") || "" },
+    { label: "Carat",                val: r["Carat"] ? (r["Carat"] + " ct") : "—" },
+    { label: "Clarity",              val: r["Clarity"] || "—" },
+    { label: "Specimen Description", val: r["Stone Name"] || "" },
+    { label: "Weight",               val: r["Weight"] ? (r["Weight"] + " " + (r["Weight Type"] || "")).trim() : "" },
+    { label: "Colour",               val: r["Colour"] || "" },
+    { label: "Refractive Index",     val: r["Refractive Index"] || "" },
+    { label: "Optic Character",      val: r["Optic Character"] || "" },
+    { label: "Specific Gravity",     val: r["Specific Gravity"] || "" },
+    { label: "Party Name",           val: r["Party Name"] || r["Jeweller"] || "" },
+    { label: "Comments",             val: r["Comment"] || r["Magnification"] || "" }
+  ];
+
+  var html = fieldDefs.map(function(f) {
+    return '<div class="row"><span class="k">' + escHtml(f.label) + '</span><span class="c">:</span><span class="v">' + escHtml(f.val) + '</span></div>';
+  }).join("");
+  document.getElementById("newPvcFields").innerHTML = html;
+
+  // Gem name
+  document.getElementById("newPvcGemName").innerHTML = escHtml((r["Stone Name"] || "Gemstone").toUpperCase()) + '<span class="u"></span>';
+
+  // QR code — points to verification URL
+  var reportNo = r["Report No."] || "";
+  var verifyUrl = "https://sgtlgemtesting.co.in/verify.html#verify?report=" + encodeURIComponent(reportNo);
+  var qrApiUrl = "https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=0&data=" + encodeURIComponent(verifyUrl);
+  document.getElementById("newPvcQrImg").src = qrApiUrl;
+  document.getElementById("newPvcQrImg").alt = "Scan to verify " + escHtml(reportNo);
+
+  // Issued date
+  var dateStr = r["Date"] || "";
+  document.getElementById("newPvcIssuedDate").textContent = dateStr ? fmtDate(dateStr) : "—";
+
+  // Gem image: if DB has a stored base64 image, replace the CSS oval with it
+  var gemBox = document.getElementById("newPvcGemBox");
+  if (r["gem_image_base64"]) {
+    gemBox.innerHTML = '<img src="' + r["gem_image_base64"] + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Gemstone">';
+  } else {
+    // Keep the CSS-drawn sapphire oval
+    gemBox.innerHTML = '<div class="oval"></div>';
+  }
+}
+
+function generateNewPvcPreview(record) {
+  // For backward compat — delegate to renderLivePreview
+  renderLivePreview(record);
+}
+
+async function downloadNewPvcCard() {
+  if (!printReportData) { showToast("No report loaded", "error"); return; }
+
+  var btn = document.getElementById("printNewPvcBtn");
+  var origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-ring"></span> Generating...';
+
+  try {
+    var r = buildRecordFromEditor();
+    populateNewPvcFront(r);
+
+    // Apply local gem image override (same as 4K PNG export)
+    if (r._localGemImage) {
+      var gemBox = document.getElementById("newPvcGemBox");
+      gemBox.innerHTML = '<img src="' + r._localGemImage + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Gemstone">';
+    }
+
+    // Make offscreen wrapper visible for html2canvas
+    var wrap = document.getElementById("newPvcCardWrap");
+    wrap.style.position = "fixed";
+    wrap.style.left = "0";
+    wrap.style.top = "0";
+    wrap.style.zIndex = "-1";
+    wrap.style.opacity = "0";
+
+    // Wait for QR image to load
+    var qrImg = document.getElementById("newPvcQrImg");
+    if (qrImg.src && !qrImg.complete) {
+      await new Promise(function(resolve) {
+        qrImg.onload = resolve;
+        qrImg.onerror = resolve;
+        setTimeout(resolve, 3000); // fallback timeout
+      });
+    }
+
+    // Wait for signature and badge images
+    var signImg = document.getElementById("newPvcSign");
+    var badgeImg = document.getElementById("newPvcBadge");
+    var imgPromises = [signImg, badgeImg].map(function(img) {
+      if (img && img.src && !img.complete) {
+        return new Promise(function(resolve) {
+          img.onload = resolve;
+          img.onerror = resolve;
+          setTimeout(resolve, 3000);
+        });
+      }
+      return Promise.resolve();
+    });
+    await Promise.all(imgPromises);
+
+    // Render FRONT to canvas
+    var frontEl = document.getElementById("newPvcFront");
+    var frontCanvas = await html2canvas(frontEl, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      width: 1082,
+      height: 709
+    });
+
+    // Render BACK to canvas
+    var backEl = document.getElementById("newPvcBack");
+    var backCanvas = await html2canvas(backEl, {
+      scale: 3,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      width: 1082,
+      height: 709
+    });
+
+    // Hide offscreen wrapper again
+    wrap.style.position = "absolute";
+    wrap.style.left = "-9999px";
+    wrap.style.top = "-9999px";
+    wrap.style.zIndex = "";
+    wrap.style.opacity = "";
+
+    // Create PDF — CR80 with 3mm bleed: 91.6 × 60 mm
+    var frontImgData = frontCanvas.toDataURL("image/jpeg", 0.95);
+    var backImgData = backCanvas.toDataURL("image/jpeg", 0.95);
+
+    var { jsPDF } = window.jspdf;
+    var doc = new jsPDF({ orientation: "landscape", unit: "mm", format: [91.6, 60] });
+    doc.addImage(frontImgData, "JPEG", 0, 0, 91.6, 60);
+    doc.addPage([91.6, 60], "landscape");
+    doc.addImage(backImgData, "JPEG", 0, 0, 91.6, 60);
+
+    doc.save("SGTL_NewPVC_" + (r["Report No."] || "card") + ".pdf");
+    showToast("New PVC Card PDF downloaded!", "success");
+
+  } catch (err) {
+    showToast("Error generating New PVC Card: " + err.message, "error");
+    console.error("New PVC Card error:", err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+  }
+}
+
+// ═══════════════════════════════════════
+// PRINT EDITOR — NEW FUNCTIONS
+// ═══════════════════════════════════════
+
+function populatePrintEditorFields(r) {
+  document.getElementById("peReportNo").value = r["Report No."] || "";
+  document.getElementById("peShapes").value = r["Shapes"] || "";
+  document.getElementById("peCut").value = r["Cut"] || "";
+  document.getElementById("peCarat").value = r["Carat"] || "";
+  document.getElementById("peClarity").value = r["Clarity"] || "";
+  document.getElementById("peStoneName").value = r["Stone Name"] || "";
+  document.getElementById("peWeight").value = r["Weight"] || "";
+  document.getElementById("peWeightType").value = r["Weight Type"] || "";
+  document.getElementById("peColour").value = r["Colour"] || "";
+  document.getElementById("peRI").value = r["Refractive Index"] || "";
+  document.getElementById("peOC").value = r["Optic Character"] || "";
+  document.getElementById("peSG").value = r["Specific Gravity"] || "";
+  document.getElementById("peParty").value = r["Party Name"] || r["Jeweller"] || "";
+  document.getElementById("peComments").value = r["Comment"] || r["Magnification"] || "";
+  document.getElementById("peDate").value = r["Date"] || "";
+
+  // Gem image: check localStorage first, then Supabase Storage, then DB base64
+  var reportKey = r["Report No."] || "";
+  var gemHint = document.getElementById("peGemHint");
+  var storedImg = localStorage.getItem("sgtl_gem_img_" + reportKey);
+  if (storedImg) {
+    r._localGemImage = storedImg;
+    gemHint.innerHTML = '<img src="' + storedImg + '" style="max-width:100%;max-height:120px;object-fit:contain;border-radius:8px;" alt="Gem">';
+  } else if (r["gem_image_url"]) {
+    // Fetch from Supabase Storage via server proxy
+    gemHint.textContent = "Loading image...";
+    (function(record, hint, rk) {
+      var imgUrl = API + "/certificate/gem-image/" + encodeURIComponent(rk);
+      var testImg = new Image();
+      testImg.onload = function() {
+        // Convert to dataURL for local use in canvas rendering
+        var cvs = document.createElement("canvas");
+        cvs.width = testImg.width; cvs.height = testImg.height;
+        cvs.getContext("2d").drawImage(testImg, 0, 0);
+        var dataUrl = cvs.toDataURL("image/jpeg", 0.92);
+        record._localGemImage = dataUrl;
+        try { localStorage.setItem("sgtl_gem_img_" + rk, dataUrl); } catch(e) {}
+        hint.innerHTML = '<img src="' + dataUrl + '" style="max-width:100%;max-height:120px;object-fit:contain;border-radius:8px;" alt="Gem">';
+        renderLivePreview(record);
+      };
+      testImg.onerror = function() {
+        record._localGemImage = null;
+        hint.textContent = "Click to upload image";
+      };
+      testImg.crossOrigin = "anonymous";
+      testImg.src = imgUrl;
+    })(r, gemHint, reportKey);
+  } else if (r["gem_image_base64"]) {
+    r._localGemImage = r["gem_image_base64"];
+    gemHint.innerHTML = '<img src="' + r["gem_image_base64"] + '" style="max-width:100%;max-height:120px;object-fit:contain;border-radius:8px;" alt="Gem">';
+  } else {
+    r._localGemImage = null;
+    gemHint.textContent = "Click to upload image";
+  }
+}
+
+function renderLivePreview(record) {
+  // Populate the offscreen card with current data
+  populateNewPvcFront(record);
+
+  // Apply local gem image override if exists
+  if (record._localGemImage) {
+    var gemBox = document.getElementById("newPvcGemBox");
+    gemBox.innerHTML = '<img src="' + record._localGemImage + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Gemstone">';
+  }
+
+  // Clone front + back into preview frames with scale wrapper
+  var frontSrc = document.getElementById("newPvcFront");
+  var backSrc = document.getElementById("newPvcBack");
+  var frontFrame = document.getElementById("printFrontFrame");
+  var backFrame = document.getElementById("printBackFrame");
+
+  // Wrap cloned content in .sgtlpvc scope + scale container
+  // CSS transforms don't reduce layout size, so we add negative margins to compensate
+  var sc = 0.48;
+  var mR = Math.round(-1082 * (1 - sc));
+  var mB = Math.round(-709 * (1 - sc));
+  var scaleStyle = "background:transparent;padding:0;min-height:auto;display:inline-block;transform-origin:top left;transform:scale(" + sc + ");margin-right:" + mR + "px;margin-bottom:" + mB + "px;";
+  frontFrame.innerHTML = '<div class="sgtlpvc" style="' + scaleStyle + '">' + frontSrc.outerHTML + '</div>';
+  backFrame.innerHTML = '<div class="sgtlpvc" style="' + scaleStyle + '">' + backSrc.outerHTML + '</div>';
+
+  // Remove IDs from cloned cards to prevent duplicates
+  frontFrame.querySelectorAll("[id]").forEach(function(el) { el.removeAttribute("id"); });
+  backFrame.querySelectorAll("[id]").forEach(function(el) { el.removeAttribute("id"); });
+
+  // ── A4 Report Live Preview ──
+  var qrDataUrl = generateQrLocally("https://sfrgtl.com/verify.html?report=" + encodeURIComponent(record["Report No."] || ""));
+  var gemImg = record._localGemImage || record["gem_image_base64"] || null;
+  populateGemReport(record, qrDataUrl, gemImg);
+
+  var a4Src = document.getElementById("gemReportTpl").firstElementChild;
+  var a4Frame = document.getElementById("printA4Frame");
+  // A4 template is 1588×2246px — scale to fit preview column (~520px wide → 0.33)
+  var a4sc = 0.33;
+  var a4mR = Math.round(-1588 * (1 - a4sc));
+  var a4mB = Math.round(-2246 * (1 - a4sc));
+  var a4ScaleStyle = "display:inline-block;transform-origin:top left;transform:scale(" + a4sc + ");margin-right:" + a4mR + "px;margin-bottom:" + a4mB + "px;";
+  a4Frame.innerHTML = '<div style="' + a4ScaleStyle + '">' + a4Src.outerHTML + '</div>';
+  // Remove IDs from cloned A4 template
+  a4Frame.querySelectorAll("[id]").forEach(function(el) { el.removeAttribute("id"); });
+}
+
+function buildRecordFromEditor() {
+  // Build a record object from the current editor field values
+  var r = Object.assign({}, printReportData || {});
+  r["Report No."]       = document.getElementById("peReportNo").value;
+  r["Shapes"]           = document.getElementById("peShapes").value;
+  r["Cut"]              = document.getElementById("peCut").value;
+  r["Carat"]            = document.getElementById("peCarat").value;
+  r["Clarity"]          = document.getElementById("peClarity").value;
+  r["Stone Name"]       = document.getElementById("peStoneName").value;
+  r["Weight"]           = document.getElementById("peWeight").value;
+  r["Weight Type"]      = document.getElementById("peWeightType").value;
+  r["Colour"]           = document.getElementById("peColour").value;
+  r["Refractive Index"] = document.getElementById("peRI").value;
+  r["Optic Character"]  = document.getElementById("peOC").value;
+  r["Specific Gravity"] = document.getElementById("peSG").value;
+  r["Party Name"]       = document.getElementById("peParty").value;
+  r["Comment"]          = document.getElementById("peComments").value;
+  r["Date"]             = document.getElementById("peDate").value;
+  // Preserve local gem image
+  if (printReportData && printReportData._localGemImage) {
+    r._localGemImage = printReportData._localGemImage;
+    r["gem_image_base64"] = printReportData._localGemImage;
+  }
+  return r;
+}
+
+function liveUpdateCard(inputEl) {
+  // Re-build record from editor fields and refresh preview
+  var r = buildRecordFromEditor();
+  printReportData = r;
+  renderLivePreview(r);
+}
+
+function handlePrintGemUpload(inputEl) {
+  var file = inputEl.files && inputEl.files[0];
+  if (!file) return;
+  if (!file.type.startsWith("image/")) {
+    showToast("Please upload an image file", "error");
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    showToast("Image too large (max 5 MB)", "error");
+    return;
+  }
+
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var dataUrl = e.target.result;
+
+    // Resize to max 1400px for quality, JPEG 92%
+    var img = new Image();
+    img.onload = function() {
+      var MAX = 1400;
+      var w = img.width, h = img.height;
+      if (w > MAX || h > MAX) {
+        if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+        else       { w = Math.round(w * MAX / h); h = MAX; }
+      }
+      var cvs = document.createElement("canvas");
+      cvs.width = w; cvs.height = h;
+      cvs.getContext("2d").drawImage(img, 0, 0, w, h);
+      var resized = cvs.toDataURL("image/jpeg", 0.92);
+
+      // Save to localStorage
+      var reportKey = (printReportData && printReportData["Report No."]) || "";
+      if (reportKey) {
+        try { localStorage.setItem("sgtl_gem_img_" + reportKey, resized); }
+        catch(err) { console.warn("localStorage save failed:", err); }
+      }
+
+      // Update printReportData
+      if (printReportData) {
+        printReportData._localGemImage = resized;
+        printReportData["gem_image_base64"] = resized;
+      }
+
+      // Show thumbnail in upload zone
+      document.getElementById("peGemHint").innerHTML = '<img src="' + resized + '" style="max-width:100%;max-height:120px;object-fit:contain;border-radius:8px;" alt="Gem">';
+
+      // Refresh live preview
+      renderLivePreview(printReportData);
+      showToast("Gem image updated!", "success");
+
+      // Upload to Supabase Storage (async, non-blocking)
+      if (reportKey) {
+        (function(rk, dataUrl) {
+          try {
+            var byteString = atob(dataUrl.split(",")[1]);
+            var mimeString = dataUrl.split(",")[0].split(":")[1].split(";")[0];
+            var ab = new ArrayBuffer(byteString.length);
+            var ia = new Uint8Array(ab);
+            for (var i = 0; i < byteString.length; i++) ia[i] = byteString.charCodeAt(i);
+            var blob = new Blob([ab], { type: mimeString });
+            var fd = new FormData();
+            fd.append("reportNo", rk);
+            fd.append("image", blob, rk + ".jpg");
+            var uploadHeaders = {};
+            if (authToken) uploadHeaders["Authorization"] = "Bearer " + authToken;
+            fetch(API + "/certificate/upload-image", { method: "POST", headers: uploadHeaders, body: fd })
+              .then(function(r) { return r.json(); })
+              .then(function(resp) {
+                if (resp && resp.url && printReportData) {
+                  printReportData["gem_image_url"] = resp.url;
+                }
+              })
+              .catch(function(err) { console.warn("Gem image cloud upload failed:", err); });
+          } catch(uploadErr) { console.warn("Gem image upload prep failed:", uploadErr); }
+        })(reportKey, resized);
+      }
+    };
+    img.src = dataUrl;
+  };
+  reader.readAsDataURL(file);
+
+  // Reset file input so same file can be re-uploaded
+  inputEl.value = "";
+}
+
+function printBothCards() {
+  if (!printReportData) { showToast("No report loaded", "error"); return; }
+  // Ensure offscreen cards are populated with latest editor data
+  var r = buildRecordFromEditor();
+  populateNewPvcFront(r);
+  if (r._localGemImage) {
+    var gemBox = document.getElementById("newPvcGemBox");
+    gemBox.innerHTML = '<img src="' + r._localGemImage + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Gemstone">';
+  }
+  // Make offscreen cards briefly visible for printing
+  var wrap = document.getElementById("newPvcCardWrap");
+  wrap.style.position = "fixed";
+  wrap.style.left = "0";
+  wrap.style.top = "0";
+  wrap.style.zIndex = "99999";
+  wrap.style.opacity = "1";
+  wrap.style.background = "#fff";
+
+  window.print();
+
+  // Restore hidden state after print dialog closes
+  setTimeout(function() {
+    wrap.style.position = "absolute";
+    wrap.style.left = "-9999px";
+    wrap.style.top = "-9999px";
+    wrap.style.zIndex = "";
+    wrap.style.opacity = "";
+    wrap.style.background = "";
+  }, 1000);
+}
+
+async function download4KPNG() {
+  if (!printReportData) { showToast("No report loaded", "error"); return; }
+
+  var btn = document.getElementById("download4KBtn");
+  var origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-ring"></span> Rendering...';
+
+  try {
+    var r = buildRecordFromEditor();
+    populateNewPvcFront(r);
+    if (r._localGemImage) {
+      var gemBox = document.getElementById("newPvcGemBox");
+      gemBox.innerHTML = '<img src="' + r._localGemImage + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Gemstone">';
+    }
+
+    // Make offscreen wrapper visible for html2canvas
+    var wrap = document.getElementById("newPvcCardWrap");
+    wrap.style.position = "fixed";
+    wrap.style.left = "0";
+    wrap.style.top = "0";
+    wrap.style.zIndex = "-1";
+    wrap.style.opacity = "0";
+
+    // Wait for QR image to load
+    var qrImg = document.getElementById("newPvcQrImg");
+    if (qrImg.src && !qrImg.complete) {
+      await new Promise(function(resolve) {
+        qrImg.onload = resolve;
+        qrImg.onerror = resolve;
+        setTimeout(resolve, 3000);
+      });
+    }
+
+    // Wait for sign + badge images
+    var signImg = document.getElementById("newPvcSign");
+    var badgeImg = document.getElementById("newPvcBadge");
+    await Promise.all([signImg, badgeImg].map(function(img) {
+      if (img && img.src && !img.complete) {
+        return new Promise(function(resolve) { img.onload = resolve; img.onerror = resolve; setTimeout(resolve, 3000); });
+      }
+      return Promise.resolve();
+    }));
+
+    // Render FRONT at 4x scale (4328×2836 — ultra-high-res 4K)
+    var frontEl = document.getElementById("newPvcFront");
+    var frontCanvas = await html2canvas(frontEl, {
+      scale: 4,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      width: 1082,
+      height: 709
+    });
+
+    // Render BACK at 4x scale
+    var backEl = document.getElementById("newPvcBack");
+    var backCanvas = await html2canvas(backEl, {
+      scale: 4,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      width: 1082,
+      height: 709
+    });
+
+    // Hide offscreen wrapper
+    wrap.style.position = "absolute";
+    wrap.style.left = "-9999px";
+    wrap.style.top = "-9999px";
+    wrap.style.zIndex = "";
+    wrap.style.opacity = "";
+
+    // Create combined canvas (front on top, back below, with 20px gap)
+    var gap = 40;
+    var combinedCanvas = document.createElement("canvas");
+    combinedCanvas.width = frontCanvas.width;
+    combinedCanvas.height = frontCanvas.height + gap + backCanvas.height;
+    var ctx = combinedCanvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
+    ctx.drawImage(frontCanvas, 0, 0);
+    ctx.drawImage(backCanvas, 0, frontCanvas.height + gap);
+
+    // Download as PNG
+    combinedCanvas.toBlob(function(blob) {
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "SGTL_4K_PVC_" + (r["Report No."] || "card") + ".png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showToast("4K PNG downloaded!", "success");
+    }, "image/png");
+
+  } catch (err) {
+    showToast("Error generating 4K PNG: " + err.message, "error");
+    console.error("4K PNG error:", err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+  }
+}
 </script>
 <script src="https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </body>
 </html>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
+

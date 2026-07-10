@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="ext-resource-dependency" content="sign-mqmltjpt.png" data-resource-id="signImg" />
+<meta name="ext-resource-dependency" content="badge-mqmlcsrw.png" data-resource-id="badgeImg" />
+<meta name="ext-resource-dependency" content="assets/SG_logo.png" data-resource-id="logoImg" />
+<meta name="ext-resource-dependency" content="assets/SGTL-311224PWP1894.pdf" data-resource-id="certPdf" />
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/sg-tl-design-system-3ded945f-b354-434f-a8d8-46753d5936d5/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/sg-tl-design-system-3ded945f-b354-434f-a8d8-46753d5936d5/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/sg-tl-design-system-3ded945f-b354-434f-a8d8-46753d5936d5/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/sg-tl-design-system-3ded945f-b354-434f-a8d8-46753d5936d5/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/sg-tl-design-system-3ded945f-b354-434f-a8d8-46753d5936d5/tokens/effects.css">
+  <link rel="stylesheet" href="_ds/sg-tl-design-system-3ded945f-b354-434f-a8d8-46753d5936d5/styles.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&amp;family=Caveat:wght@500;600;700&amp;display=swap">
+  <script src="_ds/sg-tl-design-system-3ded945f-b354-434f-a8d8-46753d5936d5/_ds_bundle.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+    body { background: #d9d6d0; font-family: var(--font-body), sans-serif; }
+    .screen-pad { display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; padding: 32px 16px; }
+    @media print {
+      body { background: #fff; }
+      .screen-pad { padding: 0 !important; min-height: 0 !important; }
+      .a4page { box-shadow: none !important; }
+      .web-chrome { display: none !important; }
+      @page { size: A4; margin: 0; }
+    }
+  </style>
+</helmet>
+
+<div class="web-chrome" style="position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:14px 24px; background:#0a1215; border-bottom:1px solid rgba(196,148,63,0.25);">
+  <div style="display:flex; align-items:center; gap:12px;">
+    <img src="assets/SG_logo.png" alt="SG&amp;TL" style="width:32px; height:32px; object-fit:contain; background:#fff; border-radius:6px; padding:3px;">
+    <div style="font-family:var(--font-body); font-size:13px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:#f0d69b;">SG&amp;TL · Report Verification</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:12px;">
+    <a href="{{ verifyHref }}" target="_blank" rel="noopener" style="font-family:var(--font-body); font-size:13px; font-weight:600; color:#cdd3da; text-decoration:none; padding:9px 16px; border:1px solid rgba(196,148,63,0.4); border-radius:8px;">Verify online</a>
+    <button type="button" onClick="{{ downloadPdf }}" style="display:inline-flex; align-items:center; gap:8px; font-family:var(--font-body); font-size:13px; font-weight:700; color:#0a1215; background:linear-gradient(180deg,#f0d69b,#c4943f); border:none; border-radius:8px; padding:10px 18px; cursor:pointer;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0a1215" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="M8 11l4 4 4-4"></path><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"></path></svg>
+      Download PDF
+    </button>
+  </div>
+</div>
+<div class="screen-pad" style="position: absolute; left: -24px; top: 169px">
+  <div class="a4page" data-screen-label="Final Report" ref="{{ pageRef }}" style="position:relative; width:794px; height:1123px; background:#ffffff; box-shadow:0 24px 60px rgba(20,30,50,0.18); overflow:hidden;">
+    <!-- guilloché frame -->
+    <div style="position:absolute; inset:0; pointer-events:none;">{{ frameWeave }}</div>
+    <!-- ornament borders -->
+    <sc-if value="{{ showOrnament }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute; inset:0; pointer-events:none;">
+        <div style="position:absolute; inset:46px; border:1.5px solid var(--logo-navy);"></div>
+        <div style="position:absolute; inset:52px; border:0.8px solid var(--gold);"></div>
+      </div>
+    </sc-if>
+    <!-- minimal border -->
+    <sc-if value="{{ showMinimal }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute; inset:40px; border:1px solid var(--gold); pointer-events:none;"></div>
+    </sc-if>
+    <!-- watermark -->
+    <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; pointer-events:none;">{{ watermark }}</div>
+
+    
+  <div style="position:relative; z-index:1; display:flex; flex-direction:column; height:100%; padding:74px 74px 64px;">
+      <!-- header -->
+      <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+        <img src="assets/SG_logo.png" alt="SG&amp;TL" style="width:58px; height:58px; object-fit:contain;">
+        <div style="font-family:var(--font-display); font-size:19px; font-weight:600; letter-spacing:0.04em; color:var(--logo-navy);">Sunil Gems &amp; Testing Labs</div>
+        <div style="display:flex; align-items:center; gap:10px;"><span style="width:40px; height:1px; background:var(--gold);"></span><span style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.24em; text-transform:uppercase; color:var(--gold-ink);">Gemstone Identification Report</span><span style="width:40px; height:1px; background:var(--gold);"></span></div>
+      </div>
+      <!-- title -->
+      <div style="text-align:center; margin-top:18px;">
+        <div style="font-family:var(--font-display); font-size:44px; font-weight:600; letter-spacing:-0.012em; color:var(--logo-navy);">Certificate of Authenticity</div>
+        <div style="font-family:var(--font-body); font-size:12px; font-weight:600; letter-spacing:0.26em; text-transform:uppercase; color:#5a6470; margin-top:8px;">Of Gemstone Identification</div>
+      </div>
+
+      <!-- main -->
+      <div style="display:flex; gap:32px; margin-top:36px;">
+        <div style="flex:1.3; display:grid; grid-template-columns:auto 1fr; row-gap:0; column-gap:0; align-content:start;">
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Report No</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; font-variant-numeric:tabular-nums; text-align:right;">SGTL-311224PWP1894</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Weight</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; font-variant-numeric:tabular-nums; text-align:right;">6.5 Ratti</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Shape / Cut</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; text-align:right;">Oval Cabochon</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Optic Character</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; font-variant-numeric:tabular-nums; text-align:right;">DR (Doubly Refractive)</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Colour</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; text-align:right;">Sky Blue</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Refractive Index</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; font-variant-numeric:tabular-nums; text-align:right;">1.61 – 1.65</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Specific Gravity</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; font-variant-numeric:tabular-nums; text-align:right;">2.60 – 2.85</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Stone Name</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; text-align:right;">Natural Turquoise</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Jeweller</div><div style="font-family:var(--font-mono); font-size:13.5px; color:var(--logo-navy); padding:8.5px 0; font-variant-numeric:tabular-nums; text-align:right;">Shankar Jewellers</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+          <div style="font-family:var(--font-body); font-size:10px; font-weight:700; letter-spacing:0.13em; text-transform:uppercase; color:#5a6470; padding:8.5px 20px 8.5px 4px;">Comments</div><div style="font-family:var(--font-mono); font-size:12.5px; color:var(--logo-navy); padding:8.5px 0; text-align:right;">No indication of treatment</div>
+          <div style="grid-column:1 / -1; height:1px; background:rgba(28,43,82,0.18);"></div>
+        </div>
+        <!-- visual -->
+        <div style="width:208px; flex:none; display:flex; flex-direction:column; align-items:center;">
+          <div style="width:200px; height:178px; border:1.5px solid var(--logo-navy); background:rgba(255,255,255,0.5); position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;">
+            <svg width="52" height="52" viewBox="0 0 64 64" fill="none" stroke="var(--logo-navy)" stroke-width="1.5" stroke-linejoin="round"><path d="M14 26 L24 13 L40 13 L50 26 L32 53 Z"></path><path d="M14 26 L50 26"></path><path d="M24 13 L28 26 L32 53"></path><path d="M40 13 L36 26 L32 53"></path></svg>
+            <span style="font-family:var(--font-body); font-size:9px; font-weight:600; letter-spacing:0.16em; text-transform:uppercase; color:#5a6470;">Specimen image</span>
+          </div>
+          <div style="font-family:var(--font-display); font-size:21px; font-weight:600; color:var(--logo-navy); margin-top:12px;">Natural Turquoise</div>
+          <div style="position:relative; width:96px; height:96px; margin-top:14px;">{{ qrC }}<div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:24px; height:24px; background:#ffffff; border-radius:4px; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 3px #ffffff;"><img src="assets/SG_logo.png" alt="SG" style="width:20px; height:20px; object-fit:contain;"></div></div>
+          <div style="font-family:var(--font-body); font-size:9px; font-weight:700; letter-spacing:0.18em; text-transform:uppercase; color:#5a6470; margin-top:8px;">Scan to verify</div>
+          <div style="font-family:var(--font-mono); font-size:9.5px; color:#5a6470; margin-top:4px;">Issued 31 Dec 2024</div>
+        </div>
+      </div>
+
+      <!-- footer -->
+      
+      <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:flex-end;">
+        <div style="text-align: center; font-size: 10px; position: static; align-self: center">
+          {{ signature }}
+          
+          <div style="width: 100px; height: 1px; background: var(--logo-navy); margin: 7px 0 7px; overflow: visible; display: inline-block; margin-top: 5px; margin-bottom: 5px"></div><div style="font-family: var(--font-body); font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: #5a6470; text-align: center">LAB DIRECTOR</div>
+        </div>
+        {{ seal }}
+      </div><div style="border-top:1px solid rgba(28,43,82,0.18); margin-top:16px; padding-top:12px; display:flex; justify-content:center; align-items:center; gap:14px; font-family:var(--font-body); font-size:11.5px; color:#5a6470;">
+        <span>sunilgems126@<!---->gmail.com</span><span style="color:var(--gold);">◆</span><span>www.sgtlgemtesting.co.in</span>
+        <span style="display:inline-flex; gap:9px; align-items:center;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--logo-navy)" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.5" cy="6.5" r="1" fill="var(--logo-navy)" stroke="none"></circle></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="var(--logo-navy)"><path d="M14 9h3V6h-3c-2 0-3.5 1.5-3.5 3.5V12H8v3h2.5v6h3v-6H16l.5-3h-2.5V9.6c0-.4.3-.6.7-.6z"></path></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--logo-navy)" stroke-width="1.7"><path d="M3.5 20.5l1.3-4.6a8 8 0 1 1 3 3l-4.3 1.6z"></path></svg>
+        </span>
+      </div>
+      <div style="text-align:center; font-family:var(--font-body); font-size:10px; letter-spacing:0.04em; color:#9aa0a6; margin-top:6px;">Computer-generated certificate of authenticity</div>
+    </div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:794,&quot;height&quot;:1123},&quot;accentMetal&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Gold&quot;,&quot;Platinum&quot;,&quot;Emerald&quot;],&quot;default&quot;:&quot;Gold&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;securityBorder&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Guilloché&quot;,&quot;Engraved&quot;,&quot;Minimal&quot;],&quot;default&quot;:&quot;Guilloché&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;watermark&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;SG monogram&quot;,&quot;Diamond lattice&quot;,&quot;None&quot;],&quot;default&quot;:&quot;SG monogram&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { signSrc: null, badgeSrc: null, qrUrl: null, busy: false };
+  verifyUrl() { return 'https://sgtlgemtesting.co.in/verify.html#verify?report=SGTL-311224PWP1894'; }
+
+  probe(cands, key) {
+    let i = 0;
+    const tryNext = () => {
+      if (i >= cands.length) return;
+      const src = cands[i++];
+      const img = new Image();
+      img.onload = () => { if (img.naturalWidth > 1) this.setState({ [key]: src }); else tryNext(); };
+      img.onerror = tryNext;
+      img.src = src;
+    };
+    tryNext();
+  }
+  componentDidMount() {
+    const R = window.__resources || {};
+    this.probe([R.signImg, 'sign-mqmltjpt.png', 'assets/Sign.png', 'assets/sign.png', 'assets/Signature.png'].filter(Boolean), 'signSrc');
+    this.probe([R.badgeImg, 'badge-mqmlcsrw.png', 'assets/Badge.png', 'assets/badge.png', 'assets/Seal.png'].filter(Boolean), 'badgeSrc');
+    this.makeQR(0);
+  }
+  makeQR(tries) {
+    if (window.qrcode) {
+      try {
+        const qr = window.qrcode(0, 'H');
+        qr.addData(this.verifyUrl());
+        qr.make();
+        this.setState({ qrUrl: qr.createDataURL(8, 0) });
+      } catch (e) { /* keep fallback */ }
+    } else if (tries < 40) {
+      setTimeout(() => this.makeQR(tries + 1), 150);
+    }
+  }
+  downloadPdf() {
+    const el = this._page;
+    const jsPDFctor = (window.jspdf && window.jspdf.jsPDF) || window.jsPDF;
+    if (!el || !window.html2canvas || !jsPDFctor || this.state.busy) return;
+    this.setState({ busy: true });
+    window.html2canvas(el, { scale: 3, useCORS: true, backgroundColor: '#ffffff' }).then(canvas => {
+      const pdf = new jsPDFctor({ orientation: 'portrait', unit: 'pt', format: 'a4' });
+      const w = pdf.internal.pageSize.getWidth(), h = pdf.internal.pageSize.getHeight();
+      pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, w, h);
+      pdf.save('SGTL-311224PWP1894.pdf');
+      this.setState({ busy: false });
+    }).catch(() => this.setState({ busy: false }));
+  }
+
+  buildQR(prefix) {
+    const N = 25, size = 150, c = size / N, dark = '#15233f';
+    let a = 20260417 + prefix.charCodeAt(0);
+    const rnd = () => { a |= 0; a = (a + 0x6D2B79F5) | 0; let t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+    const inBox = (r, col, br, bc) => r >= br && r < br + 7 && col >= bc && col < bc + 7;
+    const isFinder = (r, col) => inBox(r, col, 0, 0) || inBox(r, col, 0, N - 7) || inBox(r, col, N - 7, 0);
+    const mid = N / 2;
+    const inLogo = (r, col) => r >= mid - 2.5 && r <= mid + 2.5 && col >= mid - 2.5 && col <= mid + 2.5;
+    const rects = [React.createElement('rect', { key: 'bg', x: 0, y: 0, width: size, height: size, fill: '#fff', rx: 6 })];
+    for (let r = 0; r < N; r++) for (let col = 0; col < N; col++) {
+      if (isFinder(r, col) || inLogo(r, col)) continue;
+      if (rnd() > 0.52) rects.push(React.createElement('rect', { key: prefix + r + '-' + col, x: col * c + 0.4, y: r * c + 0.4, width: c - 0.8, height: c - 0.8, fill: dark }));
+    }
+    const finder = (br, bc) => {
+      rects.push(React.createElement('rect', { key: prefix + 'fo' + br + bc, x: bc * c, y: br * c, width: 7 * c, height: 7 * c, fill: dark, rx: 2 }));
+      rects.push(React.createElement('rect', { key: prefix + 'fi' + br + bc, x: (bc + 1) * c, y: (br + 1) * c, width: 5 * c, height: 5 * c, fill: '#fff', rx: 1 }));
+      rects.push(React.createElement('rect', { key: prefix + 'fc' + br + bc, x: (bc + 2) * c, y: (br + 2) * c, width: 3 * c, height: 3 * c, fill: dark, rx: 1 }));
+    };
+    finder(0, 0); finder(0, N - 7); finder(N - 7, 0);
+    return React.createElement('svg', { viewBox: '0 0 ' + size + ' ' + size, width: '100%', height: '100%', style: { display: 'block' } }, rects);
+  }
+
+  sealEl(prefix, light, mid, dark) {
+    const cx = 50, cy = 50, N = 32, rr = 45, br = 3.3, els = [], scal = [];
+    for (let i = 0; i < N; i++) { const t = i / N * 2 * Math.PI; scal.push(React.createElement('circle', { key: prefix + 's' + i, cx: cx + rr * Math.cos(t), cy: cy + rr * Math.sin(t), r: br, fill: mid })); }
+    const grad = React.createElement('radialGradient', { id: prefix + 'g', cx: '38%', cy: '32%', r: '74%' }, [
+      React.createElement('stop', { key: 0, offset: '0%', stopColor: light }),
+      React.createElement('stop', { key: 1, offset: '52%', stopColor: mid }),
+      React.createElement('stop', { key: 2, offset: '100%', stopColor: dark })
+    ]);
+    els.push(React.createElement('defs', { key: 'd' }, grad));
+    scal.forEach(s => els.push(s));
+    els.push(React.createElement('circle', { key: 'disc', cx, cy, r: 40, fill: 'url(#' + prefix + 'g)' }));
+    els.push(React.createElement('circle', { key: 'r1', cx, cy, r: 34, fill: 'none', stroke: '#fff', strokeOpacity: 0.5, strokeWidth: 1 }));
+    els.push(React.createElement('circle', { key: 'r2', cx, cy, r: 30, fill: 'none', stroke: dark, strokeOpacity: 0.45, strokeWidth: 0.8 }));
+    els.push(React.createElement('text', { key: 't1', x: cx, y: 37, textAnchor: 'middle', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 6.5, letterSpacing: '1.4', fill: '#fff' }, 'SG\u0026TL'));
+    els.push(React.createElement('text', { key: 'di', x: cx, y: 55, textAnchor: 'middle', fontSize: 17, fill: '#fff' }, '\u25C6'));
+    els.push(React.createElement('text', { key: 't2', x: cx, y: 69, textAnchor: 'middle', fontFamily: 'var(--font-body)', fontWeight: 700, fontSize: 5.6, letterSpacing: '1.1', fill: '#fff' }, 'AUTHENTICATED'));
+    return React.createElement('svg', { viewBox: '0 0 100 100', width: 92, height: 92, style: { display: 'block', filter: 'drop-shadow(0 4px 8px rgba(60,45,15,0.28))' } }, els);
+  }
+
+  frameGuilloche(prefix, w, h, inset, band, color, op) {
+    const A = band * 0.3, lam = 40, paths = [];
+    const x0 = inset, x1 = w - inset, y0 = inset, y1 = h - inset;
+    const phs = [0, 2.1, 4.2];
+    const comp = (p, ph) => A * Math.sin(2 * Math.PI * p / lam + ph) + A * 0.5 * Math.sin(4 * Math.PI * p / lam + ph * 1.3);
+    phs.forEach((ph, wi) => {
+      let dt = '', db = '', dl = '', dr = '';
+      for (let x = x0; x <= x1; x += 2) { const v = comp(x - x0, ph); dt += (x === x0 ? 'M' : 'L') + x + ' ' + (y0 + band / 2 + v).toFixed(1) + ' '; db += (x === x0 ? 'M' : 'L') + x + ' ' + (y1 - band / 2 + v).toFixed(1) + ' '; }
+      for (let y = y0; y <= y1; y += 2) { const v = comp(y - y0, ph); dl += (y === y0 ? 'M' : 'L') + (x0 + band / 2 + v).toFixed(1) + ' ' + y + ' '; dr += (y === y0 ? 'M' : 'L') + (x1 - band / 2 + v).toFixed(1) + ' ' + y + ' '; }
+      [dt, db, dl, dr].forEach((d, di) => paths.push(React.createElement('path', { key: prefix + wi + di, d, fill: 'none', stroke: color, strokeWidth: 0.6, strokeOpacity: op })));
+    });
+    return React.createElement('svg', { viewBox: '0 0 ' + w + ' ' + h, width: '100%', height: '100%', style: { display: 'block' } }, paths);
+  }
+
+  metal() {
+    const M = {
+      Gold:     { accent: '#c4943f', ink: '#6b4e1f', light: '#f0d69b', mid: '#c4943f', dark: '#856017' },
+      Platinum: { accent: '#9aa3ad', ink: '#4a525c', light: '#e9eef3', mid: '#aab2bc', dark: '#6b7681' },
+      Emerald:  { accent: '#0d6b63', ink: '#094c46', light: '#7fd3c8', mid: '#0d6b63', dark: '#063f3a' }
+    };
+    return M[this.props.accentMetal] || M.Gold;
+  }
+  applyMetal() {
+    const m = this.metal();
+    if (this._page) {
+      this._page.style.setProperty('--gold', m.accent);
+      this._page.style.setProperty('--gold-ink', m.ink);
+    }
+  }
+  componentDidUpdate() { this.applyMetal(); }
+
+  diamondLattice(color) {
+    const w = 560, h = 560, step = 48, els = [];
+    for (let y = 0; y < h; y += step) for (let x = 0; x < w; x += step) {
+      const off = (Math.round(y / step) % 2) * step / 2;
+      const cx = x + off + 7, cy = y + 7;
+      els.push(React.createElement('rect', { key: x + '-' + y, x: x + off, y: y, width: 14, height: 14, fill: 'none', stroke: color, strokeWidth: 1, transform: 'rotate(45 ' + cx + ' ' + cy + ')' }));
+    }
+    return React.createElement('svg', { viewBox: '0 0 ' + w + ' ' + h, width: 540, height: 540, style: { opacity: 0.08, display: 'block' } }, els);
+  }
+
+  renderVals() {
+    const m = this.metal();
+    const border = this.props.securityBorder || 'Guilloch\u00e9';
+    const wm = this.props.watermark || 'SG monogram';
+    const seal = this.state.badgeSrc
+      ? React.createElement('img', { src: this.state.badgeSrc, alt: 'Authenticated seal', style: { width: 96, height: 96, objectFit: 'contain', display: 'block' } })
+      : this.sealEl('s3', m.light, m.mid, m.dark);
+    const signature = this.state.signSrc
+      ? React.createElement('img', { src: this.state.signSrc, alt: 'Namit Verma signature', style: { display: 'block', height: 56, width: 'auto', objectFit: 'contain', marginBottom: 2 } })
+      : React.createElement('div', { style: { fontFamily: "'Moontime','Dancing Script',cursive", fontSize: 32, color: 'var(--logo-navy)', lineHeight: 1.1 } }, 'Namit Verma');
+    let watermark = null;
+    if (wm === 'SG monogram') watermark = React.createElement('img', { src: (window.__resources && window.__resources.logoImg) || 'assets/SG_logo.png', alt: '', style: { width: 540, height: 540, objectFit: 'contain', opacity: 0.05 } });
+    else if (wm === 'Diamond lattice') watermark = this.diamondLattice(m.accent);
+    return {
+      qrC: this.state.qrUrl
+        ? React.createElement('img', { src: this.state.qrUrl, alt: 'Verification QR', style: { width: '100%', height: '100%', display: 'block' } })
+        : this.buildQR('c'),
+      downloadPdf: () => this.downloadPdf(),
+      verifyHref: this.verifyUrl(),
+      seal,
+      signature,
+      watermark,
+      showOrnament: border !== 'Minimal',
+      showMinimal: border === 'Minimal',
+      frameWeave: border === 'Guilloch\u00e9' ? this.frameGuilloche('fw', 794, 1123, 30, 22, '#1c2b52', 0.5) : null,
+      pageRef: (el) => { this._page = el; this.applyMetal(); }
+    };
+  }
+}
+</script>
+<template id="__bundler_thumbnail" data-bg-color="#0a1215">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#0a1215"/>
+    <rect x="360" y="170" width="480" height="460" rx="10" fill="#ffffff"/>
+    <rect x="388" y="198" width="424" height="404" fill="none" stroke="#1c2b52" stroke-width="3"/>
+    <rect x="400" y="210" width="400" height="380" fill="none" stroke="#c4943f" stroke-width="1.5"/>
+    <path d="M540 300 L575 260 L625 260 L660 300 L600 380 Z" fill="none" stroke="#1c2b52" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M540 300 L660 300 M575 260 L590 300 L600 380 M625 260 L610 300 L600 380" stroke="#1c2b52" stroke-width="3"/>
+    <rect x="440" y="430" width="320" height="6" fill="#c4943f"/>
+    <rect x="470" y="460" width="260" height="4" fill="#dfe3e8"/>
+    <rect x="470" y="485" width="260" height="4" fill="#dfe3e8"/>
+    <circle cx="600" cy="548" r="34" fill="#c4943f"/>
+    <text x="600" y="556" text-anchor="middle" font-size="26" fill="#fff" font-family="serif">◆</text>
+  </svg>
+</template>
+</body>
+</html>

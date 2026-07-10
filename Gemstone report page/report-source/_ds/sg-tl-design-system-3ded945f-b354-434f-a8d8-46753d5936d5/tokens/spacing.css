@@ -1,0 +1,32 @@
+/* ───────────────────────────────────────────────────────────
+   SG&TL — Spacing & layout tokens
+   8px base rhythm. Section padding is fluid (clamp) so the
+   marketing surfaces breathe — "negative space as geological
+   time" — while staying dense enough for the data app.
+   ─────────────────────────────────────────────────────────── */
+:root {
+  /* ─ Spacing scale (8px base) ─ */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* ─ Section rhythm (fluid) ─ */
+  --section-y: clamp(80px, 12vw, 140px);   /* @kind spacing */
+  --section-x: clamp(24px, 6vw, 80px);     /* @kind spacing */
+  --gap-grid: 20px;                        /* default grid gap @kind spacing */
+
+  /* ─ Content widths ─ */
+  --measure-hero: 720px;     /* hero content max @kind spacing */
+  --measure-prose: 540px;    /* section description @kind spacing */
+  --measure-content: 1000px; /* feature grid max @kind spacing */
+  --measure-wide: 1200px;    /* widest container @kind spacing */
+}

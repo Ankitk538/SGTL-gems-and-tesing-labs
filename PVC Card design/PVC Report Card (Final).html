@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SG&amp;TL — PVC Report Card (Print-Ready Preview)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   SCOPED under .sgtlpvc — no global leakage.
+   Geometry authored at 300 DPI (1 mm = 11.811 px).
+   Card = 85.6 x 54 mm trim + 3 mm bleed = 91.6 x 60 mm.
+   ============================================================ */
+.sgtlpvc{
+  --navy:#0a1c48; --navy2:#081634; --gold:#d3a446; --gold2:#b7862f;
+  --gold-soft:#f0d69b; --cream:#ffffff; --ink:#14213f; --label:#243156;
+  --muted:#5b6579; --line:rgba(20,33,63,.16);
+  --u:11.811px; /* px per mm */
+  zoom:.82;
+  font-family:'Inter',sans-serif; color:var(--ink);
+  background:#3b3f46; margin:0; padding:48px 24px 80px; min-height:100vh;
+  display:flex; flex-direction:column; align-items:center; gap:56px;
+  -webkit-font-smoothing:antialiased;
+}
+.sgtlpvc *{box-sizing:border-box;}
+.sgtlpvc .stage{display:flex; flex-direction:column; align-items:center; gap:14px;}
+.sgtlpvc .cap{font-size:15px; font-weight:700; letter-spacing:.28em; text-transform:uppercase; color:#cfd3da;}
+.sgtlpvc .cap span{color:#8b93a2; font-weight:500; letter-spacing:.12em; margin-left:8px;}
+
+/* ---- card shell (includes 3mm bleed) ---- */
+.sgtlpvc .card{
+  position:relative; width:1082px; height:709px; overflow:hidden;
+  background:var(--cream); box-shadow:0 30px 70px rgba(0,0,0,.4);
+}
+/* crop marks in the bleed margin (3mm = ~35px) */
+.sgtlpvc .crop{position:absolute; background:#0a1c48; z-index:9;}
+.sgtlpvc .crop.h{width:22px; height:1.5px;}
+.sgtlpvc .crop.v{width:1.5px; height:22px;}
+
+/* ---- header band (bleeds to edges) ---- */
+.sgtlpvc .hd{
+  position:absolute; top:0; left:0; width:100%; height:150px;
+  background:linear-gradient(120deg,#0c2350 0%,#0a1c48 55%,#081734 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:9px;
+  padding-top:14px;
+}
+.sgtlpvc .hd h1{
+  margin:0; font-family:'Fraunces',serif; font-weight:700; font-size:45px;
+  letter-spacing:.005em; color:var(--gold); line-height:1; white-space:nowrap;
+  text-shadow:0 1px 0 rgba(0,0,0,.3);
+}
+.sgtlpvc .hd .orn{display:flex; align-items:center; gap:14px;}
+.sgtlpvc .hd .orn .ln{width:120px; height:1.5px; background:linear-gradient(90deg,transparent,var(--gold));}
+.sgtlpvc .hd .orn .ln.r{background:linear-gradient(90deg,var(--gold),transparent);}
+.sgtlpvc .hd .orn .di{color:var(--gold); font-size:14px; letter-spacing:6px;}
+.sgtlpvc .hd .sub{font-size:22px; font-weight:600; letter-spacing:.24em; color:#eef1f6; text-transform:uppercase; white-space:nowrap;}
+
+/* ---- footer band (bleeds to edges) ---- */
+.sgtlpvc .ft{
+  position:absolute; bottom:0; left:0; width:100%; height:70px;
+  background:linear-gradient(120deg,#0c2350,#081734);
+  display:flex; align-items:center; justify-content:space-between; padding:0 96px; gap:0;
+  color:#eef1f6; font-size:22px; font-weight:500;
+}
+.sgtlpvc .ft .it{display:flex; align-items:center; gap:12px;}
+.sgtlpvc .ft .it svg{width:26px; height:26px; flex:none;}
+.sgtlpvc .ft .divider{width:1px; height:30px; background:rgba(240,214,155,.3);}
+
+/* ---- front body ---- */
+.sgtlpvc .body{
+  position:absolute; top:150px; left:0; right:0; bottom:70px;
+  padding:34px 82px 20px; display:flex; gap:40px;
+}
+.sgtlpvc .watermark{
+  position:absolute; top:150px; left:50%; transform:translateX(-58%);
+  width:360px; height:360px; opacity:.06; pointer-events:none;
+  background-size:contain; background-repeat:no-repeat; background-position:center;
+}
+.sgtlpvc .fields{flex:1.35; display:flex; flex-direction:column; justify-content:center; gap:0;}
+.sgtlpvc .row{display:grid; grid-template-columns:236px 16px 1fr; align-items:baseline; padding:5.5px 0;}
+.sgtlpvc .row .k{font-size:17px; font-weight:700; letter-spacing:.03em; color:var(--label); text-transform:uppercase;}
+.sgtlpvc .row .c{color:var(--label); font-weight:700;}
+.sgtlpvc .row .v{font-size:18px; font-weight:600; color:var(--ink); letter-spacing:.01em; text-transform:uppercase;}
+
+.sgtlpvc .side{width:246px; flex:none; display:flex; flex-direction:column; align-items:flex-start;}
+.sgtlpvc .gem{
+  width:200px; height:150px; border-radius:0; position:relative; overflow:visible;
+  background:transparent; display:flex; align-items:center; justify-content:center;
+}
+.sgtlpvc .gem .oval{
+  position:relative; width:158px; height:118px; border-radius:50%;
+  background:
+    radial-gradient(75% 62% at 38% 28%, rgba(255,255,255,.85), rgba(150,190,255,.35) 24%, transparent 52%),
+    radial-gradient(130% 120% at 62% 74%, #2f6fd6 0%, #144aa8 42%, #0a2f7a 68%, #06205a 100%);
+  box-shadow:
+    inset 0 0 24px rgba(3,16,48,.6),
+    inset 0 3px 9px rgba(255,255,255,.5),
+    inset 0 -6px 12px rgba(3,16,48,.5),
+    0 12px 20px -6px rgba(8,23,58,.45);
+}
+.sgtlpvc .gem .oval::before{
+  content:""; position:absolute; inset:0; border-radius:50%;
+  background:
+    conic-gradient(from 210deg at 52% 44%, rgba(255,255,255,.22), transparent 24%, rgba(3,18,54,.28) 54%, transparent 80%, rgba(255,255,255,.16));
+  mix-blend-mode:screen; opacity:.75;
+}
+.sgtlpvc .gem .oval::after{
+  content:""; position:absolute; width:26px; height:14px; border-radius:50%;
+  top:20px; left:34px; background:radial-gradient(rgba(255,255,255,.95), rgba(255,255,255,0) 70%);
+  transform:rotate(-18deg);
+}
+.sgtlpvc .side .gname{
+  margin-top:12px; font-family:'Fraunces',serif; font-size:20px; font-weight:600;
+  color:var(--ink); letter-spacing:.05em; text-transform:uppercase; text-align:left;
+}
+.sgtlpvc .side .gname .u{display:block; width:40px; height:1.5px; background:var(--gold); margin:7px 0 0;}
+
+.sgtlpvc .qr{margin-top:14px; width:122px; height:122px; padding:8px; background:#fff; border:1px solid var(--line); border-radius:6px;}
+.sgtlpvc .qr img{width:100%; height:100%; display:block; image-rendering:pixelated;}
+.sgtlpvc .issued{margin-top:10px; text-align:left;}
+.sgtlpvc .issued .l{font-size:14px; font-weight:700; letter-spacing:.12em; color:var(--label); text-transform:uppercase;}
+.sgtlpvc .issued .d{font-size:17px; font-weight:700; color:var(--ink); margin-top:4px; letter-spacing:.03em;}
+
+/* verified seal */
+.sgtlpvc .seal{position:absolute; left:760px; bottom:80px; width:92px; height:92px; z-index:6;}
+
+/* ---- back ---- */
+.sgtlpvc .back .bbody{
+  position:absolute; top:150px; left:0; right:0; bottom:70px;
+  padding:30px 70px 18px; display:flex; flex-direction:column; align-items:center;
+}
+.sgtlpvc .tc-pill{
+  display:inline-flex; align-items:center; gap:12px; padding:8px 26px; border-radius:999px;
+  background:var(--navy); border:1.5px solid var(--gold);
+  color:var(--gold-soft); font-size:19px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; white-space:nowrap;
+}
+.sgtlpvc .tc-pill .di{color:var(--gold); font-size:16px;}
+.sgtlpvc .tc-text{
+  margin-top:20px; max-width:906px; text-align:center;
+  font-size:16.5px; line-height:1.46; color:#26324e; font-weight:400;
+}
+.sgtlpvc .divorn{display:flex; align-items:center; gap:16px; margin:20px 0 4px;}
+.sgtlpvc .divorn .ln{width:150px; height:1.5px; background:linear-gradient(90deg,transparent,var(--gold));}
+.sgtlpvc .divorn .ln.r{background:linear-gradient(90deg,var(--gold),transparent);}
+.sgtlpvc .divorn .di{color:var(--gold); font-size:15px; letter-spacing:6px;}
+.sgtlpvc .connect{margin-top:12px; font-size:21px; font-weight:700; letter-spacing:.2em; color:var(--ink); text-transform:uppercase;}
+.sgtlpvc .socials{display:flex; gap:24px; margin-top:18px; align-items:center;}
+.sgtlpvc .socials a{width:34px; height:34px; display:flex; align-items:center; justify-content:center; background:transparent; border:0;}
+.sgtlpvc .socials svg{width:30px; height:30px; fill:#111417;}
+.sgtlpvc .back .ft{gap:16px;}
+.sgtlpvc .back .ft .di{color:var(--gold); font-size:15px; letter-spacing:5px;}
+
+/* ============ spec / print-guide package ============ */
+.sgtlpvc .pkg{
+  width:1082px; background:#fbfbfc; border-radius:12px; padding:34px 40px 40px;
+  box-shadow:0 20px 50px rgba(0,0,0,.28); color:#1d2740;
+}
+.sgtlpvc .pkg h2{font-family:'Fraunces',serif; font-size:26px; font-weight:600; margin:0 0 4px;}
+.sgtlpvc .pkg .lead{font-size:15px; color:#5c6579; margin:0 0 26px;}
+.sgtlpvc .pkg .grid{display:grid; grid-template-columns:1fr 1fr; gap:34px;}
+.sgtlpvc .spec .srow{display:grid; grid-template-columns:150px 1fr; gap:10px; padding:8px 0; border-bottom:1px solid #eceef2; font-size:15px;}
+.sgtlpvc .spec .srow .sk{font-weight:700; color:#3a4560;}
+.sgtlpvc .spec .srow .sv{color:#5c6579;}
+.sgtlpvc .panel-title{font-size:13px; font-weight:800; letter-spacing:.16em; text-transform:uppercase; color:#8a92a4; margin:0 0 16px;}
+
+/* print guide diagram */
+.sgtlpvc .diagram{position:relative; height:300px; background:#fff; border-radius:8px; border:1px solid #eceef2; display:flex; align-items:center; justify-content:center;}
+.sgtlpvc .bleedbox{position:relative; width:430px; height:282px; border:1.5px dashed #29a3c9; border-radius:10px; display:flex; align-items:center; justify-content:center;}
+.sgtlpvc .trimbox{width:398px; height:250px; border:1.5px solid #1d2740; border-radius:14px; display:flex; align-items:center; justify-content:center;}
+.sgtlpvc .safebox{width:352px; height:206px; border:1.5px dashed #d9534f; border-radius:10px;}
+.sgtlpvc .dimtag{position:absolute; font-size:11px; font-weight:700; padding:2px 7px; border-radius:4px; background:#fff;}
+.sgtlpvc .dimtag.bleed{top:-11px; left:50%; transform:translateX(-50%); color:#29a3c9;}
+.sgtlpvc .dimtag.trim{bottom:16px; left:50%; transform:translateX(-50%); color:#1d2740;}
+.sgtlpvc .dimtag.safe{top:50%; left:50%; transform:translate(-50%,-50%); color:#d9534f;}
+.sgtlpvc .legend{display:flex; gap:20px; margin-top:16px; font-size:13px; color:#5c6579; flex-wrap:wrap;}
+.sgtlpvc .legend span{display:flex; align-items:center; gap:7px;}
+.sgtlpvc .legend i{width:22px; height:0; border-top:2px solid; display:inline-block;}
+
+/* swatches */
+.sgtlpvc .swrow{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:22px;}
+.sgtlpvc .sw{width:132px;}
+.sgtlpvc .sw .chip{height:56px; border-radius:8px; border:1px solid rgba(0,0,0,.08);}
+.sgtlpvc .sw .nm{font-size:12.5px; font-weight:700; margin-top:7px; color:#2b3550;}
+.sgtlpvc .sw .cm{font-size:11px; color:#7a8296; font-variant-numeric:tabular-nums;}
+.sgtlpvc .sw .hx{font-size:11px; color:#9aa1b2; font-variant-numeric:tabular-nums;}
+.sgtlpvc .notes{font-size:14px; line-height:1.7; color:#4a5470;}
+.sgtlpvc .notes b{color:#1d2740;}
+.sgtlpvc .fontrow{font-size:14px; color:#4a5470; line-height:1.8;}
+.sgtlpvc .fontrow b{color:#1d2740;}
+.sgtlpvc .full{grid-column:1 / -1;}
+.sgtlpvc .hr{height:1px; background:#eceef2; margin:28px 0; grid-column:1 / -1;}
+</style>
+</head>
+<body>
+<div class="sgtlpvc">
+
+  <!-- ==================== FRONT ==================== -->
+  <div class="stage">
+    <div class="cap">Front <span>85.6 × 54 mm + 3 mm bleed</span></div>
+    <div class="card front">
+      <!-- crop marks -->
+      <div class="crop h" style="top:35px;left:0;"></div><div class="crop v" style="top:0;left:35px;"></div>
+      <div class="crop h" style="top:35px;right:0;"></div><div class="crop v" style="top:0;right:35px;"></div>
+      <div class="crop h" style="bottom:35px;left:0;"></div><div class="crop v" style="bottom:0;left:35px;"></div>
+      <div class="crop h" style="bottom:35px;right:0;"></div><div class="crop v" style="bottom:0;right:35px;"></div>
+
+      <div class="hd">
+        <h1>SUNIL GEMS AND TESTING LABS</h1>
+        <div class="orn"></div>
+        <div class="sub">Authentic Gemology Report</div>
+      </div>
+
+      <div class="watermark" style="background-image:url('assets/SG_logo.png');"></div>
+
+      <div class="body">
+        <div class="fields">
+          <div class="row"><span class="k">Report No.</span><span class="c">:</span><span class="v">SGTL2405180001</span></div>
+          <div class="row"><span class="k">Shapes / Cut</span><span class="c">:</span><span class="v">Oval Mixed Cut</span></div>
+          <div class="row"><span class="k">Carat</span><span class="c">:</span><span class="v">5.67 ct</span></div>
+          <div class="row"><span class="k">Clarity</span><span class="c">:</span><span class="v">Eye Clean</span></div>
+          <div class="row"><span class="k">Specimen Description</span><span class="c">:</span><span class="v">Natural Blue Sapphire</span></div>
+          <div class="row"><span class="k">Weight</span><span class="c">:</span><span class="v">6.23 Ratti</span></div>
+          <div class="row"><span class="k">Colour</span><span class="c">:</span><span class="v">Vivid Blue</span></div>
+          <div class="row"><span class="k">Refractive Index</span><span class="c">:</span><span class="v">1.762 &ndash; 1.770</span></div>
+          <div class="row"><span class="k">Optic Character</span><span class="c">:</span><span class="v">Doubly Refractive</span></div>
+          <div class="row"><span class="k">Specific Gravity</span><span class="c">:</span><span class="v">3.99</span></div>
+          <div class="row"><span class="k">Party Name</span><span class="c">:</span><span class="v">Shankar Jewellers</span></div>
+          <div class="row"><span class="k">Comments</span><span class="c">:</span><span class="v">Natural Inclusion(s) Pattern</span></div>
+        </div>
+
+        <div class="side" style="align-items:center;">
+          <div class="gem" style="width:208px;height:176px;"><div class="oval"></div></div>
+          <div class="gname" style="text-align:center;">Natural Blue Sapphire</div>
+          <div class="qr"><img src="assets/qr-sgtl.png" alt="Scan to verify SGTL2405180001"></div>
+          <div class="issued" style="text-align:center;"><div class="l">Issued Date</div><div class="d">18 May 2024</div></div>
+          <img class="sign" src="sign-design-v--mr9ex7e0.png" alt="Lab Director signature" style="width:146px;height:36px;object-fit:scale-down;display:block;margin-top:8px;">
+        </div>
+      </div>
+
+
+      <div class="ft">
+        <div class="it">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f0d69b" stroke-width="1.7"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="M3 7l9 6 9-6"/></svg>
+          sunilgems126@gmail.com
+        </div>
+        <div class="it">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#f0d69b" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg>
+          www.sgtlgemtesting.co.in
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== BACK ==================== -->
+  <div class="stage">
+    <div class="cap">Back <span>85.6 × 54 mm + 3 mm bleed</span></div>
+    <div class="card back">
+      <div class="crop h" style="top:35px;left:0;"></div><div class="crop v" style="top:0;left:35px;"></div>
+      <div class="crop h" style="top:35px;right:0;"></div><div class="crop v" style="top:0;right:35px;"></div>
+      <div class="crop h" style="bottom:35px;left:0;"></div><div class="crop v" style="bottom:0;left:35px;"></div>
+      <div class="crop h" style="bottom:35px;right:0;"></div><div class="crop v" style="bottom:0;right:35px;"></div>
+
+      <div class="hd">
+        <h1>SUNIL GEMS AND TESTING LABS</h1>
+        <div class="orn"></div>
+        <div class="sub">Authentic Gemology Report</div>
+      </div>
+
+      <div class="bbody">
+        <div class="tc-pill"><span class="di">◆</span> Terms &amp; Conditions <span class="di">◆</span></div>
+        <p class="tc-text">All SGTL Reports are printed on original paper with logo of SGTL. No corrections or alterations in any form shall be accepted for the SGTL Reports. The photographic image printed on the report may be different from its physical appearance. The results of the report can be differ from previous report if the same gemstone is re-examined. Neither SGTL nor its own employees will be held responsible for any loss and damage happens during the examination. This report is considered to be null and void, if in any case alterations are made either to the gemstone or to the report at any time after the report has been prepared.</p>
+        <div class="connect">Stay Connected With Us</div>
+        <div class="socials">
+          <a aria-label="Facebook"><svg viewBox="0 0 24 24"><path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.77-1.63 1.56V12h2.78l-.44 2.89h-2.34v6.99A10 10 0 0 0 22 12z"/></svg></a>
+          <a aria-label="Instagram"><svg viewBox="0 0 24 24"><path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41a3.7 3.7 0 0 1-1.38-.9 3.7 3.7 0 0 1-.9-1.38c-.16-.42-.36-1.06-.41-2.23C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.21 8.8 2.2 12 2.2zm0 1.8c-3.15 0-3.5.01-4.74.07-.9.04-1.38.19-1.71.32-.43.17-.74.37-1.06.69-.32.32-.52.63-.69 1.06-.13.33-.28.81-.32 1.71C3.21 8.5 3.2 8.85 3.2 12s.01 3.5.07 4.74c.04.9.19 1.38.32 1.71.17.43.37.74.69 1.06.32.32.63.52 1.06.69.33.13.81.28 1.71.32 1.24.06 1.59.07 4.74.07s3.5-.01 4.74-.07c.9-.04 1.38-.19 1.71-.32.43-.17.74-.37 1.06-.69.32-.32.52-.63.69-1.06.13-.33.28-.81.32-1.71.06-1.24.07-1.59.07-4.74s-.01-3.5-.07-4.74c-.04-.9-.19-1.38-.32-1.71a2.86 2.86 0 0 0-.69-1.06 2.86 2.86 0 0 0-1.06-.69c-.33-.13-.81-.28-1.71-.32C15.5 4.01 15.15 4 12 4zm0 3.06A4.94 4.94 0 1 1 12 16.94 4.94 4.94 0 0 1 12 7.06zm0 1.8A3.14 3.14 0 1 0 12 15.14 3.14 3.14 0 0 0 12 8.86zm5.14-3.24a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3z"/></svg></a>
+          <a aria-label="WhatsApp"><svg viewBox="0 0 24 24"><path d="M12.04 2c-5.5 0-9.96 4.46-9.96 9.96 0 1.76.46 3.48 1.34 5L2 22l5.16-1.35a9.9 9.9 0 0 0 4.88 1.24h.01c5.5 0 9.96-4.46 9.96-9.96S17.54 2 12.04 2zm0 18.13h-.01a8.2 8.2 0 0 1-4.18-1.14l-.3-.18-3.1.81.83-3.02-.2-.31a8.16 8.16 0 0 1-1.25-4.36c0-4.55 3.7-8.25 8.26-8.25a8.25 8.25 0 0 1 8.24 8.26c0 4.55-3.7 8.25-8.25 8.25zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.8-.79.97-.14.16-.29.18-.54.06a6.76 6.76 0 0 1-1.99-1.23 7.46 7.46 0 0 1-1.38-1.71c-.14-.25-.01-.38.11-.5.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.77-1.85-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01a.92.92 0 0 0-.67.31c-.23.25-.88.86-.88 2.1 0 1.24.9 2.43 1.03 2.6.12.16 1.77 2.71 4.3 3.8.6.26 1.07.42 1.44.53.6.2 1.15.17 1.59.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z"/></svg></a>
+        </div>
+        <img class="badge" src="badge-design-v2-mr9lepar.png" alt="Authentication badge" style="position:absolute;left:825px;top:361px;width:102px;height:102px;object-fit:cover;">
+      </div>
+
+      <div class="ft" style="justify-content:center;">
+        Authenticity guaranteed only with the embossed laboratory seal.
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== PRINT-SPEC PACKAGE ==================== -->
+  <div class="pkg">
+    <h2>Print specification &amp; production guide</h2>
+    <p class="lead">PVC report card — CR80 · production-ready for offset/digital PVC printing and lamination.</p>
+
+    <div class="grid">
+      <!-- specs -->
+      <div class="spec">
+        <div class="panel-title">Card specifications</div>
+        <div class="srow"><span class="sk">Card size</span><span class="sv">85.60 × 54.00 mm (CR80 / ID-1)</span></div>
+        <div class="srow"><span class="sk">With bleed</span><span class="sv">91.60 × 60.00 mm (3 mm all sides)</span></div>
+        <div class="srow"><span class="sk">Safe area</span><span class="sv">77.60 × 46.00 mm (4 mm inside trim)</span></div>
+        <div class="srow"><span class="sk">Corner radius</span><span class="sv">3.18 mm (rounded)</span></div>
+        <div class="srow"><span class="sk">Resolution</span><span class="sv">300 DPI (raster elements)</span></div>
+        <div class="srow"><span class="sk">Colour mode</span><span class="sv">CMYK — Coated FOGRA39</span></div>
+        <div class="srow"><span class="sk">QR size</span><span class="sv">20 × 20 mm min · 4 mm quiet zone</span></div>
+        <div class="srow"><span class="sk">Material</span><span class="sv">PVC / Teslin / Polycarbonate</span></div>
+        <div class="srow"><span class="sk">Finish</span><span class="sv">Gloss face · matte reverse (see notes)</span></div>
+        <div class="srow"><span class="sk">Export</span><span class="sv">PDF/X-1a · 300 DPI PNG · hi-res JPEG</span></div>
+      </div>
+
+      <!-- print guide diagram -->
+      <div>
+        <div class="panel-title">Print guide</div>
+        <div class="diagram">
+          <div class="bleedbox">
+            <span class="dimtag bleed">Bleed 91.60 × 60.00 mm</span>
+            <div class="trimbox">
+              <span class="dimtag trim">Trim 85.60 × 54.00 mm</span>
+              <div class="safebox"><span class="dimtag safe">Safe 77.60 × 46.00</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="legend">
+          <span><i style="border-color:#29a3c9;border-top-style:dashed;"></i> Bleed zone</span>
+          <span><i style="border-color:#1d2740;"></i> Trim line</span>
+          <span><i style="border-color:#d9534f;border-top-style:dashed;"></i> Safe zone</span>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+
+      <!-- swatches -->
+      <div class="full">
+        <div class="panel-title">Colour swatches (CMYK)</div>
+        <div class="swrow">
+          <div class="sw"><div class="chip" style="background:#0a1c48;"></div><div class="nm">Void Navy</div><div class="cm">C100 M92 Y42 K48</div><div class="hx">#0A1C48</div></div>
+          <div class="sw"><div class="chip" style="background:#d3a446;"></div><div class="nm">Auric Gold</div><div class="cm">C16 M35 Y82 K3</div><div class="hx">#D3A446</div></div>
+          <div class="sw"><div class="chip" style="background:#f0d69b;"></div><div class="nm">Soft Gold</div><div class="cm">C6 M14 Y44 K0</div><div class="hx">#F0D69B</div></div>
+          <div class="sw"><div class="chip" style="background:#ffffff;border-color:rgba(0,0,0,.14);"></div><div class="nm">Card White</div><div class="cm">C0 M0 Y0 K0</div><div class="hx">#FFFFFF</div></div>
+          <div class="sw"><div class="chip" style="background:#14213f;"></div><div class="nm">Text Ink</div><div class="cm">C92 M80 Y42 K44</div><div class="hx">#14213F</div></div>
+          <div class="sw"><div class="chip" style="background:#2f6fd6;"></div><div class="nm">Sapphire</div><div class="cm">C74 M48 Y0 K0</div><div class="hx">#2F6FD6</div></div>
+        </div>
+      </div>
+
+      <!-- typography + finishing -->
+      <div>
+        <div class="panel-title">Typography</div>
+        <div class="fontrow">
+          <b>Fraunces</b> (serif) — lab name, gem name, seal. 700.<br>
+          &nbsp;&nbsp;· Card title ≈ 14 pt · Gem name ≈ 5.5 pt<br>
+          <b>Inter</b> (sans) — all data, labels, T&amp;C, footer. 400–800.<br>
+          &nbsp;&nbsp;· Field label ≈ 5.3 pt (700, tracked)<br>
+          &nbsp;&nbsp;· Field value ≈ 5.3 pt (600)<br>
+          &nbsp;&nbsp;· T&amp;C body ≈ 5.5 pt · Footer ≈ 5.5 pt<br>
+          <b>Outline all type</b> for the final PDF/X-1a export.
+        </div>
+      </div>
+      <div>
+        <div class="panel-title">Finishing &amp; print notes</div>
+        <div class="notes">
+          · <b>Front:</b> gloss laminate; optional <b>spot-UV</b> on the gold seal, lab title &amp; card border.<br>
+          · <b>Back:</b> matte laminate for legible T&amp;C.<br>
+          · <b>Watermark:</b> SG monogram at <b>6–12%</b> — behind data, must not reduce legibility.<br>
+          · <b>Badge/seal:</b> optional gold-foil or emboss; keep clear of data.<br>
+          · <b>QR:</b> pure K (rich-black avoided) on white; preserve the 4 mm quiet zone; verify scan at final size.<br>
+          · <b>Registration:</b> crop marks sit in the 3 mm bleed; keep all critical art inside the safe zone.<br>
+          · <b>Gemstone photo</b> is a placeholder — drop the client's 300 DPI CMYK image into the frame.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
