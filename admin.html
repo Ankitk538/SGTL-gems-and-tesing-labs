@@ -1994,7 +1994,7 @@ body {
 .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
   border-color: var(--teal); background: #fff; box-shadow: 0 0 0 4px rgba(13,107,99,0.08);
 }
-.form-actions { gap: 10px; margin-top: 22px; }
+.form-actions { gap: 12px; margin-top: 28px; justify-content: center; }
 
 /* ── Buttons — teal primary CTA, gold secondary ── */
 .btn { border-radius: 10px; padding: 11px 18px; transition: transform .16s cubic-bezier(0.16,1,0.3,1), box-shadow .2s, filter .2s, background .2s, border-color .2s, color .2s; }
@@ -2020,9 +2020,9 @@ body {
 .search-box input:focus { border-color: var(--teal); box-shadow: 0 0 0 4px rgba(13,107,99,0.08); }
 .data-table th {
   background: var(--surface-2); color: var(--text-dim);
-  font-size: 10.5px; letter-spacing: .7px; padding: 13px 16px; border-bottom: 1px solid var(--border);
+  font-size: 10.5px; letter-spacing: .7px; padding: 8px 14px; border-bottom: 1px solid var(--border);
 }
-.data-table td { padding: 13px 16px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--line); }
+.data-table td { padding: 7px 14px; font-size: 13px; color: var(--text); border-bottom: 1px solid var(--line); }
 .data-table tbody tr { transition: background .14s; }
 .data-table tr:hover { background: var(--teal-light); }
 .table-footer { padding: 14px 20px; border-top: 1px solid var(--line); }
@@ -2340,7 +2340,7 @@ body {
   padding:20px 24px; background:#fff; border-radius:16px;
   box-shadow:0 1px 4px rgba(0,0,0,.06);
   align-items:center;
-  max-width:1100px; margin-left:auto; margin-right:auto;
+  max-width:1440px; margin-left:auto; margin-right:auto;
 }
 .print-export-bar .bar-title{
   font-size:14px; font-weight:700; color:var(--heading);
@@ -2360,8 +2360,9 @@ body {
 .export-btn.pdf-btn{background:linear-gradient(135deg,#c0392b,#e74c3c); color:#fff;}
 .export-btn.a4-btn{background:linear-gradient(135deg,#2563eb,#3b82f6); color:#fff;}
 
-.print-editor-grid{display:grid; grid-template-columns:1fr 360px; gap:24px; align-items:start; max-width:1100px; margin:0 auto;}
-@media(max-width:1100px){.print-editor-grid{grid-template-columns:1fr;}}
+.print-editor-grid{display:grid; grid-template-columns:1fr 1fr 340px; gap:24px; align-items:start; max-width:1440px; margin:0 auto;}
+@media(max-width:1280px){.print-editor-grid{grid-template-columns:1fr 1fr; } .print-editor-grid .print-a4-col{grid-column:1 / -1;}}
+@media(max-width:900px){.print-editor-grid{grid-template-columns:1fr;}}
 
 /* Live Preview Panel */
 .print-preview-col{
@@ -2378,11 +2379,10 @@ body {
 .print-card-frame:last-child{margin-bottom:0;}
 .print-card-scale{transform-origin:top left;}
 
-/* A4 Report separate section */
-.print-a4-section{
-  margin-top:32px; border-radius:16px; padding:32px 20px;
+/* A4 Report column */
+.print-a4-col{
+  border-radius:16px; padding:32px 20px;
   background:#f3f4f6; box-shadow:0 2px 12px rgba(0,0,0,.06);
-  max-width:1100px; margin-left:auto; margin-right:auto;
 }
 .print-a4-frame{
   display:flex; justify-content:center; overflow:visible; border-radius:6px;
@@ -2770,8 +2770,8 @@ body {
           <div id="customFieldsContainer"></div>
         </div>
         <div class="form-actions">
-          <button type="submit" id="certSubmitBtn" class="btn btn-primary" style="min-width:280px;">&#x1f512; Save, Issue & Download Certificate</button>
-          <button type="button" class="btn btn-outline" onclick="resetCertForm()">Clear Form</button>
+          <button type="submit" id="certSubmitBtn" class="btn btn-primary" style="min-width:160px;padding:12px 32px;font-size:15px;">&#x1f512; Save</button>
+          <button type="button" class="btn btn-outline" onclick="resetCertForm()" style="min-width:140px;padding:12px 28px;font-size:15px;">Clear Form</button>
         </div>
       </form>
     </div>
@@ -2782,11 +2782,14 @@ body {
         <div class="table-header">
           <h3>Certificates (<span id="dbTotal">0</span>)</h3>
           <div class="search-box">
-            <input type="text" id="dbSearch" placeholder="Search Report No..." onkeyup="handleSearch(event)">
-            <button class="btn btn-primary btn-sm" onclick="loadCertificates()">Search</button>
-            <button class="btn btn-outline btn-sm" onclick="document.getElementById('dbSearch').value='';loadCertificates()">Clear</button>
-            <button class="btn btn-outline btn-sm" onclick="repairMissingNumbers()">Repair No.</button>
+            <input type="text" id="dbSearch" placeholder="Search by name, stone, report..." oninput="handleSearch(event)" onkeyup="if(event.key==='Enter'){clearTimeout(_dbSearchTimer);dbPage=1;loadCertificates();}">
+            <button class="btn btn-outline btn-sm" onclick="document.getElementById('dbSearch').value='';dbPage=1;loadCertificates()">Clear</button>
           </div>
+        </div>
+        <div id="dbBulkBar" style="display:none;padding:8px 16px;background:rgba(13,107,99,0.06);border-bottom:1px solid var(--line);gap:10px;align-items:center;font-size:13px;">
+          <span id="dbSelectedCount" style="color:var(--text-dim);">0 selected</span>
+          <button class="btn btn-danger btn-sm" onclick="bulkDeleteSelected()" style="margin-left:8px;">Delete Selected</button>
+          <button class="btn btn-outline btn-sm" onclick="exportCSV()" style="margin-left:4px;">Export CSV</button>
         </div>
         <div class="table-container-scroll" style="position:relative;">
           <div class="table-loading-overlay" id="tableLoadingOverlay">
@@ -2835,6 +2838,8 @@ body {
               <option value="20" selected>20</option>
               <option value="50">50</option>
               <option value="100">100</option>
+              <option value="500">500</option>
+              <option value="1000">1000</option>
             </select>
           </div>
           <span id="dbPagination">Page 1</span>
@@ -3211,10 +3216,6 @@ body {
         <!-- Export Action Bar -->
         <div class="print-export-bar">
           <span class="bar-title">Export Options</span>
-          <button class="export-btn print-btn" onclick="printBothCards()" id="printBothBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-            Print Both
-          </button>
           <button class="export-btn png-btn" onclick="download4KPNG()" id="download4KBtn">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
             Download 4K PNG
@@ -3241,6 +3242,14 @@ body {
             <div class="print-preview-label">Back</div>
             <div class="print-card-frame" id="printBackFrame">
               <!-- Back card rendered here at scale via JS -->
+            </div>
+          </div>
+
+          <!-- Middle: A4 Report Preview -->
+          <div class="print-a4-col" id="printA4Section">
+            <div class="print-preview-label">A4 Report Preview</div>
+            <div class="print-a4-frame" id="printA4Frame">
+              <!-- A4 Gemstone Report rendered here at scale via JS -->
             </div>
           </div>
 
@@ -3315,13 +3324,7 @@ body {
           </div>
         </div>
 
-        <!-- ═══ A4 REPORT PREVIEW (separate section) ═══ -->
-        <div class="print-a4-section" id="printA4Section">
-          <div class="print-preview-label">A4 Report Preview</div>
-          <div class="print-a4-frame" id="printA4Frame">
-            <!-- A4 Gemstone Report rendered here at scale via JS -->
-          </div>
-        </div>
+        <!-- A4 Report Preview is now inside print-editor-grid above -->
 
       </div>
 
@@ -3330,7 +3333,7 @@ body {
       <iframe id="printPVCPreview" style="display:none;" src="about:blank"></iframe>
 
       <!-- Empty State -->
-      <div id="printEmptyState" class="eq-empty" style="padding:60px 20px;max-width:1100px;margin:0 auto;text-align:center;">
+      <div id="printEmptyState" class="eq-empty" style="padding:60px 20px;max-width:1440px;margin:0 auto;text-align:center;">
         <div class="eq-empty-icon">🖨️</div>
         <h4>Search for a report to print</h4>
         <p>Enter a Report Number above to preview and download the certificate as a PDF.</p>
@@ -3689,12 +3692,19 @@ async function tryRefresh() {
   return false;
 }
 
-function generateReportNo() {
+async function generateReportNo() {
+  try {
+    const data = await apiFetch("/certificates/next-report-id");
+    if (data && data.reportId) return data.reportId;
+  } catch (e) {
+    console.warn("Failed to fetch next report ID, using fallback:", e);
+  }
+  // Fallback: local generation if API fails
   const now = new Date();
-  const y = String(now.getFullYear()).slice(-2);
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const rand = Math.random().toString(36).substring(2, 8).toUpperCase();
-  return "SGTL-" + y + m + rand;
+  const yyyy = String(now.getFullYear());
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
+  return "SGTL-" + yyyy + "-" + mm + rand;
 }
 
 // ═══════════════════════════════════════
@@ -3907,7 +3917,7 @@ function showAdminPanel() {
   document.getElementById("adminApp").classList.add("active");
   // Set default date for cert form
   document.getElementById("certDate").valueAsDate = new Date();
-  document.getElementById("certReportNo").value = generateReportNo();
+  generateReportNo().then(function(id) { document.getElementById("certReportNo").value = id; });
   loadDashboard();
   // Start notification polling for new enquiries
   NotifManager.startPolling();
@@ -3968,17 +3978,26 @@ async function handleSaveIssueDownload(e) {
   const btn = document.getElementById("certSubmitBtn");
   const origHTML = btn.innerHTML;
 
-  // ── Validate ──
+  // ── Validate required fields ──
   const reportNo = document.getElementById("certReportNo").value.trim();
   const stoneName = document.getElementById("certStoneName").value.trim();
   if (!reportNo || !stoneName) {
     showToast("Report ID and Stone Name are required", "error");
+    // Highlight empty required fields
+    ["certReportNo", "certStoneName"].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el && !el.value.trim()) {
+        el.style.borderColor = "#ef4444";
+        el.style.boxShadow = "0 0 0 3px rgba(239,68,68,0.15)";
+        el.addEventListener("input", function handler() { el.style.borderColor = ""; el.style.boxShadow = ""; el.removeEventListener("input", handler); });
+      }
+    });
     return;
   }
 
   // ── Loading state ──
   btn.disabled = true;
-  btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px;"><span class="spinner-ring"></span> Processing & Generating PDF...</span>';
+  btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:8px;"><span class="spinner-ring"></span> Saving...</span>';
 
   try {
     // ── 1. Collect form data ──
@@ -4023,10 +4042,12 @@ async function handleSaveIssueDownload(e) {
 
     if (!data || data.error) {
       showToast(data?.error || "Failed to save certificate", "error");
+      // If duplicate report ID, auto-regenerate a new one
+      if (data?.error && data.error.includes("already exists")) {
+        generateReportNo().then(function(id) { document.getElementById("certReportNo").value = id; });
+      }
       return;
     }
-
-    showToast("Certificate saved! Generating PDF...", "success");
 
     // ── 2b. Upload gem image to Supabase Storage (async, non-blocking) ──
     if (_gemImageDataUrl && record["Report No."]) {
@@ -4051,40 +4072,10 @@ async function handleSaveIssueDownload(e) {
       })(record["Report No."], _gemImageDataUrl);
     }
 
-    // ── 3. Generate PVC card PDF ──
-    if (!window.jspdf) {
-      showToast("PDF library still loading. PDF will be available shortly.", "error");
-      return;
-    }
-
-    // Load a report QR. If the live generator is unavailable, use the bundled
-    // SGTL QR asset so the issued PDF never has a blank QR slot.
-    const qrDataUrl = await loadReportQrDataUrl(record["Report No."]);
-    if (!qrDataUrl) console.warn("[SGTL PDF] QR code failed to load — all services returned null for report:", record["Report No."]);
-    if (!_gemImageDataUrl) console.warn("[SGTL PDF] No gemstone image — user did not upload one or upload failed");
-
-    const { jsPDF } = window.jspdf;
-
-    // ── PDF 1: PVC Card (CR80: 85.6mm x 53.98mm landscape) ──
-    const CW = 85.6, CH = 53.98;
-    const pvcDoc = new jsPDF({ orientation: "landscape", unit: "mm", format: [CH, CW] });
-
-    // Page 1 — FRONT: Gemstone Identification Report
-    drawPVCFront(pvcDoc, CW, CH, record, qrDataUrl, _gemImageDataUrl);
-
-    // Page 2 — BACK: Terms & Conditions
-    pvcDoc.addPage([CH, CW], "landscape");
-    drawPVCBack(pvcDoc, CW, CH);
-
-    pvcDoc.save("SGTL_PVC_" + record["Report No."] + ".pdf");
-
-    // ── PDF 2: Gemstone Report (A4 portrait) ──
-    const reportDoc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-    drawGemstoneReport(reportDoc, 210, 297, record, qrDataUrl, _gemImageDataUrl);
-    reportDoc.save("SGTL_Report_" + record["Report No."] + ".pdf");
-
-    showToast("Certificate issued! PVC card & Report PDFs downloaded.", "success");
+    showToast("Certificate saved successfully!", "success");
     resetCertForm();
+    // Auto-redirect to Database page 1 to show newly created entry
+    setTimeout(function() { dbPage = 1; navigateTo("database"); loadCertificates(); }, 600);
 
   } catch(err) {
     console.error("Certificate error:", err);
@@ -4097,7 +4088,7 @@ async function handleSaveIssueDownload(e) {
 
 function resetCertForm() {
   document.getElementById("certForm").reset();
-  document.getElementById("certReportNo").value = generateReportNo();
+  generateReportNo().then(function(id) { document.getElementById("certReportNo").value = id; });
   document.getElementById("certDate").valueAsDate = new Date();
   document.getElementById("customFieldsContainer").innerHTML = "";
   // Reset image preview
@@ -4757,8 +4748,8 @@ async function loadCertificates() {
   const tbody = document.getElementById("dbTableBody");
 
   if (!data.data || data.data.length === 0) {
-    document.getElementById("dbTableHead").innerHTML = '<th>Report No.</th><th>Actions</th>';
-    tbody.innerHTML = '<tr><td colspan="2" style="text-align:center;color:var(--text-dim);padding:30px;">No certificates found</td></tr>';
+    document.getElementById("dbTableHead").innerHTML = '<th style="width:36px;"></th><th>Report No.</th><th>Actions</th>';
+    tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--text-dim);padding:30px;">No certificates found</td></tr>';
     return;
   }
 
@@ -4769,6 +4760,7 @@ async function loadCertificates() {
   ];
 
   document.getElementById("dbTableHead").innerHTML = `
+    <th style="width:36px;"><input type="checkbox" id="dbSelectAll" onchange="toggleSelectAll(this)" title="Select All"></th>
     ${columns.map((col, i) => `<th data-column="${i}" style="cursor:pointer;" onclick="tableSortEngine(${i})"><div class="header-content"><span>${escapeHtml(col)}</span><span class="sort-trigger">↕</span></div></th>`).join("")}
     <th>Actions</th>
   `;
@@ -4777,6 +4769,7 @@ async function loadCertificates() {
     const reportNo = cert["Report No."] || "";
     return `
     <tr>
+      <td><input type="checkbox" class="db-row-check" value="${escapeHtml(reportNo)}" onchange="updateBulkBar()"></td>
       ${columns.map(col => {
         let value = cert[col];
         if (col === "Date" && value) value = fmtDate(value);
@@ -4791,6 +4784,7 @@ async function loadCertificates() {
     </tr>
   `;
   }).join("");
+  updateBulkBar();
 
   // Upgraded Pagination & Ellipses Construction
   const totalPages = Math.ceil((data.total || 0) / dbLimit);
@@ -4839,8 +4833,69 @@ function changeDbLimit(newLimit) {
   loadCertificates();
 }
 
+var _dbSearchTimer = null;
 function handleSearch(e) {
-  if (e.key === "Enter") { dbPage = 1; loadCertificates(); }
+  clearTimeout(_dbSearchTimer);
+  if (e && e.key === "Enter") { dbPage = 1; loadCertificates(); return; }
+  _dbSearchTimer = setTimeout(function() { dbPage = 1; loadCertificates(); }, 300);
+}
+
+function toggleSelectAll(el) {
+  document.querySelectorAll(".db-row-check").forEach(function(cb) { cb.checked = el.checked; });
+  updateBulkBar();
+}
+
+function updateBulkBar() {
+  var checked = document.querySelectorAll(".db-row-check:checked");
+  var bar = document.getElementById("dbBulkBar");
+  if (checked.length > 0) {
+    bar.style.display = "flex";
+    document.getElementById("dbSelectedCount").textContent = checked.length + " selected";
+  } else {
+    bar.style.display = "none";
+  }
+  // Sync Select All checkbox
+  var all = document.querySelectorAll(".db-row-check");
+  var selectAll = document.getElementById("dbSelectAll");
+  if (selectAll) selectAll.checked = all.length > 0 && checked.length === all.length;
+}
+
+async function bulkDeleteSelected() {
+  var checked = document.querySelectorAll(".db-row-check:checked");
+  if (checked.length === 0) { showToast("No certificates selected", "error"); return; }
+  if (!confirm("Delete " + checked.length + " certificate(s)? This cannot be undone.")) return;
+  var failed = 0;
+  for (var i = 0; i < checked.length; i++) {
+    var rn = checked[i].value;
+    var res = await apiFetch("/certificate/" + encodeURIComponent(rn), { method: "DELETE" });
+    if (!res || res.error) failed++;
+  }
+  if (failed > 0) showToast(failed + " deletion(s) failed", "error");
+  else showToast(checked.length + " certificate(s) deleted", "success");
+  loadCertificates();
+}
+
+async function exportCSV() {
+  showTableLoading(true);
+  var data = await apiFetch("/certificates/all?page=1&limit=99999");
+  showTableLoading(false);
+  if (!data || !data.data || data.data.length === 0) { showToast("No data to export", "error"); return; }
+  var rows = data.data;
+  var cols = Object.keys(rows[0]).filter(function(k) { return k !== "id" && k !== "gem_image_base64" && k !== "gem_image_url"; });
+  var csvContent = cols.map(function(c) { return '"' + c.replace(/"/g, '""') + '"'; }).join(",") + "\n";
+  rows.forEach(function(row) {
+    csvContent += cols.map(function(c) {
+      var v = row[c];
+      if (v === null || v === undefined) v = "";
+      return '"' + String(v).replace(/"/g, '""') + '"';
+    }).join(",") + "\n";
+  });
+  var blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  var link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "SGTL_Certificates_" + new Date().toISOString().slice(0,10) + ".csv";
+  link.click();
+  showToast("CSV exported successfully", "success");
 }
 
 async function repairMissingNumbers() {
@@ -5746,7 +5801,7 @@ async function printGeneratePreview(record) {
 async function printGeneratePDF(type) {
   if (!printReportData) { showToast("No report loaded", "error"); return; }
 
-  var btnId = type === "report" ? "printReportBtn" : type === "pvc" ? "printPVCBtn" : "printBothBtn";
+  var btnId = type === "report" ? "printReportBtn" : "printPVCBtn";
   var btn = document.getElementById(btnId);
   var origHTML = btn.innerHTML;
   btn.disabled = true;
@@ -6068,8 +6123,9 @@ function renderLivePreview(record) {
 
   var a4Src = document.getElementById("gemReportTpl").firstElementChild;
   var a4Frame = document.getElementById("printA4Frame");
-  // A4 template is 794×1123px — scale to fit preview column (~520px wide → 0.66)
-  var a4sc = 0.66;
+  // A4 template is 794×1123px — scale to fit column dynamically
+  var a4ColW = a4Frame.parentElement.clientWidth - 40; // subtract padding
+  var a4sc = Math.min(a4ColW / 794, 0.66);
   var a4mR = Math.round(-794 * (1 - a4sc));
   var a4mB = Math.round(-1123 * (1 - a4sc));
   var a4ScaleStyle = "display:inline-block;transform-origin:top left;transform:scale(" + a4sc + ");margin-right:" + a4mR + "px;margin-bottom:" + a4mB + "px;";
@@ -6196,36 +6252,7 @@ function handlePrintGemUpload(inputEl) {
   inputEl.value = "";
 }
 
-function printBothCards() {
-  if (!printReportData) { showToast("No report loaded", "error"); return; }
-  // Ensure offscreen cards are populated with latest editor data
-  var r = buildRecordFromEditor();
-  populateNewPvcFront(r);
-  if (r._localGemImage) {
-    var gemBox = document.getElementById("newPvcGemBox");
-    gemBox.innerHTML = '<img src="' + r._localGemImage + '" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Gemstone">';
-  }
-  // Make offscreen cards briefly visible for printing
-  var wrap = document.getElementById("newPvcCardWrap");
-  wrap.style.position = "fixed";
-  wrap.style.left = "0";
-  wrap.style.top = "0";
-  wrap.style.zIndex = "99999";
-  wrap.style.opacity = "1";
-  wrap.style.background = "#fff";
-
-  window.print();
-
-  // Restore hidden state after print dialog closes
-  setTimeout(function() {
-    wrap.style.position = "absolute";
-    wrap.style.left = "-9999px";
-    wrap.style.top = "-9999px";
-    wrap.style.zIndex = "";
-    wrap.style.opacity = "";
-    wrap.style.background = "";
-  }, 1000);
-}
+/* printBothCards removed — button no longer exists */
 
 async function download4KPNG() {
   if (!printReportData) { showToast("No report loaded", "error"); return; }

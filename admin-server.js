@@ -274,7 +274,7 @@ async function processGmailReply(parsed, results) {
       .from("enquiries")
       .select("*")
       .eq("thread_id", toAddr)
-      .order("id", { ascending: false })
+      .order("No.", { ascending: false })
       .limit(10);
 
     if (error || !matches || matches.length === 0) {
@@ -980,6 +980,17 @@ app.post("/certificate/create", authMiddleware, async (req, res) => {
     }
 
     const db = adminDbClient(req);
+
+    // Duplicate prevention — check if Report No. already exists
+    const { data: existing } = await db
+      .from("sgtl_database")
+      .select('"Report No."')
+      .eq('"Report No."', record["Report No."])
+      .limit(1);
+    if (existing && existing.length > 0) {
+      return res.status(409).json({ error: `Report No. ${record["Report No."]} already exists. Please refresh and try again.` });
+    }
+
     if (!record["No."]) {
       const nextNo = await getNextCertificateNo(db);
       record["No."] = nextNo || Date.now();
@@ -1042,25 +1053,44 @@ app.get("/certificate/:reportNo", authMiddleware, async (req, res) => {
 app.get("/certificates/search", authMiddleware, async (req, res) => {
   try {
     const { q, page = 1, limit = 20 } = req.query;
-    const offset = (page - 1) * limit;
+    const searchTerm = String(q || "").trim().toLowerCase();
+    const pg = parseInt(page);
+    const lim = parseInt(limit);
 
-    let query = adminDbClient(req)
-      .from("sgtl_database")
-      .select("*", { count: "exact" })
-      .range(offset, offset + parseInt(limit) - 1);
+    if (!searchTerm) {
+      // No search term — fall through to /certificates/all behaviour
+      const offset = (pg - 1) * lim;
+      const { data, error, count } = await adminDbClient(req)
+        .from("sgtl_database")
+        .select("*", { count: "exact" })
+        .order('"No."', { ascending: false })
+        .range(offset, offset + lim - 1);
 
-    if (q) {
-      // Search by Report No. (unencrypted field)
-      query = query.ilike('"Report No."', `%${String(q).trim().toUpperCase().replace(/\s+/g, "")}%`);
+      if (error) return res.status(400).json({ error: error.message });
+      const decryptedData = (data || []).map(decryptRecord);
+      return res.json({ data: decryptedData, total: count, page: pg, limit: lim });
     }
 
-    const { data, error, count } = await query;
+    // Global search: fetch all, decrypt, filter in memory (fields are encrypted)
+    const { data, error } = await adminDbClient(req)
+      .from("sgtl_database")
+      .select("*")
+      .order('"No."', { ascending: false });
+
     if (error) return res.status(400).json({ error: error.message });
 
-    const decryptedData = (data || []).map(decryptRecord);
-    logAudit("CERTIFICATES_SEARCHED", req.user.email, { query: q, results: decryptedData.length });
+    const decryptedAll = (data || []).map(decryptRecord);
+    const searchFields = ["Report No.", "Party Name", "Stone Name", "Colour", "Shapes", "Cut", "Origin", "Comment", "Weight"];
+    const filtered = decryptedAll.filter(row =>
+      searchFields.some(f => row[f] && String(row[f]).toLowerCase().includes(searchTerm))
+    );
 
-    res.json({ data: decryptedData, total: count, page: parseInt(page), limit: parseInt(limit) });
+    const total = filtered.length;
+    const offset = (pg - 1) * lim;
+    const paged = filtered.slice(offset, offset + lim);
+
+    logAudit("CERTIFICATES_SEARCHED", req.user.email, { query: q, results: total });
+    res.json({ data: paged, total, page: pg, limit: lim });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -1075,13 +1105,47 @@ app.get("/certificates/all", authMiddleware, async (req, res) => {
     const { data, error, count } = await adminDbClient(req)
       .from("sgtl_database")
       .select("*", { count: "exact" })
-      .order("Date", { ascending: false })
+      .order('"No."', { ascending: false })
       .range(offset, offset + parseInt(limit) - 1);
 
     if (error) return res.status(400).json({ error: error.message });
 
     const decryptedData = (data || []).map(decryptRecord);
     res.json({ data: decryptedData, total: count, page: parseInt(page), limit: parseInt(limit) });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// GET /certificates/next-report-id — returns next SGTL-YYYY-MMXXX id for current month
+app.get("/certificates/next-report-id", authMiddleware, async (req, res) => {
+  try {
+    const now = new Date();
+    const yyyy = String(now.getFullYear());
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const prefix = `SGTL-${yyyy}-${mm}`;
+
+    // Find the highest sequence number for this month
+    const { data, error } = await adminDbClient(req)
+      .from("sgtl_database")
+      .select('"Report No."')
+      .ilike('"Report No."', `${prefix}%`)
+      .order('"Report No."', { ascending: false })
+      .limit(1);
+
+    if (error) return res.status(400).json({ error: error.message });
+
+    let nextSeq = 1;
+    if (data && data.length > 0) {
+      const lastId = data[0]["Report No."];
+      // Extract the 3-digit sequence from SGTL-YYYY-MMXXX
+      const seqStr = lastId.substring(prefix.length);
+      const seqNum = parseInt(seqStr, 10);
+      if (!isNaN(seqNum)) nextSeq = seqNum + 1;
+    }
+
+    const seq = String(nextSeq).padStart(3, "0");
+    res.json({ reportId: `${prefix}${seq}`, sequence: nextSeq });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
