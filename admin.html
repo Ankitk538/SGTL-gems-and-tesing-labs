@@ -3110,15 +3110,15 @@ body {
       <div style="font-family:'Inter',sans-serif;font-size:12px;font-weight:600;letter-spacing:0.26em;text-transform:uppercase;color:#5a6470;margin-top:8px;">Of Gemstone Identification</div>
     </div>
     <div style="display:flex;gap:32px;margin-top:36px;">
-      <div id="gemReportFields" style="flex:1.3;display:grid;grid-template-columns:auto 1fr;align-content:start;">
+      <div id="gemReportFields" style="flex:1.3;display:grid;grid-template-columns:auto 1fr;align-items:center;align-content:start;">
         <!-- Data rows populated by JS -->
       </div>
       <div style="width:208px;flex:none;display:flex;flex-direction:column;align-items:center;">
-        <div id="gemReportImageBox" style="width:200px;height:178px;border:1.5px solid #1c2b52;background:rgba(255,255,255,0.5);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;overflow:hidden;">
+        <div id="gemReportImageBox" style="width:200px;height:178px;border:none;background:rgba(255,255,255,0.5);position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;overflow:hidden;">
           <svg width="52" height="52" viewBox="0 0 64 64" fill="none" stroke="#1c2b52" stroke-width="1.5" stroke-linejoin="round"><path d="M14 26 L24 13 L40 13 L50 26 L32 53 Z"/><path d="M14 26 L50 26"/><path d="M24 13 L28 26 L32 53"/><path d="M40 13 L36 26 L32 53"/></svg>
           <span style="font-family:'Inter',sans-serif;font-size:9px;font-weight:600;letter-spacing:0.16em;text-transform:uppercase;color:#5a6470;">Specimen image</span>
         </div>
-        <div id="gemReportStoneName" style="font-family:'Fraunces',serif;font-size:21px;font-weight:600;color:#1c2b52;margin-top:12px;">—</div>
+        <div id="gemReportStoneName" style="font-family:'Fraunces',serif;font-size:21px;font-weight:600;color:#1c2b52;margin-top:5px;text-align:center;">—</div>
         <div id="gemReportQrBox" style="position:relative;width:96px;height:96px;margin-top:14px;"><img id="gemReportQrImg" src="" alt="Verification QR" style="width:100%;height:100%;display:block;"><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:24px;height:24px;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 3px #fff;"><img src="assets/SG_logo.png" alt="" style="width:20px;height:20px;object-fit:contain;"></div></div>
         <div style="font-family:'Inter',sans-serif;font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#5a6470;margin-top:8px;">Scan to verify</div>
         <div id="gemReportIssuedDate" style="font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#5a6470;margin-top:4px;">—</div>
@@ -4567,16 +4567,18 @@ function drawGemstoneReport(doc, W, H, r, qrDataUrl, gemImageDataUrl) {
   var rightW = cW - gridW - 10;
   var labelColW = 38;
   var fields = [
-    { label: "REPORT NO",        val: r["Report No."] || "" },
-    { label: "WEIGHT",           val: r["Weight"] ? r["Weight"] + (r["Weight Type"] === "Ratti" ? " Ratti" : " ct") : "" },
-    { label: "SHAPE / CUT",      val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" ") || "" },
-    { label: "OPTIC CHARACTER",  val: r["Optic Character"] || "" },
-    { label: "COLOUR",           val: r["Colour"] || "" },
-    { label: "REFRACTIVE INDEX", val: r["Refractive Index"] || "" },
-    { label: "SPECIFIC GRAVITY", val: r["Specific Gravity"] || "" },
-    { label: "STONE NAME",       val: r["Stone Name"] || "" },
-    { label: "JEWELLER",         val: r["Party Name"] || r["Jeweller"] || "" },
-    { label: "COMMENTS",         val: r["Comment"] || r["Magnification"] || "" }
+    { label: "REPORT NO",              val: r["Report No."] || "" },
+    { label: "SPECIMEN DESCRIPTION",   val: r["Stone Name"] || "" },
+    { label: "WEIGHT",                 val: r["Weight"] ? r["Weight"] + (r["Weight Type"] === "Ratti" ? " Ratti" : " ct") : "" },
+    { label: "SHAPES / CUT",           val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" ") || "" },
+    { label: "COLOUR",                 val: r["Colour"] || "" },
+    { label: "CLARITY",                val: r["Clarity"] || "" },
+    { label: "CARAT",                  val: r["Carat"] ? (r["Carat"] + " ct") : "" },
+    { label: "REFRACTIVE INDEX",       val: r["Refractive Index"] || "" },
+    { label: "OPTIC CHARACTER",        val: r["Optic Character"] || "" },
+    { label: "SPECIFIC GRAVITY",       val: r["Specific Gravity"] || "" },
+    { label: "PARTY NAME",             val: r["Party Name"] || r["Jeweller"] || "" },
+    { label: "COMMENTS",               val: r["Comment"] || r["Magnification"] || "" }
   ];
   var rowH = 7.5;
 
@@ -5662,24 +5664,26 @@ function populatePVCFront(r, qrDataUrl, gemImageDataUrl) {
 function populateGemReport(r, qrDataUrl, gemImageDataUrl) {
   // Build field rows matching new certificate template design (data-field grid)
   var fields = [
-    { label: "Report No",        val: r["Report No."] || "", mono: true },
-    { label: "Stone Name",       val: r["Stone Name"] || "" },
-    { label: "Weight",           val: r["Weight"] ? r["Weight"] + " " + (r["Weight Type"] || "Ratti") : "" , mono: true },
-    { label: "Shape / Cut",      val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" ") || "" },
-    { label: "Colour",           val: r["Colour"] || "" },
-    { label: "Refractive Index", val: r["Refractive Index"] || "", mono: true },
-    { label: "Specific Gravity", val: r["Specific Gravity"] || "", mono: true },
-    { label: "Optic Character",  val: r["Optic Character"] || "" },
-    { label: "Origin",           val: r["Origin"] || "Natural" },
-    { label: "Comment",          val: r["Comment"] || r["Magnification"] || "" }
+    { label: "Report No",              val: r["Report No."] || "", mono: true },
+    { label: "Specimen Description",   val: r["Stone Name"] || "" },
+    { label: "Weight",                 val: r["Weight"] ? r["Weight"] + " " + (r["Weight Type"] || "Ratti") : "", mono: true },
+    { label: "Shapes / Cut",           val: [r["Shapes"], r["Cut"]].filter(Boolean).join(" ") || "" },
+    { label: "Colour",                 val: r["Colour"] || "" },
+    { label: "Clarity",                val: r["Clarity"] || "" },
+    { label: "Carat",                  val: r["Carat"] ? (r["Carat"] + " ct") : "" },
+    { label: "Refractive Index",       val: r["Refractive Index"] || "", mono: true },
+    { label: "Optic Character",        val: r["Optic Character"] || "" },
+    { label: "Specific Gravity",       val: r["Specific Gravity"] || "", mono: true },
+    { label: "Party Name",             val: r["Party Name"] || r["Jeweller"] || "" },
+    { label: "Comments",               val: r["Comment"] || r["Magnification"] || "" }
   ];
 
   var sep = '<div style="grid-column:1/-1;height:1px;background:rgba(28,43,82,0.18);"></div>';
   var fieldsHtml = sep;
   fields.forEach(function(f) {
-    var valStyle = "font-family:'IBM Plex Mono',monospace;font-size:13.5px;color:#1c2b52;padding:8.5px 0;text-align:right;";
+    var valStyle = "font-family:'IBM Plex Mono',monospace;font-size:13.5px;line-height:1.5;color:#1c2b52;padding:8.5px 0;text-align:right;";
     if (f.mono) valStyle += "font-variant-numeric:tabular-nums;";
-    fieldsHtml += '<div style="font-family:\'Inter\',sans-serif;font-size:10px;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:#5a6470;padding:8.5px 20px 8.5px 4px;">' + escHtml(f.label) + '</div>';
+    fieldsHtml += '<div style="font-family:\'Inter\',sans-serif;font-size:13.5px;line-height:1.5;font-weight:700;letter-spacing:0.13em;text-transform:uppercase;color:#5a6470;padding:8.5px 20px 8.5px 4px;">' + escHtml(f.label) + '</div>';
     fieldsHtml += '<div data-field="' + escHtml(f.label) + '" style="' + valStyle + '">' + escHtml(f.val) + '</div>';
     fieldsHtml += sep;
   });
