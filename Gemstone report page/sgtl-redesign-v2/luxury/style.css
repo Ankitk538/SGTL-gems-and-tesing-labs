@@ -1,0 +1,109 @@
+/* Hallmark · macrostructure: Editorial · tone: luxury/editorial · anchor hue: emerald+gold
+ * pre-emit critique: P5 H4 E4 S4 R5 V5 · states covered · contrast pass */
+
+:root {
+  --paper:      oklch(97.5% 0.010 92);
+  --paper-2:    oklch(94.5% 0.014 92);
+  --ink:        oklch(26% 0.020 150);
+  --ink-soft:   oklch(42% 0.020 150);
+  --emerald:    oklch(46% 0.090 158);
+  --emerald-d:  oklch(34% 0.070 158);
+  --gold:       oklch(66% 0.110 78);
+  --line:       oklch(84% 0.014 92);
+
+  --serif: "Cormorant Garamond", Georgia, serif;
+  --sans:  "Inter", system-ui, sans-serif;
+
+  --sp-1: .5rem; --sp-2: 1rem; --sp-3: 1.75rem; --sp-4: 3rem; --sp-5: 5.5rem;
+  --measure: 62ch;
+  --ease: cubic-bezier(.2,.7,.3,1);
+}
+
+* { box-sizing: border-box; }
+html, body { overflow-x: clip; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font-family: var(--sans); font-size: 17px; line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+img { max-width: 100%; display: block; }
+a { color: var(--emerald-d); text-underline-offset: 3px; }
+
+.wrap { width: min(100% - 2.5rem, 1100px); margin-inline: auto; }
+.rule { border: 0; border-top: 1px solid var(--line); margin: 0; }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 500; font-style: normal; line-height: 1.05; letter-spacing: -.01em; margin: 0; overflow-wrap: anywhere; }
+
+/* ---- masthead nav ---- */
+.mast { text-align: center; padding: var(--sp-3) 0 var(--sp-2); }
+.mast a.brand { font-family: var(--serif); font-size: 2rem; letter-spacing: .18em; color: var(--ink); text-decoration: none; font-weight: 600; }
+.mast .tag { font-size: .72rem; letter-spacing: .34em; text-transform: uppercase; color: var(--ink-soft); margin-top: .35rem; }
+.nav { display: flex; gap: var(--sp-3); justify-content: center; flex-wrap: wrap; padding: var(--sp-2) 0; font-size: .8rem; letter-spacing: .12em; text-transform: uppercase; }
+.nav a { color: var(--ink-soft); text-decoration: none; transition: color .18s var(--ease); }
+.nav a:hover, .nav a[aria-current="page"] { color: var(--emerald-d); }
+.nav a:focus-visible { outline: 2px solid var(--emerald); outline-offset: 4px; border-radius: 2px; }
+
+/* ---- hero ---- */
+.hero { padding: var(--sp-5) 0 var(--sp-4); }
+.hero .eyebrow { font-size: .78rem; letter-spacing: .3em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+.hero h1 { font-size: clamp(2.8rem, 8vw, 6rem); margin: var(--sp-2) 0; max-width: 16ch; }
+.hero p { max-width: var(--measure); color: var(--ink-soft); font-size: 1.15rem; }
+.hero .em { color: var(--emerald-d); }
+
+/* ---- buttons ---- */
+.btn { display: inline-block; font-family: var(--sans); font-size: .85rem; letter-spacing: .1em; text-transform: uppercase; padding: .85rem 1.8rem; text-decoration: none; border: 1px solid var(--emerald-d); color: var(--emerald-d); background: transparent; cursor: pointer; transition: background .2s var(--ease), color .2s var(--ease); }
+.btn:hover { background: var(--emerald-d); color: var(--paper); }
+.btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+.btn-solid { background: var(--emerald-d); color: var(--paper); }
+.btn-solid:hover { background: var(--ink); border-color: var(--ink); }
+.actions { display: flex; gap: var(--sp-2); flex-wrap: wrap; margin-top: var(--sp-3); }
+
+/* ---- editorial sections ---- */
+section { padding: var(--sp-5) 0; }
+.lead { display: grid; grid-template-columns: 1fr 2fr; gap: var(--sp-4); align-items: start; }
+.lead h2 { font-size: clamp(1.8rem, 4vw, 2.8rem); }
+.lead .kicker { font-size: .74rem; letter-spacing: .28em; text-transform: uppercase; color: var(--gold); font-weight: 600; }
+.prose p { max-width: var(--measure); color: var(--ink-soft); }
+.prose p + p { margin-top: var(--sp-2); }
+
+/* ---- services list ---- */
+.svc { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 0; border-top: 1px solid var(--line); }
+.svc article { padding: var(--sp-3) var(--sp-3) var(--sp-3) 0; border-bottom: 1px solid var(--line); }
+.svc article:nth-child(odd) { padding-right: var(--sp-3); border-right: 1px solid var(--line); }
+.svc article:nth-child(even) { padding-left: var(--sp-3); }
+.svc .no { font-family: var(--serif); font-size: 1rem; color: var(--gold); }
+.svc h3 { font-size: 1.5rem; margin: .4rem 0 .6rem; }
+.svc p { color: var(--ink-soft); font-size: .96rem; margin: 0; }
+
+/* ---- feature band ---- */
+.band { background: var(--emerald-d); color: var(--paper); }
+.band .wrap { padding: var(--sp-5) 0; }
+.band h2 { color: var(--paper); font-size: clamp(2rem, 5vw, 3.4rem); max-width: 20ch; }
+.band p { color: oklch(90% 0.03 158); max-width: var(--measure); margin-top: var(--sp-2); }
+.band .btn { border-color: var(--gold); color: var(--gold); }
+.band .btn:hover { background: var(--gold); color: var(--emerald-d); }
+
+/* ---- verify card ---- */
+.verify { max-width: 640px; }
+.verify h2 { font-size: clamp(1.8rem, 4vw, 2.6rem); }
+.field { display: flex; gap: var(--sp-1); margin-top: var(--sp-3); flex-wrap: wrap; }
+.field input { flex: 1 1 240px; font-family: var(--sans); font-size: 1rem; padding: .85rem 1rem; border: 1px solid var(--line); background: var(--paper); color: var(--ink); }
+.field input:focus-visible { outline: 2px solid var(--emerald); outline-offset: 1px; border-color: var(--emerald); }
+#result { margin-top: var(--sp-2); font-size: .95rem; color: var(--ink-soft); min-height: 1.4em; }
+
+/* ---- footer ---- */
+footer { border-top: 1px solid var(--line); padding: var(--sp-4) 0 var(--sp-3); }
+footer .grid { display: flex; justify-content: space-between; gap: var(--sp-3); flex-wrap: wrap; align-items: baseline; }
+footer .brand { font-family: var(--serif); font-size: 1.5rem; letter-spacing: .16em; }
+footer .links { display: flex; gap: var(--sp-3); flex-wrap: wrap; font-size: .85rem; }
+footer a { color: var(--ink-soft); text-decoration: none; }
+footer a:hover { color: var(--emerald-d); }
+footer small { display: block; color: var(--ink-soft); margin-top: var(--sp-3); font-size: .78rem; }
+
+@media (max-width: 720px) {
+  .lead { grid-template-columns: 1fr; gap: var(--sp-2); }
+  .svc { grid-template-columns: 1fr; }
+  .svc article, .svc article:nth-child(odd) { padding: var(--sp-3) 0; border-right: 0; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto; } }

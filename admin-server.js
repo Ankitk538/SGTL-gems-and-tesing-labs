@@ -612,6 +612,7 @@ app.use((req, res, next) => {
 
   const blockedStaticFiles = new Set([
     "/admin-server.js",
+    "/generate-report.js",
     "/server.js",
     "/load-env.js",
     "/package.json",
@@ -733,6 +734,10 @@ app.get("/verify/:reportNo", verifyLimiter, async (req, res) => {
       }
     }
 
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+    res.set("Surrogate-Control", "no-store");
     res.json({ data: decrypted });
   } catch (e) {
     console.error("[Verify Error]", e.message);
@@ -1765,6 +1770,11 @@ app.post("/database/repair-missing-numbers", authMiddleware, async (req, res) =>
     res.status(500).json({ error: e.message });
   }
 });
+
+// ═══════════════════════════════════════
+// Server-side PDF report generation
+// ═══════════════════════════════════════
+require("./generate-report")(app, { authMiddleware, adminDbClient, supabaseAdmin, decryptRecord, normalizeReportNo, logAudit });
 
 // ═══════════════════════════════════════
 // SERVE ADMIN PANEL

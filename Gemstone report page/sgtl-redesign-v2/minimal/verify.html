@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verify a Report — SGTL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="pill">
+  <a class="brand" href="index.html">SGTL</a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="about.html">About</a>
+  </nav>
+  <a class="cta" href="verify.html" aria-current="page">Verify</a>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="verify">
+      <span class="chip">Report verification</span>
+      <h1>Enter a <span class="g">report number.</span></h1>
+      <p>Confirm a report was issued by SGTL and see the identification on record. Try <strong>SGTL-2024-0817</strong>.</p>
+      <form class="field" id="verify-form">
+        <label for="rep" style="position:absolute;left:-9999px">Report number</label>
+        <input id="rep" name="rep" type="text" autocomplete="off" placeholder="SGTL-YYYY-NNNN">
+        <button class="btn btn-solid" type="submit">Verify</button>
+      </form>
+      <p id="result" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="brand">SGTL</div>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="services.html">Services</a>
+    <a href="about.html">About</a>
+    <a href="../index.html">Other designs</a>
+  </nav>
+  <small>Sample lookup for demonstration. In production this reads from the SGTL report database.</small>
+</footer>
+<script src="../verify.js"></script>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SGTL Redesign — Three Variants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:oklch(24% .02 280); --soft:oklch(48% .015 280); --paper:oklch(98.5% .004 280); --line:oklch(90% .008 280); }
+  *{box-sizing:border-box} html,body{overflow-x:clip}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif;line-height:1.6}
+  .wrap{width:min(100% - 2rem,960px);margin:0 auto;padding:4rem 0}
+  h1{font-size:clamp(2.2rem,6vw,3.6rem);letter-spacing:-.03em;margin:0 0 .5rem}
+  .sub{color:var(--soft);max-width:56ch;margin:0 0 3rem}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+  a.card{display:block;text-decoration:none;color:inherit;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff;transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .18s}
+  a.card:hover{transform:translateY(-4px);box-shadow:0 14px 36px oklch(24% .02 280 / .1)}
+  a.card:focus-visible{outline:2px solid oklch(52% .19 300);outline-offset:3px}
+  .swatch{height:120px;display:flex;align-items:flex-end;padding:1rem;font-weight:800;font-size:1.5rem;letter-spacing:-.02em}
+  .s1{background:oklch(97.5% .01 92);color:oklch(34% .07 158);font-family:"Cormorant Garamond",Georgia,serif}
+  .s2{background:oklch(98.5% .003 250);color:oklch(38% .15 260);font-family:"Space Grotesk",sans-serif}
+  .s3{background:oklch(99% .004 300);color:oklch(44% .18 300)}
+  .body{padding:1.2rem}
+  .body h2{font-size:1.15rem;margin:0 0 .3rem}
+  .body p{color:var(--soft);font-size:.9rem;margin:0}
+  .tag{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--soft)}
+  footer{color:var(--soft);font-size:.85rem;margin-top:3rem;border-top:1px solid var(--line);padding-top:1.5rem}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <p class="tag">SGTL · Gemological Testing Laboratory</p>
+  <h1>Three redesigns, one brief.</h1>
+  <p class="sub">Same content and structure (Home · Services · About · Verify), rendered in three distinct design languages. Open each and pick the direction you want to take forward.</p>
+
+  <div class="grid">
+    <a class="card" href="luxury/index.html">
+      <div class="swatch s1">SGTL</div>
+      <div class="body"><h2>1 · Luxury / Editorial</h2><p>Warm ivory, high-contrast serif, emerald &amp; gold. Reads premium and trustworthy.</p></div>
+    </a>
+    <a class="card" href="technical/index.html">
+      <div class="swatch s2">SGTL</div>
+      <div class="body"><h2>2 · Technical / Authoritative</h2><p>Cool white, grotesk + mono, cobalt accent, spec rows and data tables. Lab-credible.</p></div>
+    </a>
+    <a class="card" href="minimal/index.html">
+      <div class="swatch s3">SGTL</div>
+      <div class="body"><h2>3 · Modern Minimal</h2><p>Soft white, rounded sans, violet accent, bento grid, subtle motion. Contemporary.</p></div>
+    </a>
+  </div>
+
+  <footer>Static HTML + CSS, one small shared script for the verify demo. No build step, no framework — open any <code>index.html</code> in a browser.</footer>
+</main>
+</body>
+</html>
